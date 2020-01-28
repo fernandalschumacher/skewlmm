@@ -1,12 +1,13 @@
 Package: lmmsmsn
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Scale mixture of Skew-Normal Linear Mixed Models
 Version: 0.1.0
 Author: Fernanda L. Schumacher, Larissa A. Matos and Victor Hugo Lachos
 Maintainer: Fernanda L. Schumacher <fernandalschumacher@gmail.com>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Description: It fits scale mixture of skew-normal linear mixed models using an EM-type 
+algorithm, including some possibilities for modeling the within-subject dependence.
 License: MIT + file LICENSE
+Depends: R (>= 3.4.0)
 Encoding: UTF-8
 LazyData: true
 Imports: dplyr, moments, mvtnorm, nlme, numDeriv, purrr
