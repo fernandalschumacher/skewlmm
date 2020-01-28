@@ -120,122 +120,122 @@ smsn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "CI", tim
   obj.out
 }
 
-print.SMSN <- function(obj.smsn.lmm,...){
-  cat("Linear mixed models with distribution", obj.smsn.lmm$distr, "and dependency structure",obj.smsn.lmm$depStruct,"\n")
+print.SMSN <- function(x,...){
+  cat("Linear mixed models with distribution", x$distr, "and dependency structure",x$depStruct,"\n")
   cat("Call:\n")
-  print(obj.smsn.lmm$call)
+  print(x$call)
   cat("\nFixed:")
-  print(obj.smsn.lmm$formula$formFixed)
-  #print(obj.smsn.lmm$theta)
+  print(x$formula$formFixed)
+  #print(x$theta)
   cat("Random:")
-  print(obj.smsn.lmm$formula$formRandom)
+  print(x$formula$formRandom)
   cat("  Estimated variance (D):\n")
-  D1 = Dmatrix(obj.smsn.lmm$estimates$dsqrt)%*%Dmatrix(obj.smsn.lmm$estimates$dsqrt)
-  colnames(D1)=row.names(D1)= colnames(model.matrix(obj.smsn.lmm$formula$formRandom,data=obj.smsn.lmm$data))
+  D1 = Dmatrix(x$estimates$dsqrt)%*%Dmatrix(x$estimates$dsqrt)
+  colnames(D1)=row.names(D1)= colnames(model.matrix(x$formula$formRandom,data=x$data))
   print(D1)
   cat("\nEstimated parameters:\n")
-  if (!is.null(obj.smsn.lmm$std.error)) {
-    tab = round(rbind(obj.smsn.lmm$theta,obj.smsn.lmm$std.error),4)
-    colnames(tab) = names(obj.smsn.lmm$theta)
+  if (!is.null(x$std.error)) {
+    tab = round(rbind(x$theta,x$std.error),4)
+    colnames(tab) = names(x$theta)
     rownames(tab) = c("","s.e.")
   }
   else {
-    tab = round(rbind(obj.smsn.lmm$theta),4)
-    colnames(tab) = obj.smsn.lmm$theta
+    tab = round(rbind(x$theta),4)
+    colnames(tab) = x$theta
     rownames(tab) = c("")
   }
   print(tab)
   cat('\n')
   cat('Model selection criteria:\n')
-  critFin <- c(obj.smsn.lmm$loglik, obj.smsn.lmm$criteria$AIC, obj.smsn.lmm$criteria$BIC)
+  critFin <- c(x$loglik, x$criteria$AIC, x$criteria$BIC)
   critFin <- round(t(as.matrix(critFin)),digits=3)
   dimnames(critFin) <- list(c(""),c("logLik", "AIC", "BIC"))
   print(critFin)
   cat('\n')
-  cat('Number of observations:',obj.smsn.lmm$N,'\n')
-  cat('Number of groups:',obj.smsn.lmm$n,'\n')
+  cat('Number of observations:',x$N,'\n')
+  cat('Number of groups:',x$n,'\n')
 }
 
-summary.SMSN <- function(obj.smsn.lmm,confint.level=.95,...){
-  cat("Linear mixed models with distribution", obj.smsn.lmm$distr, "and dependency structure",obj.smsn.lmm$depStruct,"\n")
+summary.SMSN <- function(object,confint.level=.95,...){
+  cat("Linear mixed models with distribution", object$distr, "and dependency structure",object$depStruct,"\n")
   cat("Call:\n")
-  print(obj.smsn.lmm$call)
-  cat("\nDistribution", obj.smsn.lmm$distr)
-  if (obj.smsn.lmm$distr!="sn") cat(" with nu =", obj.smsn.lmm$estimates$nu,"\n")
+  print(object$call)
+  cat("\nDistribution", object$distr)
+  if (object$distr!="sn") cat(" with nu =", object$estimates$nu,"\n")
   cat("\nRandom effects: ")
-  print(obj.smsn.lmm$formula$formRandom)
+  print(object$formula$formRandom)
   cat("  Estimated variance (D):\n")
-  D1 = Dmatrix(obj.smsn.lmm$estimates$dsqrt)%*%Dmatrix(obj.smsn.lmm$estimates$dsqrt)
-  colnames(D1)=row.names(D1)= colnames(model.matrix(obj.smsn.lmm$formula$formRandom,data=obj.smsn.lmm$data))
+  D1 = Dmatrix(object$estimates$dsqrt)%*%Dmatrix(object$estimates$dsqrt)
+  colnames(D1)=row.names(D1)= colnames(model.matrix(object$formula$formRandom,data=object$data))
   print(D1)
   cat("\nFixed effects: ")
-  print(obj.smsn.lmm$formula$formFixed)
+  print(object$formula$formFixed)
   cat("with approximate confidence intervals\n")
-  if (!is.null(obj.smsn.lmm$std.error)) {
-    p<-length(obj.smsn.lmm$estimates$beta)
+  if (!is.null(object$std.error)) {
+    p<-length(object$estimates$beta)
     qIC <- qnorm(.5+confint.level/2)
-    ICtab <- cbind(obj.smsn.lmm$estimates$beta-qIC*obj.smsn.lmm$std.error[1:p],
-                  obj.smsn.lmm$estimates$beta+qIC*obj.smsn.lmm$std.error[1:p])
-    tab = (cbind(obj.smsn.lmm$estimates$beta,obj.smsn.lmm$std.error[1:p],
+    ICtab <- cbind(object$estimates$beta-qIC*object$std.error[1:p],
+                  object$estimates$beta+qIC*object$std.error[1:p])
+    tab = (cbind(object$estimates$beta,object$std.error[1:p],
                       ICtab))
-    rownames(tab) = names(obj.smsn.lmm$theta[1:p])
+    rownames(tab) = names(object$theta[1:p])
     colnames(tab) = c("Value","Std.error",paste0("IC ",confint.level*100,"% lower"),
                       paste0("IC ",confint.level*100,"% upper"))
   }
   else {
-    tab = (rbind(obj.smsn.lmm$theta))
-    colnames(tab) = names(obj.smsn.lmm$theta[1:p])
+    tab = (rbind(object$theta))
+    colnames(tab) = names(object$theta[1:p])
     rownames(tab) = c("Value")
   }
   print(tab)
-  cat("\nDependency structure:", obj.smsn.lmm$depStruct)
+  cat("\nDependency structure:", object$depStruct)
   cat("\n  Estimate(s):\n")
-  covParam <- c(obj.smsn.lmm$estimates$sigma2, obj.smsn.lmm$estimates$phi)
-  if (obj.smsn.lmm$depStruct=="CI") names(covParam) <- "sigma2"
+  covParam <- c(object$estimates$sigma2, object$estimates$phi)
+  if (object$depStruct=="CI") names(covParam) <- "sigma2"
   else names(covParam) <- c("sigma2",paste0("phi",1:(length(covParam)-1)))
   print(covParam)
-  cat("\nSkewness parameter estimate:", obj.smsn.lmm$estimates$lambda)
+  cat("\nSkewness parameter estimate:", object$estimates$lambda)
   cat('\n')
   cat('\nModel selection criteria:\n')
-  criteria <- c(obj.smsn.lmm$loglik, obj.smsn.lmm$criteria$AIC, obj.smsn.lmm$criteria$BIC)
+  criteria <- c(object$loglik, object$criteria$AIC, object$criteria$BIC)
   criteria <- round(t(as.matrix(criteria)),digits=3)
   dimnames(criteria) <- list(c(""),c("logLik", "AIC", "BIC"))
   print(criteria)
   cat('\n')
-  cat('Number of observations:',obj.smsn.lmm$N,'\n')
-  cat('Number of groups:',obj.smsn.lmm$n,'\n')
+  cat('Number of observations:',object$N,'\n')
+  cat('Number of groups:',object$n,'\n')
   invisible(list(varRandom=D1,varFixed=covParam,tableFixed=tab,criteria=criteria))
 }
 
-fitted.SMSN <- function(obj.smsn.lmm,...) obj.smsn.lmm$fitted
-ranef.SMSN <- function(obj.smsn.lmm,...) obj.smsn.lmm$random.effects
+fitted.SMSN <- function(object,...) object$fitted
+ranef.SMSN <- function(object,...) object$random.effects
 
-predict.SMSN <- function(obj.smsn.lmm,newData,...){
-  dataFit <- obj.smsn.lmm$data
-  formFixed <- obj.smsn.lmm$formula$formFixed
-  formRandom <- obj.smsn.lmm$formula$formRandom
-  groupVar<-obj.smsn.lmm$groupVar
-  timeVar <- obj.smsn.lmm$timeVar
+predict.SMSN <- function(object,newData,...){
+  dataFit <- object$data
+  formFixed <- object$formula$formFixed
+  formRandom <- object$formula$formRandom
+  groupVar<-object$groupVar
+  timeVar <- object$timeVar
   dataPred<- newData
   if (sum(!(c(all.vars(formFixed),all.vars(formRandom),groupVar,timeVar) %in% names(newData)))>0) stop("Variable not found in newData")
-  depStruct <- obj.smsn.lmm$depStruct
-  if (depStruct=="CI") obj.out <- predict.skew(formFixed,formRandom,dataFit,dataPred,groupVar,distr=obj.smsn.lmm$distr,theta=obj.smsn.lmm$theta)
-  if (depStruct=="ARp") obj.out <- predict.skewAR(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,distr=obj.smsn.lmm$distr,
-                                                  pAR=length(obj.smsn.lmm$estimates$phi),theta=obj.smsn.lmm$theta)
-  if (depStruct=="CS") obj.out <-predict.skewCS(formFixed,formRandom,dataFit,dataPred,groupVar,distr=obj.smsn.lmm$distr,theta=obj.smsn.lmm$theta)
-  if (depStruct=="DEC") obj.out <-predict.skewDEC(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,distr=obj.smsn.lmm$distr,theta=obj.smsn.lmm$theta)
-  if (depStruct=="CAR1") obj.out <-predict.skewCAR1(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,distr=obj.smsn.lmm$distr,theta=obj.smsn.lmm$theta)
+  depStruct <- object$depStruct
+  if (depStruct=="CI") obj.out <- predictf.skew(formFixed,formRandom,dataFit,dataPred,groupVar,distr=object$distr,theta=object$theta)
+  if (depStruct=="ARp") obj.out <- predictf.skewAR(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,distr=object$distr,
+                                                  pAR=length(object$estimates$phi),theta=object$theta)
+  if (depStruct=="CS") obj.out <-predictf.skewCS(formFixed,formRandom,dataFit,dataPred,groupVar,distr=object$distr,theta=object$theta)
+  if (depStruct=="DEC") obj.out <-predictf.skewDEC(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,distr=object$distr,theta=object$theta)
+  if (depStruct=="CAR1") obj.out <-predictf.skewCAR1(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,distr=object$distr,theta=object$theta)
   obj.out
 }
 
-errorVar<- function(times,obj.smsn.lmm=NULL,sigma2=NULL,depStruct=NULL,phi=NULL) {
-  if (is.null(obj.smsn.lmm)&is.null(depStruct)) stop("obj.smsn.lmm or depStruct must be provided")
-  if (is.null(obj.smsn.lmm)&is.null(sigma2)) stop("obj.smsn.lmm or sigma2 must be provided")
-  if (is.null(depStruct)) depStruct<-obj.smsn.lmm$depStruct
-  if (depStruct!="CI" & is.null(obj.smsn.lmm)&is.null(phi)) stop("obj.smsn.lmm or phi must be provided")
+errorVar<- function(times,object=NULL,sigma2=NULL,depStruct=NULL,phi=NULL) {
+  if (is.null(object)&is.null(depStruct)) stop("object or depStruct must be provided")
+  if (is.null(object)&is.null(sigma2)) stop("object or sigma2 must be provided")
+  if (is.null(depStruct)) depStruct<-object$depStruct
+  if (depStruct!="CI" & is.null(object)&is.null(phi)) stop("object or phi must be provided")
   if (!(depStruct %in% c("CI","ARp","CS","DEC","CAR1"))) stop("accepted depStruct: CI, ARp, CS, DEC or CAR1")
-  if (is.null(sigma2)) sigma2<-obj.smsn.lmm$estimates$sigma2
-  if (is.null(phi)&depStruct!="CI") phi<-obj.smsn.lmm$estimates$phi
+  if (is.null(sigma2)) sigma2<-object$estimates$sigma2
+  if (is.null(phi)&depStruct!="CI") phi<-object$estimates$phi
   if (depStruct=="ARp" & (any(!is.wholenumber(times))|any(times<=0))) stop("times must contain positive integer numbers when using ARp dependency")
   if (depStruct=="ARp" & any(tphitopi(phi)< -1|tphitopi(phi)>1)) stop("AR(p) non stationary, choose other phi")
   #

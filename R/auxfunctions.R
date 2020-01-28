@@ -1,18 +1,18 @@
-library(purrr)
-library(mvtnorm)
-library(MASS)
-library(dplyr)
-library(ggplot2)
-library(nlme)
-library(numDeriv)
-library(moments)
+#library(purrr)
+#library(mvtnorm)
+#library(MASS)
+#library(dplyr)
+#library(ggplot2)
+#library(nlme)
+#library(numDeriv)
+#library(moments)
 #source("InformationMatrix-v3.R")
 is.wholenumber <- function(x, tol1 = .Machine$double.eps^0.5)  abs(x - round(x)) < tol1
 ################################################################
 #Root of a symmetric matrix
 ################################################################
 matrix.sqrt <- function(A)
-{ 
+{
   if (length(A)==1) return(sqrt(A))
   else{
     sva <- svd(A)
@@ -38,7 +38,7 @@ revert_list <- function(ls) { # @Josh O'Brien
   # get sub-elements in same order
   x <- lapply(ls, `[`, names(ls[[1]]))
   # stack and reslice
-  apply(do.call(rbind, x), 2, as.list) 
+  apply(do.call(rbind, x), 2, as.list)
 }
 
 #transformation function: pi to phi
@@ -83,14 +83,14 @@ CovARp<-function(phi,ti) {
   return(as.matrix(Rn[ti,ti]))
 }
 
-# corr matriz of comp symmetry 
+# corr matriz of comp symmetry
 CovCS<-function(phi,n) {
   if (n==1) Rn <- matrix(1)
   else Rn<- toeplitz(c(1,rep(phi,n-1)))
   return(Rn)
 }
 
-# corr matriz of CAR1 
+# corr matriz of CAR1
 # CovDEC(phi,theta=1)
 
 # corr matriz of DEC
@@ -120,7 +120,7 @@ gerar_ind_smsn = function(ni,Sig,Di,beta,lambda,distr="sn",nu=NULL) {
   if (distr=="sn") {ui=1; c.=-sqrt(2/pi)}
   if (distr=="st") {ui=rgamma(1,nu/2,nu/2); c.=-sqrt(nu/pi)*gamma((nu-1)/2)/gamma(nu/2)}
   if (distr=="ss") {ui=rbeta(1,nu,1); c.=-sqrt(2/pi)*nu/(nu-.5)}
-  if (distr=="scn") {ui=ifelse(runif(1)<nu[1],nu[2],1); 
+  if (distr=="scn") {ui=ifelse(runif(1)<nu[1],nu[2],1);
   c.=-sqrt(2/pi)*(1+nu[1]*(nu[2]^(-.5)-1))}
   delta = lambda/as.numeric(sqrt(1+t(lambda)%*%(lambda)))
   Delta = matrix.sqrt(Di)%*%delta
@@ -147,8 +147,8 @@ ljnormalAR <-function(j,y,x,z,time,beta1,Gammab,Deltab,sigmae,phiAR){
   med<-x1%*%beta1 + c.*z1%*%Deltab
   njj = length(y1)
   Sigma=sigmae*CovARp(phiAR,t1)
-  Psi<-(z1)%*%(Gammab+Deltab%*%t(Deltab))%*%t(z1)+Sigma 
-  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med)) 
+  Psi<-(z1)%*%(Gammab+Deltab%*%t(Deltab))%*%t(z1)+Sigma
+  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med))
   Mtj2<-(1+t(Deltab)%*%t(z1)%*%solve(Sigma+z1%*%Gammab%*%t(z1))%*%z1%*%Deltab)^(-1)
   Ajj<-sqrt(Mtj2)*t(Deltab)%*%t(z1)%*%solve(Sigma+z1%*%Gammab%*%t(z1))%*%(y1-med)
   log(2*dmvnorm(y1,med,Psi)*pnorm(Ajj,0,1))
@@ -165,11 +165,11 @@ ljtAR <-function(j,nu,y,x,z,time,beta1,Gammab,Deltab,sigmae,phiAR){
   njj = length(y1)
   Sigma=sigmae*CovARp(phiAR,t1)
   Psi<-(z1)%*%(Gammab+Deltab%*%t(Deltab))%*%t(z1)+Sigma
-  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med)) 
+  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med))
   Mtj2<-(1+t(Deltab)%*%t(z1)%*%solve(Sigma+z1%*%Gammab%*%t(z1))%*%z1%*%Deltab)^(-1)
   Ajj<-as.numeric(sqrt(Mtj2)*t(Deltab)%*%t(z1)%*%solve(Sigma+z1%*%Gammab%*%t(z1))%*%(y1-med))
   dtj = gamma((nu+njj)/2)/gamma(nu/2)/pi^(njj/2)/sqrt(det(Psi))*nu^(-njj/2)*(dj/nu+1)^(-(njj+nu)/2)
-  #log(2*dmvt(y1,delta = med, sigma = Psi, df = nu,log=F)*pt(sqrt(nu+njj)*Ajj/sqrt(dj+nu),nu+njj))#veroST1(Psi,Ajj,dj,nu,pp=njj)) 
+  #log(2*dmvt(y1,delta = med, sigma = Psi, df = nu,log=F)*pt(sqrt(nu+njj)*Ajj/sqrt(dj+nu),nu+njj))#veroST1(Psi,Ajj,dj,nu,pp=njj))
   log(2*dtj*pt(sqrt(nu+njj)*Ajj/sqrt(dj+nu),nu+njj))
 }
 #
@@ -183,8 +183,8 @@ ljsAR <-function(j,nu,y,x,z,time,beta1,Gammab,Deltab,sigmae,phiAR){
   med<-x1%*%beta1 + c.*z1%*%Deltab
   njj = length(y1)
   Sigma=sigmae*CovARp(phiAR,t1)
-  Psi<-(z1)%*%(Gammab+Deltab%*%t(Deltab))%*%t(z1)+Sigma 
-  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med)) 
+  Psi<-(z1)%*%(Gammab+Deltab%*%t(Deltab))%*%t(z1)+Sigma
+  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med))
   Mtj2<-(1+t(Deltab)%*%t(z1)%*%solve(Sigma+z1%*%Gammab%*%t(z1))%*%z1%*%Deltab)^(-1)
   Ajj<-as.numeric(sqrt(Mtj2)*t(Deltab)%*%t(z1)%*%solve(Sigma+z1%*%Gammab%*%t(z1))%*%(y1-med))
   #f <- function(u) u^(nu - 1)*dmvnorm(y1,med,Psi/u)*pnorm(u^(1/2)*Ajj)
@@ -204,7 +204,7 @@ ljcnAR <-function(j,nu,y,x,z,time,beta1,Gammab,Deltab,sigmae,phiAR){
   njj = length(y1)
   Sigma=sigmae*CovARp(phiAR,t1)
   Psi<-(z1)%*%(Gammab+Deltab%*%t(Deltab))%*%t(z1)+Sigma
-  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med)) 
+  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med))
   Mtj2<-(1+t(Deltab)%*%t(z1)%*%solve(Sigma+z1%*%Gammab%*%t(z1))%*%z1%*%Deltab)^(-1)
   Ajj<-sqrt(Mtj2)*t(Deltab)%*%t(z1)%*%solve(Sigma+z1%*%Gammab%*%t(z1))%*%(y1-med)
   log(2*(nu[1]*dmvnorm(y1,med,(Psi/nu[2]))*pnorm(sqrt(nu[2])*Ajj,0,1)+
@@ -212,12 +212,12 @@ ljcnAR <-function(j,nu,y,x,z,time,beta1,Gammab,Deltab,sigmae,phiAR){
 }
 
 logveroAR = function(y,x,z,time,ind,beta1,sigmae,phiAR,D1,lambda,distr,nu){ #ind = indicadora de individuo
-  
+
   delta<-lambda/as.numeric(sqrt(1+t(lambda)%*%lambda));
   Deltab<-matrix.sqrt(D1)%*%delta
   Gammab<-D1-Deltab%*%t(Deltab)
   N <-length(ind)
-  
+
   if (distr=="sn") lv = sum(tapply(1:N,ind,ljnormalAR,y=y,x=x,z=z,time=time,beta1=beta1,Gammab=Gammab,Deltab=Deltab,sigmae=sigmae,phiAR=phiAR))
   else if (distr=="st") lv = sum(tapply(1:N,ind,ljtAR,nu=nu,y=y,x=x,z=z,time=time,beta1=beta1,Gammab=Gammab,Deltab=Deltab,sigmae=sigmae,phiAR=phiAR))
   else if (distr=="ss") lv = sum(tapply(1:N,ind,ljsAR,nu=nu,y=y,x=x,z=z,time=time,beta1=beta1,Gammab=Gammab,Deltab=Deltab,sigmae=sigmae,phiAR=phiAR))
@@ -225,13 +225,13 @@ logveroAR = function(y,x,z,time,ind,beta1,sigmae,phiAR,D1,lambda,distr,nu){ #ind
   lv
 }
 logveroARpi = function(y,x,z,time,ind,beta1,sigmae,piAR,D1,lambda,distr,nu){ #ind = indicadora de individuo
-  
+
   delta<-lambda/as.numeric(sqrt(1+t(lambda)%*%lambda));
   Deltab<-matrix.sqrt(D1)%*%delta
   Gammab<-D1-Deltab%*%t(Deltab)
   phiAR <- estphit(piAR)
   N <-length(ind)
-  
+
   if (distr=="sn") lv = sum(tapply(1:N,ind,ljnormalAR,y=y,x=x,z=z,time=time,beta1=beta1,Gammab=Gammab,Deltab=Deltab,sigmae=sigmae,phiAR=phiAR))
   else if (distr=="st") lv = sum(tapply(1:N,ind,ljtAR,nu=nu,y=y,x=x,z=z,time=time,beta1=beta1,Gammab=Gammab,Deltab=Deltab,sigmae=sigmae,phiAR=phiAR))
   else if (distr=="ss") lv = sum(tapply(1:N,ind,ljsAR,nu=nu,y=y,x=x,z=z,time=time,beta1=beta1,Gammab=Gammab,Deltab=Deltab,sigmae=sigmae,phiAR=phiAR))
@@ -273,7 +273,7 @@ emjAR = function(jseq, y, x, z,time, beta1, Gammab, Deltab, sigmae,piAR,zeta,dis
     if(calcbi){
       bi<-mediab+Lambda%*%zeta/as.numeric(sqrt(1+t(zeta)%*%Lambda%*%zeta))*as.numeric(dnorm(Ajj,0,1))/as.numeric(pnorm(Ajj,0,1))}
   }
-  
+
   if (distr=="st"){
     dtj = gamma((nu+nj)/2)/gamma(nu/2)/pi^(nj/2)/sqrt(det(Psi))*nu^(-nj/2)*(dj/nu+1)^(-(nj+nu)/2)
     denST = 2*dtj*pt(sqrt(nu+nj)*Ajj/sqrt(dj+nu),nu+nj)
@@ -286,7 +286,7 @@ emjAR = function(jseq, y, x, z,time, beta1, Gammab, Deltab, sigmae,piAR,zeta,dis
       bi<-mediab+Lambda%*%zeta/as.numeric(sqrt(1+t(zeta)%*%Lambda%*%zeta))*esper2
     }
   }
-  
+
   if (distr=="ss"){
     f2esp <- function(s) pnorm(s^.5*Ajj)*dgamma(s,nu+1+nj/2,dj/2)/pgamma(1,nu+1+nj/2,dj/2)
     EspVal <- integrate(f2esp,0,1)$value#mean(pnorm(S^(1/2)*Ajj))#
@@ -302,7 +302,7 @@ emjAR = function(jseq, y, x, z,time, beta1, Gammab, Deltab, sigmae,piAR,zeta,dis
       bi<-mediab+Lambda%*%zeta*esper2/as.numeric(sqrt(1+t(zeta)%*%Lambda%*%zeta))
     }
   }
-  
+
   if (distr=="scn"){
     fy<-as.numeric(2*(nu[1]*dmvnorm(y1,med,(Psi/nu[2]))*pnorm(nu[2]^(1/2)*Ajj,0,1)+
                         (1-nu[1])*dmvnorm(y1,med,Psi)*pnorm(Ajj,0,1)))
@@ -316,7 +316,7 @@ emjAR = function(jseq, y, x, z,time, beta1, Gammab, Deltab, sigmae,piAR,zeta,dis
       bi<-mediab+Lambda%*%zeta*esper2/as.numeric(sqrt(1+t(zeta)%*%Lambda%*%zeta))
     }
   }
-  
+
   sSigma = solve(Sigma)
   sRi = sSigma*sigmae
   Tbj<-solve(solve(Gammab)+t(z1)%*%sSigma%*%z1)
@@ -382,7 +382,7 @@ EM.SkewAR<- function(formFixed,formRandom,data,groupVar,pAR,timeVar,
   if (is.null(timeVar)) {
     time<- flatten_int(tapply(ind,ind,function(x.) seq_along(x.)))
   } else time <- data[,timeVar]
-  
+
   m<-n_distinct(ind)
   N<-length(ind)
   p<-ncol(x)
@@ -390,12 +390,12 @@ EM.SkewAR<- function(formFixed,formRandom,data,groupVar,pAR,timeVar,
   #
   if ((!is.null(phiAR)) & pAR!=length(phiAR)) stop("initial value from phi must be in agreement with pAR")
   if ((pAR%%1)!=0|pAR==0) stop("pAR must be integer greater than 1")
-  
+
   delta<-lambda/as.numeric(sqrt(1+t(lambda)%*%lambda))
   Deltab<-matrix.sqrt(D1)%*%delta
   Gammab<-D1-Deltab%*%t(Deltab)
-  zeta<-matrix.sqrt(solve(D1))%*%lambda 
-  
+  zeta<-matrix.sqrt(solve(D1))%*%lambda
+
   if (is.null(phiAR)) {
     lmeAR = try(lme(formFixed,random=~1|ind,data=data,correlation=corARMA(p=pAR,q=0)),silent=T)
     if (class(lmeAR)=="try-error") piAR =as.numeric(pacf(y-x%*%beta1,lag.max=pAR,plot=F)$acf)
@@ -407,19 +407,19 @@ EM.SkewAR<- function(formFixed,formRandom,data,groupVar,pAR,timeVar,
     }
   } else piAR = tphitopi(phiAR)
   if (any(piAR< -1 | piAR>1)) stop("invalid initial value from phi")
-  
+
   teta <- c(beta1,sigmae,Gammab[upper.tri(Gammab, diag = T)],Deltab,piAR,nu)
-  
+
   criterio<-10
   count<-0
   llji = logveroARpi(y, x, z, time,ind, beta1, sigmae,piAR, D1, lambda, distr, nu)
   if (is.nan(llji)|is.infinite(abs(llji))) stop("NaN/infinity initial likelihood")
-  
+
   while((criterio > precisao)&(count<max.iter)){
     #print(nu)
-    
+
     count <- count + 1
-    res_emj = revert_list(tapply(1:N,ind,emjAR,y=y, x=x, z=z,time=time, beta1=beta1, Gammab=Gammab, 
+    res_emj = revert_list(tapply(1:N,ind,emjAR,y=y, x=x, z=z,time=time, beta1=beta1, Gammab=Gammab,
                                  Deltab=Deltab, sigmae=sigmae,piAR=piAR,zeta=zeta, distr=distr,nu=nu,calcbi=calcbi))
     sum1 = Reduce("+",res_emj$sum1)
     sum2 = Reduce("+",res_emj$sum2)
@@ -427,9 +427,9 @@ EM.SkewAR<- function(formFixed,formRandom,data,groupVar,pAR,timeVar,
     sum4 = Reduce("+",res_emj$sum4)
     sum5 = Reduce("+",res_emj$sum5)
     ut2j = unlist(res_emj$ut2j,use.names = F)
-    
+
     if (calcbi) {bi = t(matrix(unlist(res_emj$bi),nrow=q1))}
-    
+
     beta1<-solve(sum1)%*%sum2
     sigmae<-as.numeric(sum3)/N
     Gammab<-sum4/m
@@ -437,16 +437,16 @@ EM.SkewAR<- function(formFixed,formRandom,data,groupVar,pAR,timeVar,
     #
     D1<-Gammab+Deltab%*%t(Deltab)
     lambda<-matrix.sqrt(solve(D1))%*%Deltab/as.numeric(sqrt(1-t(Deltab)%*%solve(D1)%*%Deltab))
-    zeta<-matrix.sqrt(solve(D1))%*%lambda 
+    zeta<-matrix.sqrt(solve(D1))%*%lambda
     #
-    piAR<- optim(piAR,lcAR,gr = NULL,method = "L-BFGS-B", lower =rep(-.9999,pAR), 
+    piAR<- optim(piAR,lcAR,gr = NULL,method = "L-BFGS-B", lower =rep(-.9999,pAR),
                  upper = rep(.9999,pAR),control = list(fnscale=-1),beta1=beta1,sigmae=sigmae,
                  y=y,x=x,z=z,time=time,ind=ind,u=res_emj$uj,ub=res_emj$ubj,ub2=res_emj$ub2j)$par
     #
     logvero1<-function(nu){logveroARpi(y, x, z,time, ind, beta1, sigmae,piAR, D1, lambda, distr, nu)}
-    
+
     if (distr=="sn"){ nu<-NULL} else
-    {nu <- optim(nu,(logvero1),gr = NULL,method = "L-BFGS-B", lower =lb, upper = lu,control = list(fnscale=-1))$par} 
+    {nu <- optim(nu,(logvero1),gr = NULL,method = "L-BFGS-B", lower =lb, upper = lu,control = list(fnscale=-1))$par}
     #
     param <- teta
     teta <- c(beta1,sigmae,Gammab[upper.tri(Gammab, diag = T)],Deltab,piAR,nu)
@@ -457,7 +457,7 @@ EM.SkewAR<- function(formFixed,formRandom,data,groupVar,pAR,timeVar,
     cat("Iteration ",count," of ",max.iter,"\r") #  criterium ",criterio," or ",criterio2,"\r")
     if (count==max.iter) message("\n maximum number of iterations reachead")
   }
-  
+
   cat("\n")
   dd<-matrix.sqrt(D1)[upper.tri(D1, diag = T)]
   phiAR=estphit(piAR)
@@ -465,16 +465,16 @@ EM.SkewAR<- function(formFixed,formRandom,data,groupVar,pAR,timeVar,
   if (is.null(colnames(x))) colnames(x) <- paste0("beta",1:p-1)
   if (distr=="sn") names(theta)<-c(colnames(x),"sigma2",paste0("phiAR",1:length(piAR)),paste0("Dsqrt",1:length(dd)),paste0("lambda",1:q1))
   else names(theta)<- c(colnames(x),"sigma2",paste0("phiAR",1:length(piAR)),paste0("Dsqrt",1:length(dd)),paste0("lambda",1:q1),paste0("nu",1:length(nu)))
-  
+
   obj.out <- list(theta=theta, iter = count,estimates=list(beta=as.numeric(beta1),sigma2=sigmae,
                                                   phi=phiAR,dsqrt=dd,lambda=as.numeric(lambda)))
-  
+
   if (distr != "sn") obj.out$estimates$nu = nu
   if(calcbi) {
     colnames(bi) <- colnames(z)
     obj.out$random.effects<- bi
   }
-  
+
   if (informa) {
     desvios<-try(InfmatrixAR(y,x,z,time,ind,beta1,sigmae,phiAR,D1,lambda,distr = distr,nu = nu),silent = T)
     if (class(desvios)=="try-error") {
@@ -487,14 +487,14 @@ EM.SkewAR<- function(formFixed,formRandom,data,groupVar,pAR,timeVar,
     }
   }
   obj.out$loglik <-as.numeric(llji)
-  
+
   tf = Sys.time()
   obj.out$elapsedTime = as.numeric(difftime(tf,ti,units="secs"))
   obj.out$error=criterio
   obj.out
 }
 
-predict.skewAR<- function(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,distr,pAR,theta){
+predictf.skewAR<- function(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,distr,pAR,theta){
   dataPred[,all.vars(formFixed)[1]] <- 0
   dataFit$ind <-dataFit[,groupVar]
   dataPred$ind <-dataPred[,groupVar]
@@ -520,7 +520,7 @@ predict.skewAR<- function(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar
   delta<-lambda/as.numeric(sqrt(1+t(lambda)%*%lambda))
   Deltab<-D1sqrt%*%delta
   Gammab<-D1-Deltab%*%t(Deltab)
-  zeta<-matrix.sqrt(solve(D1))%*%lambda 
+  zeta<-matrix.sqrt(solve(D1))%*%lambda
   ypred <- numeric(length = nrow(dataPred))
   timepred <- numeric(length = nrow(dataPred))
   xpred<-matrix(nrow= nrow(dataPred),ncol=p)
@@ -541,7 +541,7 @@ predict.skewAR<- function(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar
     if (is.null(timeVar)) {
       dataFitj$time<- seqFit
       dataPredj$time<- seqPred
-    } 
+    }
     dataPlus <- rbind(dataFitj,dataPredj)
     #
     xPlus1 <- model.matrix(formFixed,data=dataPlus)
@@ -591,7 +591,7 @@ predict.skewAR<- function(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar
     ypredj <- mu2.1 + tau1/as.numeric(sqrt(1+t(vj[seqPred])%*%Psi22.1%*%vj[seqPred]))*Psi22.1%*%vj[seqPred]
     ypred[dataPred$ind==indj] <- ypredj
     xpred[dataPred$ind==indj,] <- matrix(xPlus1[seqPred,],ncol=ncol(xPlus1))
-    timepred[dataPred$ind==indj] <- dataPredj$time 
+    timepred[dataPred$ind==indj] <- dataPredj$time
   }
   colnames(xpred) = colnames(xPlus1)
   if (all(xpred[,1]==1)) xpred=xpred[,-1]
@@ -599,7 +599,7 @@ predict.skewAR<- function(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar
 }
 
 ################################################################
-#Log-likelihood - independent 
+#Log-likelihood - independent
 ################################################################
 ljnormal <-function(j,y,x,z,beta1,Gammab,Deltab,sigmae){
   c. = -sqrt(2/pi)
@@ -610,7 +610,7 @@ ljnormal <-function(j,y,x,z,beta1,Gammab,Deltab,sigmae){
   med<-x1%*%beta1+ c.*z1%*%Deltab
   njj = length(y1)
   Psi<-(z1)%*%(Gammab+Deltab%*%t(Deltab))%*%t(z1)+sigmae*diag(njj) #z1 D1 z1^t + sig2*I_nj ??
-  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med)) 
+  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med))
   Mtj2<-(1+t(Deltab)%*%t(z1)%*%solve(sigmae*diag(njj)+z1%*%Gammab%*%t(z1))%*%z1%*%Deltab)^(-1)
   Ajj<-sqrt(Mtj2)*t(Deltab)%*%t(z1)%*%solve(sigmae*diag(njj)+z1%*%Gammab%*%t(z1))%*%(y1-med)
   log(2*dmvnorm(y1,med,Psi)*pnorm(Ajj,0,1))
@@ -624,12 +624,12 @@ ljt <-function(j,nu,y,x,z,beta1,Gammab,Deltab,sigmae){
   z1=matrix(z[j ,  ],ncol=q1)
   med<-x1%*%beta1+ c.*z1%*%Deltab
   njj = length(y1)
-  Psi<-(z1)%*%(Gammab+Deltab%*%t(Deltab))%*%t(z1)+sigmae*diag(njj) 
-  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med)) 
+  Psi<-(z1)%*%(Gammab+Deltab%*%t(Deltab))%*%t(z1)+sigmae*diag(njj)
+  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med))
   Mtj2<-(1+t(Deltab)%*%t(z1)%*%solve(sigmae*diag(njj)+z1%*%Gammab%*%t(z1))%*%z1%*%Deltab)^(-1)
   Ajj<-as.numeric(sqrt(Mtj2)*t(Deltab)%*%t(z1)%*%solve(sigmae*diag(njj)+z1%*%Gammab%*%t(z1))%*%(y1-med))
   dtj = gamma((nu+njj)/2)/gamma(nu/2)/pi^(njj/2)/sqrt(det(Psi))*nu^(-njj/2)*(dj/nu+1)^(-(njj+nu)/2)
-  #log(2*dmvt(y1,delta = med, sigma = Psi, df = nu,log=F)*pt(sqrt(nu+njj)*Ajj/sqrt(dj+nu),nu+njj))#veroST1(Psi,Ajj,dj,nu,pp=njj)) 
+  #log(2*dmvt(y1,delta = med, sigma = Psi, df = nu,log=F)*pt(sqrt(nu+njj)*Ajj/sqrt(dj+nu),nu+njj))#veroST1(Psi,Ajj,dj,nu,pp=njj))
   log(2*dtj*pt(sqrt(nu+njj)*Ajj/sqrt(dj+nu),nu+njj))
 }
 #
@@ -641,8 +641,8 @@ ljs <-function(j,nu,y,x,z,beta1,Gammab,Deltab,sigmae){
   z1=matrix(z[j ,  ],ncol=q1)
   med<-x1%*%beta1+ c.*z1%*%Deltab
   njj = length(y1)
-  Psi<-(z1)%*%(Gammab+Deltab%*%t(Deltab))%*%t(z1)+sigmae*diag(njj) 
-  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med)) 
+  Psi<-(z1)%*%(Gammab+Deltab%*%t(Deltab))%*%t(z1)+sigmae*diag(njj)
+  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med))
   Mtj2<-(1+t(Deltab)%*%t(z1)%*%solve(sigmae*diag(njj)+z1%*%Gammab%*%t(z1))%*%z1%*%Deltab)^(-1)
   Ajj<-as.numeric(sqrt(Mtj2)*t(Deltab)%*%t(z1)%*%solve(sigmae*diag(njj)+z1%*%Gammab%*%t(z1))%*%(y1-med))
   #f <- function(u) u^(nu - 1)*dmvnorm(y1,med,Psi/u)*pnorm(u^(1/2)*Ajj)
@@ -660,7 +660,7 @@ ljcn <-function(j,nu,y,x,z,beta1,Gammab,Deltab,sigmae){
   med<-x1%*%beta1+ c.*z1%*%Deltab
   njj = length(y1)
   Psi<-(z1)%*%(Gammab+Deltab%*%t(Deltab))%*%t(z1)+sigmae*diag(njj)
-  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med)) 
+  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med))
   Mtj2<-(1+t(Deltab)%*%t(z1)%*%solve(sigmae*diag(njj)+z1%*%Gammab%*%t(z1))%*%z1%*%Deltab)^(-1)
   Ajj<-sqrt(Mtj2)*t(Deltab)%*%t(z1)%*%solve(sigmae*diag(njj)+z1%*%Gammab%*%t(z1))%*%(y1-med)
   log(2*(nu[1]*dmvnorm(y1,med,(Psi/nu[2]))*pnorm(sqrt(nu[2])*Ajj,0,1)+
@@ -671,11 +671,11 @@ logvero = function(y,x,z,ind,beta1,sigmae,D1,lambda,distr,nu){ #ind = indicadora
   N<-length(ind)
   p<-dim(x)[2]
   q1<-dim(z)[2]
-  
+
   delta<-lambda/as.numeric(sqrt(1+t(lambda)%*%lambda));
   Deltab<-matrix.sqrt(D1)%*%delta
   Gammab<-D1-Deltab%*%t(Deltab)
-  
+
   if (distr=="sn") lv = sum(tapply(1:N,ind,ljnormal,y=y,x=x,z=z,beta1=beta1,Gammab=Gammab,Deltab=Deltab,sigmae=sigmae))
   else if (distr=="st") lv = sum(tapply(1:N,ind,ljt,nu=nu,y=y,x=x,z=z,beta1=beta1,Gammab=Gammab,Deltab=Deltab,sigmae=sigmae))
   else if (distr=="ss") lv = sum(tapply(1:N,ind,ljs,nu=nu,y=y,x=x,z=z,beta1=beta1,Gammab=Gammab,Deltab=Deltab,sigmae=sigmae))
@@ -684,7 +684,7 @@ logvero = function(y,x,z,ind,beta1,sigmae,D1,lambda,distr,nu){ #ind = indicadora
 }
 
 ##############################################################################
-# EM - independent 
+# EM - independent
 ##############################################################################
 emj = function(jseq, y, x, z, beta1, Gammab, Deltab, sigmae,zeta,distr,nu,calcbi) {
   if (distr=="sn") c.=-sqrt(2/pi)
@@ -715,7 +715,7 @@ emj = function(jseq, y, x, z, beta1, Gammab, Deltab, sigmae,zeta,distr,nu,calcbi
     if(calcbi){
       bi<-mediab+Lambda%*%zeta/as.numeric(sqrt(1+t(zeta)%*%Lambda%*%zeta))*as.numeric(dnorm(Ajj,0,1))/as.numeric(pnorm(Ajj,0,1))}
   }
-  
+
   if (distr=="st"){
     dtj = gamma((nu+nj)/2)/gamma(nu/2)/pi^(nj/2)/sqrt(det(Psi))*nu^(-nj/2)*(dj/nu+1)^(-(nj+nu)/2)
     denST = 2*dtj*pt(sqrt(nu+nj)*Ajj/sqrt(dj+nu),nu+nj)
@@ -728,7 +728,7 @@ emj = function(jseq, y, x, z, beta1, Gammab, Deltab, sigmae,zeta,distr,nu,calcbi
       bi<-mediab+Lambda%*%zeta/as.numeric(sqrt(1+t(zeta)%*%Lambda%*%zeta))*esper2
     }
   }
-  
+
   if (distr=="ss"){
     f2esp <- function(s) pnorm(s^.5*Ajj)*dgamma(s,nu+1+nj/2,dj/2)/pgamma(1,nu+1+nj/2,dj/2)
     EspVal <- integrate(f2esp,0,1)$value#mean(pnorm(S^(1/2)*Ajj))#
@@ -744,7 +744,7 @@ emj = function(jseq, y, x, z, beta1, Gammab, Deltab, sigmae,zeta,distr,nu,calcbi
       bi<-mediab+Lambda%*%zeta*esper2/as.numeric(sqrt(1+t(zeta)%*%Lambda%*%zeta))
     }
   }
-  
+
   if (distr=="scn"){
     fy<-as.numeric(2*(nu[1]*dmvnorm(y1,med,(Psi/nu[2]))*pnorm(nu[2]^(1/2)*Ajj,0,1)+
                         (1-nu[1])*dmvnorm(y1,med,Psi)*pnorm(Ajj,0,1)))
@@ -758,7 +758,7 @@ emj = function(jseq, y, x, z, beta1, Gammab, Deltab, sigmae,zeta,distr,nu,calcbi
       bi<-mediab+Lambda%*%zeta*esper2/as.numeric(sqrt(1+t(zeta)%*%Lambda%*%zeta))
     }
   }
-  
+
   Tbj<-solve(solve(Gammab)+t(z1)%*%z1/sigmae)
   r<-Tbj%*%t(z1)%*%(y1-x1%*%beta1)/sigmae
   s1<-(diag(q1)-Tbj%*%t(z1)%*%z1/sigmae)%*%Deltab
@@ -798,19 +798,19 @@ EM.Skew<- function(formFixed,formRandom,data,groupVar,distr,beta1,sigmae,D1,lamb
   delta<-lambda/as.numeric(sqrt(1+t(lambda)%*%lambda))
   Deltab<-matrix.sqrt(D1)%*%delta
   Gammab<-D1-Deltab%*%t(Deltab)
-  zeta<-matrix.sqrt(solve(D1))%*%lambda 
-  
+  zeta<-matrix.sqrt(solve(D1))%*%lambda
+
   teta <- c(beta1,sigmae,Gammab[upper.tri(Gammab, diag = T)],Deltab,nu)
-  
+
   criterio<-10
   count<-0
   llji = logvero(y, x, z, ind, beta1, sigmae, D1, lambda, distr, nu)
   if (is.nan(llji)|is.infinite(abs(llji))) stop("NaN/infinity initial likelihood")
-  
+
   while((criterio > precisao)&(count<max.iter)){
-    
+
     count <- count + 1
-    res_emj = revert_list(tapply(1:N,ind,emj,y=y, x=x, z=z, beta1=beta1, Gammab=Gammab, 
+    res_emj = revert_list(tapply(1:N,ind,emj,y=y, x=x, z=z, beta1=beta1, Gammab=Gammab,
                                  Deltab=Deltab, sigmae=sigmae,zeta=zeta, distr=distr,nu=nu,calcbi=calcbi))
     sum1 = Reduce("+",res_emj$sum1)
     sum2 = Reduce("+",res_emj$sum2)
@@ -820,7 +820,7 @@ EM.Skew<- function(formFixed,formRandom,data,groupVar,distr,beta1,sigmae,D1,lamb
     ut2j = unlist(res_emj$ut2j,use.names = F)
     uj = unlist(res_emj$uj,use.names = F)
     if (calcbi) {bi = t(matrix(unlist(res_emj$bi),nrow=q1))}
-    
+
     beta1<-solve(sum1)%*%sum2
     sigmae<-as.numeric(sum3)/N
     Gammab<-sum4/m
@@ -828,14 +828,14 @@ EM.Skew<- function(formFixed,formRandom,data,groupVar,distr,beta1,sigmae,D1,lamb
     #
     D1<-Gammab+Deltab%*%t(Deltab)
     lambda<-matrix.sqrt(solve(D1))%*%Deltab/as.numeric(sqrt(1-t(Deltab)%*%solve(D1)%*%Deltab))
-    zeta<-matrix.sqrt(solve(D1))%*%lambda 
+    zeta<-matrix.sqrt(solve(D1))%*%lambda
     #
     logvero1<-function(nu){logvero(y, x, z, ind, beta1, sigmae, D1, lambda, distr, nu)}
-    
+
     if (distr=="sn"){ nu<-NULL} else
     {
       nu <- optim(nu,(logvero1),gr = NULL,method = "L-BFGS-B", lower =lb, upper = lu,control = list(fnscale=-1))$par
-    } 
+    }
     param <- teta
     teta <- c(beta1,sigmae,Gammab[upper.tri(Gammab, diag = T)],Deltab,nu)
     criterio2 <- as.numeric(sqrt((teta-param)%*%(teta-param)))
@@ -851,7 +851,7 @@ EM.Skew<- function(formFixed,formRandom,data,groupVar,distr,beta1,sigmae,D1,lamb
   if (is.null(colnames(x))) colnames(x) <- paste0("beta",1:p-1)
   if (distr=="sn") names(theta)<-c(colnames(x),"sigma2",paste0("Dsqrt",1:length(dd)),paste0("lambda",1:q1))
   else names(theta)<- c(colnames(x),"sigma2",paste0("Dsqrt",1:length(dd)),paste0("lambda",1:q1),paste0("nu",1:length(nu)))
-  
+
   obj.out <- list(theta=theta, iter = count,estimates=list(beta=as.numeric(beta1),sigma2=sigmae,
                                                            dsqrt=dd,lambda=as.numeric(lambda)))
   if (distr != "sn") obj.out$estimates$nu = nu
@@ -871,7 +871,7 @@ EM.Skew<- function(formFixed,formRandom,data,groupVar,distr,beta1,sigmae,D1,lamb
     }
   }
   obj.out$loglik <-as.numeric(llji)
-  
+
   tf = Sys.time()
   obj.out$elapsedTime = as.numeric(difftime(tf,ti,units="secs"))
   obj.out$error=criterio
@@ -879,7 +879,7 @@ EM.Skew<- function(formFixed,formRandom,data,groupVar,distr,beta1,sigmae,D1,lamb
   obj.out
 }
 
-predict.skew<- function(formFixed,formRandom,dataFit,dataPred,groupVar,distr,theta){
+predictf.skew<- function(formFixed,formRandom,dataFit,dataPred,groupVar,distr,theta){
   dataPred[,all.vars(formFixed)[1]] <- 0
   dataFit$ind <-dataFit[,groupVar]
   dataPred$ind <-dataPred[,groupVar]
@@ -902,7 +902,7 @@ predict.skew<- function(formFixed,formRandom,dataFit,dataPred,groupVar,distr,the
   delta<-lambda/as.numeric(sqrt(1+t(lambda)%*%lambda))
   Deltab<-D1sqrt%*%delta
   Gammab<-D1-Deltab%*%t(Deltab)
-  zeta<-matrix.sqrt(solve(D1))%*%lambda 
+  zeta<-matrix.sqrt(solve(D1))%*%lambda
   ypred <- numeric(length = nrow(dataPred))
   dataPred$ind <- droplevels(dataPred$ind)
   xpred<-matrix(nrow= nrow(dataPred),ncol=p)
@@ -981,8 +981,8 @@ ljnormalCS <-function(j,y,x,z,beta1,Gammab,Deltab,sigmae,phiCS){
   med<-x1%*%beta1 + c.*z1%*%Deltab
   njj = length(y1)
   Sigma=sigmae*CovCS(phiCS,njj)#CovARp(phiAR,t1)
-  Psi<-(z1)%*%(Gammab+Deltab%*%t(Deltab))%*%t(z1)+Sigma 
-  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med)) 
+  Psi<-(z1)%*%(Gammab+Deltab%*%t(Deltab))%*%t(z1)+Sigma
+  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med))
   Mtj2<-(1+t(Deltab)%*%t(z1)%*%solve(Sigma+z1%*%Gammab%*%t(z1))%*%z1%*%Deltab)^(-1)
   Ajj<-sqrt(Mtj2)*t(Deltab)%*%t(z1)%*%solve(Sigma+z1%*%Gammab%*%t(z1))%*%(y1-med)
   log(2*dmvnorm(y1,med,Psi)*pnorm(Ajj,0,1))
@@ -998,11 +998,11 @@ ljtCS <-function(j,nu,y,x,z,beta1,Gammab,Deltab,sigmae,phiCS){
   njj = length(y1)
   Sigma=sigmae*CovCS(phiCS,njj)
   Psi<-(z1)%*%(Gammab+Deltab%*%t(Deltab))%*%t(z1)+Sigma
-  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med)) 
+  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med))
   Mtj2<-(1+t(Deltab)%*%t(z1)%*%solve(Sigma+z1%*%Gammab%*%t(z1))%*%z1%*%Deltab)^(-1)
   Ajj<-as.numeric(sqrt(Mtj2)*t(Deltab)%*%t(z1)%*%solve(Sigma+z1%*%Gammab%*%t(z1))%*%(y1-med))
   dtj = gamma((nu+njj)/2)/gamma(nu/2)/pi^(njj/2)/sqrt(det(Psi))*nu^(-njj/2)*(dj/nu+1)^(-(njj+nu)/2)
-  #log(2*dmvt(y1,delta = med, sigma = Psi, df = nu,log=F)*pt(sqrt(nu+njj)*Ajj/sqrt(dj+nu),nu+njj))#veroST1(Psi,Ajj,dj,nu,pp=njj)) 
+  #log(2*dmvt(y1,delta = med, sigma = Psi, df = nu,log=F)*pt(sqrt(nu+njj)*Ajj/sqrt(dj+nu),nu+njj))#veroST1(Psi,Ajj,dj,nu,pp=njj))
   log(2*dtj*pt(sqrt(nu+njj)*Ajj/sqrt(dj+nu),nu+njj))
 }
 #
@@ -1015,8 +1015,8 @@ ljsCS <-function(j,nu,y,x,z,beta1,Gammab,Deltab,sigmae,phiCS){
   med<-x1%*%beta1 + c.*z1%*%Deltab
   njj = length(y1)
   Sigma=sigmae*CovCS(phiCS,njj)
-  Psi<-(z1)%*%(Gammab+Deltab%*%t(Deltab))%*%t(z1)+Sigma 
-  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med)) 
+  Psi<-(z1)%*%(Gammab+Deltab%*%t(Deltab))%*%t(z1)+Sigma
+  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med))
   Mtj2<-(1+t(Deltab)%*%t(z1)%*%solve(Sigma+z1%*%Gammab%*%t(z1))%*%z1%*%Deltab)^(-1)
   Ajj<-as.numeric(sqrt(Mtj2)*t(Deltab)%*%t(z1)%*%solve(Sigma+z1%*%Gammab%*%t(z1))%*%(y1-med))
   #f <- function(u) u^(nu - 1)*dmvnorm(y1,med,Psi/u)*pnorm(u^(1/2)*Ajj)
@@ -1035,7 +1035,7 @@ ljcnCS <-function(j,nu,y,x,z,beta1,Gammab,Deltab,sigmae,phiCS){
   njj = length(y1)
   Sigma=sigmae*CovCS(phiCS,njj)
   Psi<-(z1)%*%(Gammab+Deltab%*%t(Deltab))%*%t(z1)+Sigma
-  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med)) 
+  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med))
   Mtj2<-(1+t(Deltab)%*%t(z1)%*%solve(Sigma+z1%*%Gammab%*%t(z1))%*%z1%*%Deltab)^(-1)
   Ajj<-sqrt(Mtj2)*t(Deltab)%*%t(z1)%*%solve(Sigma+z1%*%Gammab%*%t(z1))%*%(y1-med)
   log(2*(nu[1]*dmvnorm(y1,med,(Psi/nu[2]))*pnorm(sqrt(nu[2])*Ajj,0,1)+
@@ -1043,12 +1043,12 @@ ljcnCS <-function(j,nu,y,x,z,beta1,Gammab,Deltab,sigmae,phiCS){
 }
 
 logveroCS = function(y,x,z,ind,beta1,sigmae,phiCS,D1,lambda,distr,nu){ #ind = indicadora de individuo
-  
+
   delta<-lambda/as.numeric(sqrt(1+t(lambda)%*%lambda));
   Deltab<-matrix.sqrt(D1)%*%delta
   Gammab<-D1-Deltab%*%t(Deltab)
   N <-length(ind)
-  
+
   if (distr=="sn") lv = sum(tapply(1:N,ind,ljnormalCS,y=y,x=x,z=z,beta1=beta1,Gammab=Gammab,Deltab=Deltab,sigmae=sigmae,phiCS=phiCS))
   else if (distr=="st") lv = sum(tapply(1:N,ind,ljtCS,nu=nu,y=y,x=x,z=z,beta1=beta1,Gammab=Gammab,Deltab=Deltab,sigmae=sigmae,phiCS=phiCS))
   else if (distr=="ss") lv = sum(tapply(1:N,ind,ljsCS,nu=nu,y=y,x=x,z=z,beta1=beta1,Gammab=Gammab,Deltab=Deltab,sigmae=sigmae,phiCS=phiCS))
@@ -1089,7 +1089,7 @@ emjCS = function(jseq, y, x, z, beta1, Gammab, Deltab, sigmae,phiCS,zeta,distr,n
     if(calcbi){
       bi<-mediab+Lambda%*%zeta/as.numeric(sqrt(1+t(zeta)%*%Lambda%*%zeta))*as.numeric(dnorm(Ajj,0,1))/as.numeric(pnorm(Ajj,0,1))}
   }
-  
+
   if (distr=="st"){
     dtj = gamma((nu+nj)/2)/gamma(nu/2)/pi^(nj/2)/sqrt(det(Psi))*nu^(-nj/2)*(dj/nu+1)^(-(nj+nu)/2)
     denST = 2*dtj*pt(sqrt(nu+nj)*Ajj/sqrt(dj+nu),nu+nj)
@@ -1102,7 +1102,7 @@ emjCS = function(jseq, y, x, z, beta1, Gammab, Deltab, sigmae,phiCS,zeta,distr,n
       bi<-mediab+Lambda%*%zeta/as.numeric(sqrt(1+t(zeta)%*%Lambda%*%zeta))*esper2
     }
   }
-  
+
   if (distr=="ss"){
     f2esp <- function(s) pnorm(s^.5*Ajj)*dgamma(s,nu+1+nj/2,dj/2)/pgamma(1,nu+1+nj/2,dj/2)
     EspVal <- integrate(f2esp,0,1)$value#mean(pnorm(S^(1/2)*Ajj))#
@@ -1118,7 +1118,7 @@ emjCS = function(jseq, y, x, z, beta1, Gammab, Deltab, sigmae,phiCS,zeta,distr,n
       bi<-mediab+Lambda%*%zeta*esper2/as.numeric(sqrt(1+t(zeta)%*%Lambda%*%zeta))
     }
   }
-  
+
   if (distr=="scn"){
     fy<-as.numeric(2*(nu[1]*dmvnorm(y1,med,(Psi/nu[2]))*pnorm(nu[2]^(1/2)*Ajj,0,1)+
                         (1-nu[1])*dmvnorm(y1,med,Psi)*pnorm(Ajj,0,1)))
@@ -1132,7 +1132,7 @@ emjCS = function(jseq, y, x, z, beta1, Gammab, Deltab, sigmae,phiCS,zeta,distr,n
       bi<-mediab+Lambda%*%zeta*esper2/as.numeric(sqrt(1+t(zeta)%*%Lambda%*%zeta))
     }
   }
-  
+
   sSigma = solve(Sigma)
   sRi = sSigma*sigmae
   Tbj<-solve(solve(Gammab)+t(z1)%*%sSigma%*%z1)
@@ -1202,28 +1202,28 @@ EM.SkewCS<- function(formFixed,formRandom,data,groupVar,
   #
   if (!is.null(phiCS) & length(phiCS!=1)) stop ("initial value from phi must have length 1 or be NULL")
   if (!is.null(phiCS)) if (phiCS<=0 | phiCS>=1) stop("0<initialValue$phi<1 needed")
-  
+
   delta<-lambda/as.numeric(sqrt(1+t(lambda)%*%lambda))
   Deltab<-matrix.sqrt(D1)%*%delta
   Gammab<-D1-Deltab%*%t(Deltab)
-  zeta<-matrix.sqrt(solve(D1))%*%lambda 
-  
+  zeta<-matrix.sqrt(solve(D1))%*%lambda
+
   if (is.null(phiCS)) {
     phiCS = abs(as.numeric(pacf(y-x%*%beta1,lag.max=1,plot=F)$acf))
-  } 
-  
+  }
+
   teta <- c(beta1,sigmae,Gammab[upper.tri(Gammab, diag = T)],Deltab,phiCS,nu)
-  
+
   criterio<-10
   count<-0
   llji = logveroCS(y, x, z,ind, beta1, sigmae,phiCS, D1, lambda, distr, nu)
   if (is.nan(llji)|is.infinite(abs(llji))) stop("NaN/infinity initial likelihood")
-  
+
   while((criterio > precisao)&(count<max.iter)){
     #print(nu)
-    
+
     count <- count + 1
-    res_emj = revert_list(tapply(1:N,ind,emjCS,y=y, x=x, z=z, beta1=beta1, Gammab=Gammab, 
+    res_emj = revert_list(tapply(1:N,ind,emjCS,y=y, x=x, z=z, beta1=beta1, Gammab=Gammab,
                                  Deltab=Deltab, sigmae=sigmae,phiCS=phiCS,zeta=zeta, distr=distr,nu=nu,calcbi=calcbi))
     sum1 = Reduce("+",res_emj$sum1)
     sum2 = Reduce("+",res_emj$sum2)
@@ -1231,9 +1231,9 @@ EM.SkewCS<- function(formFixed,formRandom,data,groupVar,
     sum4 = Reduce("+",res_emj$sum4)
     sum5 = Reduce("+",res_emj$sum5)
     ut2j = unlist(res_emj$ut2j,use.names = F)
-    
+
     if (calcbi) {bi = t(matrix(unlist(res_emj$bi),nrow=q1))}
-    
+
     beta1<-solve(sum1)%*%sum2
     sigmae<-as.numeric(sum3)/N
     Gammab<-sum4/m
@@ -1241,16 +1241,16 @@ EM.SkewCS<- function(formFixed,formRandom,data,groupVar,
     #
     D1<-Gammab+Deltab%*%t(Deltab)
     lambda<-matrix.sqrt(solve(D1))%*%Deltab/as.numeric(sqrt(1-t(Deltab)%*%solve(D1)%*%Deltab))
-    zeta<-matrix.sqrt(solve(D1))%*%lambda 
+    zeta<-matrix.sqrt(solve(D1))%*%lambda
     #
-    phiCS <- optim(phiCS,lcCS,gr = NULL,method = "L-BFGS-B", lower =0, 
+    phiCS <- optim(phiCS,lcCS,gr = NULL,method = "L-BFGS-B", lower =0,
                    upper = .9999,control = list(fnscale=-1),beta1=beta1,sigmae=sigmae,
                    y=y,x=x,z=z,ind=ind,u=res_emj$uj,ub=res_emj$ubj,ub2=res_emj$ub2j)$par
     #
     logvero1<-function(nu){logveroCS(y, x, z, ind, beta1, sigmae,phiCS, D1, lambda, distr, nu)}
-    
+
     if (distr=="sn"){ nu<-NULL} else
-    {nu <- optim(nu,(logvero1),gr = NULL,method = "L-BFGS-B", lower =lb, upper = lu,control = list(fnscale=-1))$par} 
+    {nu <- optim(nu,(logvero1),gr = NULL,method = "L-BFGS-B", lower =lb, upper = lu,control = list(fnscale=-1))$par}
     #
     param <- teta
     teta <- c(beta1,sigmae,Gammab[upper.tri(Gammab, diag = T)],Deltab,phiCS,nu)
@@ -1261,14 +1261,14 @@ EM.SkewCS<- function(formFixed,formRandom,data,groupVar,
     cat("Iteration ",count,"  of ",max.iter,"\r")
     if (count==max.iter) message("\n maximum number of iterations reachead")
   }
-  
+
   cat("\n")
   dd<-matrix.sqrt(D1)[upper.tri(D1, diag = T)]
   theta = c(beta1,sigmae,phiCS,dd,lambda,nu)
   if (is.null(colnames(x))) colnames(x) <- paste0("beta",1:p-1)
   if (distr=="sn") names(theta)<-c(colnames(x),"sigma2","phiCS",paste0("Dsqrt",1:length(dd)),paste0("lambda",1:q1))
   else names(theta)<- c(colnames(x),"sigma2","phiCS",paste0("Dsqrt",1:length(dd)),paste0("lambda",1:q1),paste0("nu",1:length(nu)))
-  
+
   obj.out <- list(theta=theta, iter = count,estimates=list(beta=as.numeric(beta1),sigma2=sigmae,
                                                 phi=phiCS,dsqrt=dd,lambda=as.numeric(lambda)))
   if (distr != "sn") obj.out$estimates$nu = nu
@@ -1276,7 +1276,7 @@ EM.SkewCS<- function(formFixed,formRandom,data,groupVar,
     colnames(bi) <- colnames(z)
     obj.out$random.effects<- bi
   }
-  
+
   if (informa) {
     desvios<-try(InfmatrixCS(y,x,z,ind,beta1,sigmae,phiCS,D1,lambda,distr = distr,nu = nu),silent = T)
     if (class(desvios)=="try-error") {
@@ -1289,14 +1289,14 @@ EM.SkewCS<- function(formFixed,formRandom,data,groupVar,
     }
   }
   obj.out$loglik <-as.numeric(llji)
-  
+
   tf = Sys.time()
   obj.out$elapsedTime = as.numeric(difftime(tf,ti,units="secs"))
   obj.out$error=criterio
   obj.out
 }
 
-predict.skewCS<- function(formFixed,formRandom,dataFit,dataPred,groupVar,distr,theta){
+predictf.skewCS<- function(formFixed,formRandom,dataFit,dataPred,groupVar,distr,theta){
   dataPred[,all.vars(formFixed)[1]] <- 0
   dataFit$ind <-dataFit[,groupVar]
   dataPred$ind <-dataPred[,groupVar]
@@ -1322,7 +1322,7 @@ predict.skewCS<- function(formFixed,formRandom,dataFit,dataPred,groupVar,distr,t
   delta<-lambda/as.numeric(sqrt(1+t(lambda)%*%lambda))
   Deltab<-D1sqrt%*%delta
   Gammab<-D1-Deltab%*%t(Deltab)
-  zeta<-matrix.sqrt(solve(D1))%*%lambda 
+  zeta<-matrix.sqrt(solve(D1))%*%lambda
   ypred <- numeric(length = nrow(dataPred))
   xpred<-matrix(nrow= nrow(dataPred),ncol=p)
   #
@@ -1404,8 +1404,8 @@ ljnormalDEC <-function(j,y,x,z,time,beta1,Gammab,Deltab,sigmae,phiDEC,thetaDEC){
   med<-x1%*%beta1 + c.*z1%*%Deltab
   njj = length(y1)
   Sigma=sigmae*CovDEC(phiDEC,thetaDEC,t1)#CovARp(phiAR,t1)
-  Psi<-(z1)%*%(Gammab+Deltab%*%t(Deltab))%*%t(z1)+Sigma 
-  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med)) 
+  Psi<-(z1)%*%(Gammab+Deltab%*%t(Deltab))%*%t(z1)+Sigma
+  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med))
   Mtj2<-(1+t(Deltab)%*%t(z1)%*%solve(Sigma+z1%*%Gammab%*%t(z1))%*%z1%*%Deltab)^(-1)
   Ajj<-sqrt(Mtj2)*t(Deltab)%*%t(z1)%*%solve(Sigma+z1%*%Gammab%*%t(z1))%*%(y1-med)
   log(2*dmvnorm(y1,med,Psi)*pnorm(Ajj,0,1))
@@ -1422,11 +1422,11 @@ ljtDEC <-function(j,nu,y,x,z,time,beta1,Gammab,Deltab,sigmae,phiDEC,thetaDEC){
   njj = length(y1)
   Sigma=sigmae*CovDEC(phiDEC,thetaDEC,t1)
   Psi<-(z1)%*%(Gammab+Deltab%*%t(Deltab))%*%t(z1)+Sigma
-  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med)) 
+  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med))
   Mtj2<-(1+t(Deltab)%*%t(z1)%*%solve(Sigma+z1%*%Gammab%*%t(z1))%*%z1%*%Deltab)^(-1)
   Ajj<-as.numeric(sqrt(Mtj2)*t(Deltab)%*%t(z1)%*%solve(Sigma+z1%*%Gammab%*%t(z1))%*%(y1-med))
   dtj = gamma((nu+njj)/2)/gamma(nu/2)/pi^(njj/2)/sqrt(det(Psi))*nu^(-njj/2)*(dj/nu+1)^(-(njj+nu)/2)
-  #log(2*dmvt(y1,delta = med, sigma = Psi, df = nu,log=F)*pt(sqrt(nu+njj)*Ajj/sqrt(dj+nu),nu+njj))#veroST1(Psi,Ajj,dj,nu,pp=njj)) 
+  #log(2*dmvt(y1,delta = med, sigma = Psi, df = nu,log=F)*pt(sqrt(nu+njj)*Ajj/sqrt(dj+nu),nu+njj))#veroST1(Psi,Ajj,dj,nu,pp=njj))
   log(2*dtj*pt(sqrt(nu+njj)*Ajj/sqrt(dj+nu),nu+njj))
 }
 #
@@ -1440,8 +1440,8 @@ ljsDEC <-function(j,nu,y,x,z,time,beta1,Gammab,Deltab,sigmae,phiDEC,thetaDEC){
   med<-x1%*%beta1 + c.*z1%*%Deltab
   njj = length(y1)
   Sigma=sigmae*CovDEC(phiDEC,thetaDEC,t1)
-  Psi<-(z1)%*%(Gammab+Deltab%*%t(Deltab))%*%t(z1)+Sigma 
-  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med)) 
+  Psi<-(z1)%*%(Gammab+Deltab%*%t(Deltab))%*%t(z1)+Sigma
+  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med))
   Mtj2<-(1+t(Deltab)%*%t(z1)%*%solve(Sigma+z1%*%Gammab%*%t(z1))%*%z1%*%Deltab)^(-1)
   Ajj<-as.numeric(sqrt(Mtj2)*t(Deltab)%*%t(z1)%*%solve(Sigma+z1%*%Gammab%*%t(z1))%*%(y1-med))
   #f <- function(u) u^(nu - 1)*dmvnorm(y1,med,Psi/u)*pnorm(u^(1/2)*Ajj)
@@ -1461,7 +1461,7 @@ ljcnDEC <-function(j,nu,y,x,z,time,beta1,Gammab,Deltab,sigmae,phiDEC,thetaDEC){
   njj = length(y1)
   Sigma=sigmae*CovDEC(phiDEC,thetaDEC,t1)
   Psi<-(z1)%*%(Gammab+Deltab%*%t(Deltab))%*%t(z1)+Sigma
-  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med)) 
+  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med))
   Mtj2<-(1+t(Deltab)%*%t(z1)%*%solve(Sigma+z1%*%Gammab%*%t(z1))%*%z1%*%Deltab)^(-1)
   Ajj<-sqrt(Mtj2)*t(Deltab)%*%t(z1)%*%solve(Sigma+z1%*%Gammab%*%t(z1))%*%(y1-med)
   log(2*(nu[1]*dmvnorm(y1,med,(Psi/nu[2]))*pnorm(sqrt(nu[2])*Ajj,0,1)+
@@ -1469,12 +1469,12 @@ ljcnDEC <-function(j,nu,y,x,z,time,beta1,Gammab,Deltab,sigmae,phiDEC,thetaDEC){
 }
 
 logveroDEC = function(y,x,z,time,ind,beta1,sigmae,phiDEC,thetaDEC,D1,lambda,distr,nu){ #ind = indicadora de individuo
-  
+
   delta<-lambda/as.numeric(sqrt(1+t(lambda)%*%lambda));
   Deltab<-matrix.sqrt(D1)%*%delta
   Gammab<-D1-Deltab%*%t(Deltab)
   N <-length(ind)
-  
+
   if (distr=="sn") lv = sum(tapply(1:N,ind,ljnormalDEC,y=y,x=x,z=z,time=time,beta1=beta1,Gammab=Gammab,Deltab=Deltab,sigmae=sigmae,phiDEC=phiDEC,thetaDEC=thetaDEC))
   else if (distr=="st") lv = sum(tapply(1:N,ind,ljtDEC,nu=nu,y=y,x=x,z=z,time=time,beta1=beta1,Gammab=Gammab,Deltab=Deltab,sigmae=sigmae,phiDEC=phiDEC,thetaDEC=thetaDEC))
   else if (distr=="ss") lv = sum(tapply(1:N,ind,ljsDEC,nu=nu,y=y,x=x,z=z,time=time,beta1=beta1,Gammab=Gammab,Deltab=Deltab,sigmae=sigmae,phiDEC=phiDEC,thetaDEC=thetaDEC))
@@ -1516,7 +1516,7 @@ emjDEC = function(jseq, y, x, z,time, beta1, Gammab, Deltab, sigmae,phiDEC,theta
     if(calcbi){
       bi<-mediab+Lambda%*%zeta/as.numeric(sqrt(1+t(zeta)%*%Lambda%*%zeta))*as.numeric(dnorm(Ajj,0,1))/as.numeric(pnorm(Ajj,0,1))}
   }
-  
+
   if (distr=="st"){
     dtj = gamma((nu+nj)/2)/gamma(nu/2)/pi^(nj/2)/sqrt(det(Psi))*nu^(-nj/2)*(dj/nu+1)^(-(nj+nu)/2)
     denST = 2*dtj*pt(sqrt(nu+nj)*Ajj/sqrt(dj+nu),nu+nj)
@@ -1529,7 +1529,7 @@ emjDEC = function(jseq, y, x, z,time, beta1, Gammab, Deltab, sigmae,phiDEC,theta
       bi<-mediab+Lambda%*%zeta/as.numeric(sqrt(1+t(zeta)%*%Lambda%*%zeta))*esper2
     }
   }
-  
+
   if (distr=="ss"){
     f2esp <- function(s) pnorm(s^.5*Ajj)*dgamma(s,nu+1+nj/2,dj/2)/pgamma(1,nu+1+nj/2,dj/2)
     EspVal <- integrate(f2esp,0,1)$value#mean(pnorm(S^(1/2)*Ajj))#
@@ -1545,7 +1545,7 @@ emjDEC = function(jseq, y, x, z,time, beta1, Gammab, Deltab, sigmae,phiDEC,theta
       bi<-mediab+Lambda%*%zeta*esper2/as.numeric(sqrt(1+t(zeta)%*%Lambda%*%zeta))
     }
   }
-  
+
   if (distr=="scn"){
     fy<-as.numeric(2*(nu[1]*dmvnorm(y1,med,(Psi/nu[2]))*pnorm(nu[2]^(1/2)*Ajj,0,1)+
                         (1-nu[1])*dmvnorm(y1,med,Psi)*pnorm(Ajj,0,1)))
@@ -1559,7 +1559,7 @@ emjDEC = function(jseq, y, x, z,time, beta1, Gammab, Deltab, sigmae,phiDEC,theta
       bi<-mediab+Lambda%*%zeta*esper2/as.numeric(sqrt(1+t(zeta)%*%Lambda%*%zeta))
     }
   }
-  
+
   sSigma = solve(Sigma)
   sRi = sSigma*sigmae
   Tbj<-solve(solve(Gammab)+t(z1)%*%sSigma%*%z1)
@@ -1644,12 +1644,12 @@ EM.SkewDEC<- function(formFixed,formRandom,data,groupVar,timeVar,
     if (parDEC[2]<=0) stop("invalid initial value from phi2")
     if (parDEC[2]>= luDEC) stop("initial value from phi2 must be smaller than luDEC")
   }
-  
+
   delta<-lambda/as.numeric(sqrt(1+t(lambda)%*%lambda))
   Deltab<-matrix.sqrt(D1)%*%delta
   Gammab<-D1-Deltab%*%t(Deltab)
-  zeta<-matrix.sqrt(solve(D1))%*%lambda 
-  
+  zeta<-matrix.sqrt(solve(D1))%*%lambda
+
   if (is.null(parDEC)) {
     #cat("calculating initial values for DEC... \n")
     thetat<- seq(0.1,2,by=.1)
@@ -1663,18 +1663,18 @@ EM.SkewDEC<- function(formFixed,formRandom,data,groupVar,timeVar,
   }
   phiDEC=parDEC[1]
   thetaDEC=parDEC[2]
-  
+
   teta <- c(beta1,sigmae,Gammab[upper.tri(Gammab, diag = T)],Deltab,phiDEC,thetaDEC,nu)
-  
+
   criterio<-10
   count<-0
   llji = logveroDEC(y, x, z, time,ind, beta1, sigmae,phiDEC,thetaDEC, D1, lambda, distr, nu)
   if (is.nan(llji)|is.infinite(abs(llji))) stop("NaN/infinity initial likelihood")
-  
+
   while((criterio > precisao)&(count<max.iter)){
-     
+
     count <- count + 1
-    res_emj = revert_list(tapply(1:N,ind,emjDEC,y=y, x=x, z=z,time=time, beta1=beta1, Gammab=Gammab, 
+    res_emj = revert_list(tapply(1:N,ind,emjDEC,y=y, x=x, z=z,time=time, beta1=beta1, Gammab=Gammab,
                                  Deltab=Deltab, sigmae=sigmae,phiDEC=phiDEC,thetaDEC=thetaDEC,zeta=zeta, distr=distr,nu=nu,calcbi=calcbi))
     sum1 = Reduce("+",res_emj$sum1)
     sum2 = Reduce("+",res_emj$sum2)
@@ -1682,9 +1682,9 @@ EM.SkewDEC<- function(formFixed,formRandom,data,groupVar,timeVar,
     sum4 = Reduce("+",res_emj$sum4)
     sum5 = Reduce("+",res_emj$sum5)
     ut2j = unlist(res_emj$ut2j,use.names = F)
-    
+
     if (calcbi) {bi = t(matrix(unlist(res_emj$bi),nrow=q1))}
-    
+
     beta1<-solve(sum1)%*%sum2
     sigmae<-as.numeric(sum3)/N
     Gammab<-sum4/m
@@ -1692,7 +1692,7 @@ EM.SkewDEC<- function(formFixed,formRandom,data,groupVar,timeVar,
     #
     D1<-Gammab+Deltab%*%t(Deltab)
     lambda<-matrix.sqrt(solve(D1))%*%Deltab/as.numeric(sqrt(1-t(Deltab)%*%solve(D1)%*%Deltab))
-    zeta<-matrix.sqrt(solve(D1))%*%lambda 
+    zeta<-matrix.sqrt(solve(D1))%*%lambda
     #
     parDEC<- optim(c(phiDEC,thetaDEC),lcDEC,gr = NULL,method = "L-BFGS-B", lower =rep(0.0001,2),
                    upper = c(.9999,luDEC),control = list(fnscale=-1),beta1=beta1,sigmae=sigmae,
@@ -1700,9 +1700,9 @@ EM.SkewDEC<- function(formFixed,formRandom,data,groupVar,timeVar,
     phiDEC<-parDEC[1]; thetaDEC<-parDEC[2]
     #
     logvero1<-function(nu){logveroDEC(y, x, z,time, ind, beta1, sigmae,phiDEC,thetaDEC, D1, lambda, distr, nu)}
-    
+
     if (distr=="sn"){ nu<-NULL} else
-    {nu <- optim(nu,(logvero1),gr = NULL,method = "L-BFGS-B", lower =lb, upper = lu,control = list(fnscale=-1))$par} 
+    {nu <- optim(nu,(logvero1),gr = NULL,method = "L-BFGS-B", lower =lb, upper = lu,control = list(fnscale=-1))$par}
     #
     param <- teta
     teta <- c(beta1,sigmae,Gammab[upper.tri(Gammab, diag = T)],Deltab,phiDEC,thetaDEC,nu)
@@ -1713,14 +1713,14 @@ EM.SkewDEC<- function(formFixed,formRandom,data,groupVar,timeVar,
     cat("Iteration ",count,"  of ",max.iter,"\r")
     if (count==max.iter) message("\n maximum number of iterations reachead")
   }
-  
+
   cat("\n")
   dd<-matrix.sqrt(D1)[upper.tri(D1, diag = T)]
   theta = c(beta1,sigmae,phiDEC,thetaDEC,dd,lambda,nu)
   if (is.null(colnames(x))) colnames(x) <- paste0("beta",1:p-1)
   if (distr=="sn") names(theta)<-c(colnames(x),"sigma2","phi1DEC","phi2DEC",paste0("Dsqrt",1:length(dd)),paste0("lambda",1:q1))
   else names(theta)<- c(colnames(x),"sigma2","phi1DEC","phi2DEC",paste0("Dsqrt",1:length(dd)),paste0("lambda",1:q1),paste0("nu",1:length(nu)))
-  
+
   obj.out <- list(theta=theta, iter = count,estimates=list(beta=as.numeric(beta1),sigma2=sigmae,
                                                   phi=c(phiDEC,thetaDEC),dsqrt=dd,lambda=as.numeric(lambda)))
   if (distr != "sn") obj.out$estimates$nu = nu
@@ -1728,7 +1728,7 @@ EM.SkewDEC<- function(formFixed,formRandom,data,groupVar,timeVar,
     colnames(bi) <- colnames(z)
     obj.out$random.effects<- bi
   }
-  
+
   if (informa) {
     desvios<-try(InfmatrixDEC(y,x,z,time,ind,beta1,sigmae,phiDEC,thetaDEC,D1,lambda,distr = distr,nu = nu),silent = T)
     if (class(desvios)=="try-error") {
@@ -1740,16 +1740,16 @@ EM.SkewDEC<- function(formFixed,formRandom,data,groupVar,timeVar,
       obj.out$std.error=desvios
     }
   }
-  
+
   obj.out$loglik <-as.numeric(llji)
-  
+
   tf = Sys.time()
   obj.out$elapsedTime = as.numeric(difftime(tf,ti,units="secs"))
   obj.out$error=criterio
   obj.out
 }
 
-predict.skewDEC<- function(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,distr,theta){
+predictf.skewDEC<- function(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,distr,theta){
   dataPred[,all.vars(formFixed)[1]] <- 0
   dataFit$ind <-dataFit[,groupVar]
   dataPred$ind <-dataPred[,groupVar]
@@ -1776,7 +1776,7 @@ predict.skewDEC<- function(formFixed,formRandom,dataFit,dataPred,groupVar,timeVa
   delta<-lambda/as.numeric(sqrt(1+t(lambda)%*%lambda))
   Deltab<-D1sqrt%*%delta
   Gammab<-D1-Deltab%*%t(Deltab)
-  zeta<-matrix.sqrt(solve(D1))%*%lambda 
+  zeta<-matrix.sqrt(solve(D1))%*%lambda
   ypred <- numeric(length = nrow(dataPred))
   timepred <- numeric(length = nrow(dataPred))
   xpred<-matrix(nrow= nrow(dataPred),ncol=p)
@@ -1797,7 +1797,7 @@ predict.skewDEC<- function(formFixed,formRandom,dataFit,dataPred,groupVar,timeVa
     if (is.null(timeVar)) {
       dataFitj$time<- seqFit
       dataPredj$time<- seqPred
-    } 
+    }
     dataPlus <- rbind(dataFitj,dataPredj)
     #
     xPlus1 <- model.matrix(formFixed,data=dataPlus)
@@ -1847,7 +1847,7 @@ predict.skewDEC<- function(formFixed,formRandom,dataFit,dataPred,groupVar,timeVa
     ypredj <- mu2.1 + tau1/as.numeric(sqrt(1+t(vj[seqPred])%*%Psi22.1%*%vj[seqPred]))*Psi22.1%*%vj[seqPred]
     ypred[dataPred$ind==indj] <- ypredj
     xpred[dataPred$ind==indj,] <- matrix(xPlus1[seqPred,],ncol=ncol(xPlus1))
-    timepred[dataPred$ind==indj] <- dataPredj$time 
+    timepred[dataPred$ind==indj] <- dataPredj$time
   }
   colnames(xpred) = colnames(xPlus1)
   if (all(xpred[,1]==1)) xpred=xpred[,-1]
@@ -1868,8 +1868,8 @@ ljnormalCAR1 <-function(j,y,x,z,time,beta1,Gammab,Deltab,sigmae,phiDEC){
   med<-x1%*%beta1 + c.*z1%*%Deltab
   njj = length(y1)
   Sigma=sigmae*CovDEC(phiDEC,1,t1)#CovARp(phiAR,t1)
-  Psi<-(z1)%*%(Gammab+Deltab%*%t(Deltab))%*%t(z1)+Sigma 
-  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med)) 
+  Psi<-(z1)%*%(Gammab+Deltab%*%t(Deltab))%*%t(z1)+Sigma
+  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med))
   Mtj2<-(1+t(Deltab)%*%t(z1)%*%solve(Sigma+z1%*%Gammab%*%t(z1))%*%z1%*%Deltab)^(-1)
   Ajj<-sqrt(Mtj2)*t(Deltab)%*%t(z1)%*%solve(Sigma+z1%*%Gammab%*%t(z1))%*%(y1-med)
   log(2*dmvnorm(y1,med,Psi)*pnorm(Ajj,0,1))
@@ -1886,11 +1886,11 @@ ljtCAR1 <-function(j,nu,y,x,z,time,beta1,Gammab,Deltab,sigmae,phiDEC){
   njj = length(y1)
   Sigma=sigmae*CovDEC(phiDEC,1,t1)
   Psi<-(z1)%*%(Gammab+Deltab%*%t(Deltab))%*%t(z1)+Sigma
-  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med)) 
+  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med))
   Mtj2<-(1+t(Deltab)%*%t(z1)%*%solve(Sigma+z1%*%Gammab%*%t(z1))%*%z1%*%Deltab)^(-1)
   Ajj<-as.numeric(sqrt(Mtj2)*t(Deltab)%*%t(z1)%*%solve(Sigma+z1%*%Gammab%*%t(z1))%*%(y1-med))
   dtj = gamma((nu+njj)/2)/gamma(nu/2)/pi^(njj/2)/sqrt(det(Psi))*nu^(-njj/2)*(dj/nu+1)^(-(njj+nu)/2)
-  #log(2*dmvt(y1,delta = med, sigma = Psi, df = nu,log=F)*pt(sqrt(nu+njj)*Ajj/sqrt(dj+nu),nu+njj))#veroST1(Psi,Ajj,dj,nu,pp=njj)) 
+  #log(2*dmvt(y1,delta = med, sigma = Psi, df = nu,log=F)*pt(sqrt(nu+njj)*Ajj/sqrt(dj+nu),nu+njj))#veroST1(Psi,Ajj,dj,nu,pp=njj))
   log(2*dtj*pt(sqrt(nu+njj)*Ajj/sqrt(dj+nu),nu+njj))
 }
 #
@@ -1904,8 +1904,8 @@ ljsCAR1 <-function(j,nu,y,x,z,time,beta1,Gammab,Deltab,sigmae,phiDEC){
   med<-x1%*%beta1 + c.*z1%*%Deltab
   njj = length(y1)
   Sigma=sigmae*CovDEC(phiDEC,1,t1)
-  Psi<-(z1)%*%(Gammab+Deltab%*%t(Deltab))%*%t(z1)+Sigma 
-  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med)) 
+  Psi<-(z1)%*%(Gammab+Deltab%*%t(Deltab))%*%t(z1)+Sigma
+  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med))
   Mtj2<-(1+t(Deltab)%*%t(z1)%*%solve(Sigma+z1%*%Gammab%*%t(z1))%*%z1%*%Deltab)^(-1)
   Ajj<-as.numeric(sqrt(Mtj2)*t(Deltab)%*%t(z1)%*%solve(Sigma+z1%*%Gammab%*%t(z1))%*%(y1-med))
   #f <- function(u) u^(nu - 1)*dmvnorm(y1,med,Psi/u)*pnorm(u^(1/2)*Ajj)
@@ -1925,7 +1925,7 @@ ljcnCAR1 <-function(j,nu,y,x,z,time,beta1,Gammab,Deltab,sigmae,phiDEC){
   njj = length(y1)
   Sigma=sigmae*CovDEC(phiDEC,1,t1)
   Psi<-(z1)%*%(Gammab+Deltab%*%t(Deltab))%*%t(z1)+Sigma
-  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med)) 
+  dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med))
   Mtj2<-(1+t(Deltab)%*%t(z1)%*%solve(Sigma+z1%*%Gammab%*%t(z1))%*%z1%*%Deltab)^(-1)
   Ajj<-sqrt(Mtj2)*t(Deltab)%*%t(z1)%*%solve(Sigma+z1%*%Gammab%*%t(z1))%*%(y1-med)
   log(2*(nu[1]*dmvnorm(y1,med,(Psi/nu[2]))*pnorm(sqrt(nu[2])*Ajj,0,1)+
@@ -1933,12 +1933,12 @@ ljcnCAR1 <-function(j,nu,y,x,z,time,beta1,Gammab,Deltab,sigmae,phiDEC){
 }
 
 logveroCAR1 = function(y,x,z,time,ind,beta1,sigmae,phiDEC,D1,lambda,distr,nu){ #ind = indicadora de individuo
-  
+
   delta<-lambda/as.numeric(sqrt(1+t(lambda)%*%lambda));
   Deltab<-matrix.sqrt(D1)%*%delta
   Gammab<-D1-Deltab%*%t(Deltab)
   N <-length(ind)
-  
+
   if (distr=="sn") lv = sum(tapply(1:N,ind,ljnormalCAR1,y=y,x=x,z=z,time=time,beta1=beta1,Gammab=Gammab,Deltab=Deltab,sigmae=sigmae,phiDEC=phiDEC))
   else if (distr=="st") lv = sum(tapply(1:N,ind,ljtCAR1,nu=nu,y=y,x=x,z=z,time=time,beta1=beta1,Gammab=Gammab,Deltab=Deltab,sigmae=sigmae,phiDEC=phiDEC))
   else if (distr=="ss") lv = sum(tapply(1:N,ind,ljsCAR1,nu=nu,y=y,x=x,z=z,time=time,beta1=beta1,Gammab=Gammab,Deltab=Deltab,sigmae=sigmae,phiDEC=phiDEC))
@@ -1980,7 +1980,7 @@ emjCAR1 = function(jseq, y, x, z,time, beta1, Gammab, Deltab, sigmae,phiDEC,zeta
     if(calcbi){
       bi<-mediab+Lambda%*%zeta/as.numeric(sqrt(1+t(zeta)%*%Lambda%*%zeta))*as.numeric(dnorm(Ajj,0,1))/as.numeric(pnorm(Ajj,0,1))}
   }
-  
+
   if (distr=="st"){
     dtj = gamma((nu+nj)/2)/gamma(nu/2)/pi^(nj/2)/sqrt(det(Psi))*nu^(-nj/2)*(dj/nu+1)^(-(nj+nu)/2)
     denST = 2*dtj*pt(sqrt(nu+nj)*Ajj/sqrt(dj+nu),nu+nj)
@@ -1993,7 +1993,7 @@ emjCAR1 = function(jseq, y, x, z,time, beta1, Gammab, Deltab, sigmae,phiDEC,zeta
       bi<-mediab+Lambda%*%zeta/as.numeric(sqrt(1+t(zeta)%*%Lambda%*%zeta))*esper2
     }
   }
-  
+
   if (distr=="ss"){
     f2esp <- function(s) pnorm(s^.5*Ajj)*dgamma(s,nu+1+nj/2,dj/2)/pgamma(1,nu+1+nj/2,dj/2)
     EspVal <- integrate(f2esp,0,1)$value#mean(pnorm(S^(1/2)*Ajj))#
@@ -2009,7 +2009,7 @@ emjCAR1 = function(jseq, y, x, z,time, beta1, Gammab, Deltab, sigmae,phiDEC,zeta
       bi<-mediab+Lambda%*%zeta*esper2/as.numeric(sqrt(1+t(zeta)%*%Lambda%*%zeta))
     }
   }
-  
+
   if (distr=="scn"){
     fy<-as.numeric(2*(nu[1]*dmvnorm(y1,med,(Psi/nu[2]))*pnorm(nu[2]^(1/2)*Ajj,0,1)+
                         (1-nu[1])*dmvnorm(y1,med,Psi)*pnorm(Ajj,0,1)))
@@ -2023,7 +2023,7 @@ emjCAR1 = function(jseq, y, x, z,time, beta1, Gammab, Deltab, sigmae,phiDEC,zeta
       bi<-mediab+Lambda%*%zeta*esper2/as.numeric(sqrt(1+t(zeta)%*%Lambda%*%zeta))
     }
   }
-  
+
   sSigma = solve(Sigma)
   sRi = sSigma*sigmae
   Tbj<-solve(solve(Gammab)+t(z1)%*%sSigma%*%z1)
@@ -2097,12 +2097,12 @@ EM.SkewCAR1<- function(formFixed,formRandom,data,groupVar,timeVar,
   #
   if (!is.null(phiCAR1) & length(phiCAR1)!=1) stop("initial value from phi must have length 1 or be NULL")
   if (!is.null(phiCAR1)) if (phiCAR1>=1 | phiCAR1<=0) stop ("0<initialValue$phi<1 needed")
-    
+
   delta<-lambda/as.numeric(sqrt(1+t(lambda)%*%lambda))
   Deltab<-matrix.sqrt(D1)%*%delta
   Gammab<-D1-Deltab%*%t(Deltab)
-  zeta<-matrix.sqrt(solve(D1))%*%lambda 
-  
+  zeta<-matrix.sqrt(solve(D1))%*%lambda
+
   if (is.null(phiCAR1)) {
     lmeCAR = try(lme(formFixed,random=~1|ind,data=data,correlation=corCAR1(form = ~time)),silent=T)
     if (class(lmeCAR)=="try-error") phiDEC =abs(as.numeric(pacf(y-x%*%beta1,lag.max=1,plot=F)$acf))
@@ -2111,19 +2111,19 @@ EM.SkewCAR1<- function(formFixed,formRandom,data,groupVar,timeVar,
       phiDEC = as.numeric(strsplit(phiDEC, " ")[[1]])
     }
   } else phiDEC <- phiCAR1
-  
+
   teta <- c(beta1,sigmae,Gammab[upper.tri(Gammab, diag = T)],Deltab,phiDEC,nu)
-  
+
   criterio<-10
   count<-0
   llji = logveroCAR1(y, x, z, time,ind, beta1, sigmae,phiDEC, D1, lambda, distr, nu)
   if (is.nan(llji)|is.infinite(abs(llji))) stop("NaN/infinity initial likelihood")
-  
+
   while((criterio > precisao)&(count<max.iter)){
     #print(nu)
-    
+
     count <- count + 1
-    res_emj = revert_list(tapply(1:N,ind,emjCAR1,y=y, x=x, z=z,time=time, beta1=beta1, Gammab=Gammab, 
+    res_emj = revert_list(tapply(1:N,ind,emjCAR1,y=y, x=x, z=z,time=time, beta1=beta1, Gammab=Gammab,
                                  Deltab=Deltab, sigmae=sigmae,phiDEC=phiDEC,zeta=zeta, distr=distr,nu=nu,calcbi=calcbi))
     sum1 = Reduce("+",res_emj$sum1)
     sum2 = Reduce("+",res_emj$sum2)
@@ -2131,9 +2131,9 @@ EM.SkewCAR1<- function(formFixed,formRandom,data,groupVar,timeVar,
     sum4 = Reduce("+",res_emj$sum4)
     sum5 = Reduce("+",res_emj$sum5)
     ut2j = unlist(res_emj$ut2j,use.names = F)
-    
+
     if (calcbi) {bi = t(matrix(unlist(res_emj$bi),nrow=q1))}
-    
+
     beta1<-solve(sum1)%*%sum2
     sigmae<-as.numeric(sum3)/N
     Gammab<-sum4/m
@@ -2141,16 +2141,16 @@ EM.SkewCAR1<- function(formFixed,formRandom,data,groupVar,timeVar,
     #
     D1<-Gammab+Deltab%*%t(Deltab)
     lambda<-matrix.sqrt(solve(D1))%*%Deltab/as.numeric(sqrt(1-t(Deltab)%*%solve(D1)%*%Deltab))
-    zeta<-matrix.sqrt(solve(D1))%*%lambda 
+    zeta<-matrix.sqrt(solve(D1))%*%lambda
     #
-    phiDEC<- optim(phiDEC,lcCAR1,gr = NULL,method = "L-BFGS-B", lower =0.0001, 
+    phiDEC<- optim(phiDEC,lcCAR1,gr = NULL,method = "L-BFGS-B", lower =0.0001,
                    upper = .9999,control = list(fnscale=-1),beta1=beta1,sigmae=sigmae,
                    y=y,x=x,z=z,time=time,ind=ind,u=res_emj$uj,ub=res_emj$ubj,ub2=res_emj$ub2j)$par
     #
     logvero1<-function(nu){logveroCAR1(y, x, z,time, ind, beta1, sigmae,phiDEC, D1, lambda, distr, nu)}
-    
+
     if (distr=="sn"){ nu<-NULL} else
-    {nu <- optim(nu,(logvero1),gr = NULL,method = "L-BFGS-B", lower =lb, upper = lu,control = list(fnscale=-1))$par} 
+    {nu <- optim(nu,(logvero1),gr = NULL,method = "L-BFGS-B", lower =lb, upper = lu,control = list(fnscale=-1))$par}
     #
     param <- teta
     teta <- c(beta1,sigmae,Gammab[upper.tri(Gammab, diag = T)],Deltab,phiDEC,nu)
@@ -2161,14 +2161,14 @@ EM.SkewCAR1<- function(formFixed,formRandom,data,groupVar,timeVar,
     cat("Iteration ",count,"  of ",max.iter,"\r")
     if (count==max.iter) message("\n maximum number of iterations reachead")
   }
-  
+
   cat("\n")
   dd<-matrix.sqrt(D1)[upper.tri(D1, diag = T)]
   theta = c(beta1,sigmae,phiDEC,dd,lambda,nu)
   if (is.null(colnames(x))) colnames(x) <- paste0("beta",1:p-1)
   if (distr=="sn") names(theta)<-c(colnames(x),"sigma2","phiCAR1",paste0("Dsqrt",1:length(dd)),paste0("lambda",1:q1))
   else names(theta)<- c(colnames(x),"sigma2","phiCAR1",paste0("Dsqrt",1:length(dd)),paste0("lambda",1:q1),paste0("nu",1:length(nu)))
-  
+
   obj.out <- list(theta=theta, iter = count,estimates=list(beta=as.numeric(beta1),sigma2=sigmae,
                                               phi=phiDEC,dsqrt=dd,lambda=as.numeric(lambda)))
   if (distr != "sn") obj.out$estimates$nu = nu
@@ -2176,7 +2176,7 @@ EM.SkewCAR1<- function(formFixed,formRandom,data,groupVar,timeVar,
     colnames(bi) <- colnames(z)
     obj.out$random.effects<- bi
   }
-  
+
   if (informa) {
     desvios<-try(InfmatrixCAR1(y,x,z,time,ind,beta1,sigmae,phiDEC,D1,lambda,distr = distr,nu = nu),silent = T)
     if (class(desvios)=="try-error") {
@@ -2189,14 +2189,14 @@ EM.SkewCAR1<- function(formFixed,formRandom,data,groupVar,timeVar,
     }
   }
   obj.out$loglik <-as.numeric(llji)
-  
+
   tf = Sys.time()
   obj.out$elapsedTime = as.numeric(difftime(tf,ti,units="secs"))
   obj.out$error=criterio
   obj.out
 }
 
-predict.skewCAR1<- function(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,distr,theta){
+predictf.skewCAR1<- function(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,distr,theta){
   dataPred[,all.vars(formFixed)[1]] <- 0
   dataFit$ind <-dataFit[,groupVar]
   dataPred$ind <-dataPred[,groupVar]
@@ -2222,7 +2222,7 @@ predict.skewCAR1<- function(formFixed,formRandom,dataFit,dataPred,groupVar,timeV
   delta<-lambda/as.numeric(sqrt(1+t(lambda)%*%lambda))
   Deltab<-D1sqrt%*%delta
   Gammab<-D1-Deltab%*%t(Deltab)
-  zeta<-matrix.sqrt(solve(D1))%*%lambda 
+  zeta<-matrix.sqrt(solve(D1))%*%lambda
   ypred <- numeric(length = nrow(dataPred))
   timepred <- numeric(length = nrow(dataPred))
   xpred<-matrix(nrow= nrow(dataPred),ncol=p)
@@ -2243,7 +2243,7 @@ predict.skewCAR1<- function(formFixed,formRandom,dataFit,dataPred,groupVar,timeV
     if (is.null(timeVar)) {
       dataFitj$time<- seqFit
       dataPredj$time<- seqPred
-    } 
+    }
     dataPlus <- rbind(dataFitj,dataPredj)
     #
     xPlus1 <- model.matrix(formFixed,data=dataPlus)
@@ -2293,7 +2293,7 @@ predict.skewCAR1<- function(formFixed,formRandom,dataFit,dataPred,groupVar,timeV
     ypredj <- mu2.1 + tau1/as.numeric(sqrt(1+t(vj[seqPred])%*%Psi22.1%*%vj[seqPred]))*Psi22.1%*%vj[seqPred]
     ypred[dataPred$ind==indj] <- ypredj
     xpred[dataPred$ind==indj,] <- matrix(xPlus1[seqPred,],ncol=ncol(xPlus1))
-    timepred[dataPred$ind==indj] <- dataPredj$time 
+    timepred[dataPred$ind==indj] <- dataPredj$time
   }
   colnames(xpred) = colnames(xPlus1)
   if (all(xpred[,1]==1)) xpred=xpred[,-1]
@@ -2365,17 +2365,17 @@ scorei <- function(jseq,y,x,z,beta1,sigmae,D1,lambda,distr,nu) {
   mutj<-Mtj2*t(Deltab)%*%t(z1)%*%solve(Sigma+z1%*%Gammab%*%t(z1))%*%(y1-med)
   Ai<-as.numeric(mutj/sqrt(Mtj2))
   sFmat = solve(Fmat)
-  Lambda = solve(solve(D1)+ t(z1)%*%z1/sigmae) 
+  Lambda = solve(solve(D1)+ t(z1)%*%z1/sigmae)
   F.lista <- lapply(1:q2,F.r,q1=q1)
   #theta = c(beta1,sigmae,dd,lambda,nu) - para independente
   indpar = c(rep("beta",p),"sigma",rep("dd",q2),rep("lambda",q1))
   lpar = length(indpar)
   ##### derivadas de log(det(Psi))
   dlogdpsi = numeric(lpar)
-  dlogdpsi[indpar=="sigma"] =traceM(sPsi) 
+  dlogdpsi[indpar=="sigma"] =traceM(sPsi)
   for (i in 1:q2) dlogdpsi[indpar=="dd"][i] = traceM(sPsi%*%z1%*%(F.lista[[i]]%*%Fmat+
                                                                     Fmat%*%F.lista[[i]])%*%t(z1))
-  
+
   ##### derivadas de Ai
   dAi = numeric(lpar)
   ai = as.numeric((1+t(lambda)%*%sFmat%*%Lambda%*%sFmat%*%lambda)^.5)
@@ -2390,7 +2390,7 @@ scorei <- function(jseq,y,x,z,beta1,sigmae,D1,lambda,distr,nu) {
                                                  t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%z1%*%(F.lista[[i]]%*%Fmat+Fmat%*%F.lista[[i]])%*%t(z1)%*%sPsi%*%(y1-med) -
                                                  c./bi*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%z1%*%F.lista[[i]]%*%lambda)+
     1/ai^2*Ai/2*t(lambda)%*%sFmat%*%(F.lista[[i]]%*%sFmat%*%Lambda+Lambda%*%sFmat%*%F.lista[[i]]-Lambda%*%sFmat%*%(F.lista[[i]]%*%sFmat+sFmat%*%F.lista[[i]])%*%sFmat%*%Lambda)%*%sFmat%*%lambda
-  
+
   ##### derivadas de di
   ddi = numeric(lpar)
   ddi[indpar=="beta"] =-2*t(x1)%*%sPsi%*%(y1-med)
@@ -2398,15 +2398,15 @@ scorei <- function(jseq,y,x,z,beta1,sigmae,D1,lambda,distr,nu) {
   ddi[indpar=="sigma"] = -t(y1-med)%*%sPsi%*%sPsi%*%(y1-med)
   for (i in 1:q2) ddi[indpar=="dd"][i] = -2*c.*t(delta)%*%F.lista[[i]]%*%t(z1)%*%sPsi%*%(y1-med) -
     t(y1-med)%*%sPsi%*%z1%*%(F.lista[[i]]%*%Fmat+Fmat%*%F.lista[[i]])%*%t(z1)%*%sPsi%*%(y1-med)
-  
-  ##### derivadas de ki 
+
+  ##### derivadas de ki
   ki = IPhi(ni/2,di=di,Ai=Ai,distr = distr,nu=nu)
   dki = -.5*IPhi(ni/2+1,di=di,Ai=Ai,distr = distr,nu=nu)*ddi+
     Iphi(ni/2+.5,di=di,Ai=Ai,distr = distr,nu=nu)*dAi
-  
+
   sihat = -.5*dlogdpsi+1/ki*dki
   sihat
-  
+
 }
 
 
@@ -2462,7 +2462,7 @@ scoreARi <- function(jseq,y,x,z,time,beta1,sigmae,phiAR,D1,lambda,distr,nu) {
   #jacobAR <- jacobian(Mnp,phiAR,n=ni) #matrix(jacobAR[,1],ncol=ni)
   jacobARautocovs <- matrix(jacobian(autocovsAR,phiAR,n=max(t1))[t1,],ncol=pAR) #toeplitz(jacobARautocovs[,1])
   for (i in 1:pAR) dlogdpsi[indpar=="phi"][i] = sigmae*traceM(sPsi%*%toeplitz(jacobARautocovs[,i]))
-  
+
   ##### derivadas de Ai para diferente de nu
   dAi = numeric(lpar)
   ai = as.numeric((1+t(lambda)%*%sFmat%*%Lambda%*%sFmat%*%lambda)^.5)
@@ -2473,7 +2473,7 @@ scoreARi <- function(jseq,y,x,z,time,beta1,sigmae,phiAR,D1,lambda,distr,nu) {
     1/ai^2*Ai*sFmat%*%Lambda%*%sFmat%*%lambda + c.*Bi/ai/(bi^3)*lambda
   dAi[indpar=="sigma"] = -1/ai*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%MniAR%*%sPsi%*%(y1-med)-
     Ai/(2*ai^2*sigmae^2)*t(lambda)%*%sFmat%*%Lambda%*%t(z1)%*%sMniAR%*%z1%*%Lambda%*%sFmat%*%lambda
-  
+
   for (i in 1:q2) dAi[indpar=="dd"][i] = 1/ai*(t(lambda)%*%F.lista[[i]]%*%t(z1)%*%sPsi%*%(y1-med)-
                                                  t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%z1%*%(F.lista[[i]]%*%Fmat+Fmat%*%F.lista[[i]])%*%t(z1)%*%sPsi%*%(y1-med)-
                                                  c./bi*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%z1%*%F.lista[[i]]%*%lambda)+
@@ -2481,7 +2481,7 @@ scoreARi <- function(jseq,y,x,z,time,beta1,sigmae,phiAR,D1,lambda,distr,nu) {
                                        Lambda%*%sFmat%*%(F.lista[[i]]%*%sFmat+sFmat%*%F.lista[[i]])%*%sFmat%*%Lambda)%*%sFmat%*%lambda
   for (i in 1:pAR) dAi[indpar=="phi"][i] = -sigmae/ai*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%toeplitz(jacobARautocovs[,i])%*%sPsi%*%(y1-med)-
     Ai/(2*ai^2*sigmae)*t(lambda)%*%sFmat%*%Lambda%*%t(z1)%*%sMniAR%*%toeplitz(jacobARautocovs[,i])%*%sMniAR%*%z1%*%Lambda%*%sFmat%*%lambda
-  
+
   ##### derivadas de di
   ddi = numeric(lpar)
   ddi[indpar=="beta"] =-2*t(x1)%*%sPsi%*%(y1-med)
@@ -2490,16 +2490,16 @@ scoreARi <- function(jseq,y,x,z,time,beta1,sigmae,phiAR,D1,lambda,distr,nu) {
   for (i in 1:q2) ddi[indpar=="dd"][i] =-2*c.*t(delta)%*%F.lista[[i]]%*%t(z1)%*%sPsi%*%(y1-med)-
     t(y1-med)%*%sPsi%*%z1%*%(F.lista[[i]]%*%Fmat+Fmat%*%F.lista[[i]])%*%t(z1)%*%sPsi%*%(y1-med)
   for (i in 1:pAR) ddi[indpar=="phi"][i] = -sigmae*t(y1-med)%*%sPsi%*%toeplitz(jacobARautocovs[,i])%*%sPsi%*%(y1-med)
-  
-  ##### derivadas de ki 
+
+  ##### derivadas de ki
   ki = IPhi(ni/2,di=di,Ai=Ai,distr = distr,nu=nu)
   dki = numeric(lpar)
   dki = -.5*IPhi(ni/2+1,di=di,Ai=Ai,distr = distr,nu=nu)*ddi+
     Iphi(ni/2+.5,di=di,Ai=Ai,distr = distr,nu=nu)*dAi
-  
+
   sihat = -.5*dlogdpsi+1/ki*dki
   sihat
-  
+
 }
 
 
@@ -2553,7 +2553,7 @@ scoreCSi <- function(jseq,y,x,z,beta1,sigmae,phiCS,D1,lambda,distr,nu) {
                                                                     Fmat%*%F.lista[[i]])%*%t(z1))
   derCov <- matrix(1,nrow=ni,ncol=ni)-diag(ni)
   dlogdpsi[indpar=="phi"] = sigmae*traceM(sPsi%*%derCov)
-  
+
   ##### derivadas de Ai para diferente de nu
   dAi = numeric(lpar)
   ai = as.numeric((1+t(lambda)%*%sFmat%*%Lambda%*%sFmat%*%lambda)^.5)
@@ -2564,7 +2564,7 @@ scoreCSi <- function(jseq,y,x,z,beta1,sigmae,phiCS,D1,lambda,distr,nu) {
     1/ai^2*Ai*sFmat%*%Lambda%*%sFmat%*%lambda + c.*Bi/ai/(bi^3)*lambda
   dAi[indpar=="sigma"] = -1/ai*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%Covmat%*%sPsi%*%(y1-med)-
     Ai/(2*ai^2*sigmae^2)*t(lambda)%*%sFmat%*%Lambda%*%t(z1)%*%sCovmat%*%z1%*%Lambda%*%sFmat%*%lambda
-  
+
   for (i in 1:q2) dAi[indpar=="dd"][i] = 1/ai*(t(lambda)%*%F.lista[[i]]%*%t(z1)%*%sPsi%*%(y1-med)-
                                                  t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%z1%*%(F.lista[[i]]%*%Fmat+Fmat%*%F.lista[[i]])%*%t(z1)%*%sPsi%*%(y1-med)-
                                                  c./bi*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%z1%*%F.lista[[i]]%*%lambda)+
@@ -2572,7 +2572,7 @@ scoreCSi <- function(jseq,y,x,z,beta1,sigmae,phiCS,D1,lambda,distr,nu) {
                                        Lambda%*%sFmat%*%(F.lista[[i]]%*%sFmat+sFmat%*%F.lista[[i]])%*%sFmat%*%Lambda)%*%sFmat%*%lambda
   dAi[indpar=="phi"] = -sigmae/ai*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%derCov%*%sPsi%*%(y1-med)-
     Ai/(2*ai^2*sigmae)*t(lambda)%*%sFmat%*%Lambda%*%t(z1)%*%sCovmat%*%derCov%*%sCovmat%*%z1%*%Lambda%*%sFmat%*%lambda
-  
+
   ##### derivadas de di
   ddi = numeric(lpar)
   ddi[indpar=="beta"] =-2*t(x1)%*%sPsi%*%(y1-med)
@@ -2581,16 +2581,16 @@ scoreCSi <- function(jseq,y,x,z,beta1,sigmae,phiCS,D1,lambda,distr,nu) {
   for (i in 1:q2) ddi[indpar=="dd"][i] =-2*c.*t(delta)%*%F.lista[[i]]%*%t(z1)%*%sPsi%*%(y1-med)-
     t(y1-med)%*%sPsi%*%z1%*%(F.lista[[i]]%*%Fmat+Fmat%*%F.lista[[i]])%*%t(z1)%*%sPsi%*%(y1-med)
   ddi[indpar=="phi"] = -sigmae*t(y1-med)%*%sPsi%*%derCov%*%sPsi%*%(y1-med)
-  
-  ##### derivadas de ki 
+
+  ##### derivadas de ki
   ki = IPhi(ni/2,di=di,Ai=Ai,distr = distr,nu=nu)
   dki = numeric(lpar)
   dki = -.5*IPhi(ni/2+1,di=di,Ai=Ai,distr = distr,nu=nu)*ddi+
     Iphi(ni/2+.5,di=di,Ai=Ai,distr = distr,nu=nu)*dAi
-  
+
   sihat = -.5*dlogdpsi+1/ki*dki
   sihat
-  
+
 }
 
 
@@ -2669,7 +2669,7 @@ scoreDECi <- function(jseq,y,x,z,time,beta1,sigmae,phiDEC,thetaDEC,D1,lambda,dis
   dthetaDEC <- dthetaCovDEC(phiDEC,thetaDEC,t1)
   dlogdpsi[indpar=="phi"] = sigmae*traceM(sPsi%*%dphiDEC)
   dlogdpsi[indpar=="theta"] = sigmae*traceM(sPsi%*%dthetaDEC)
-  
+
   ##### derivadas de Ai para diferente de nu
   dAi = numeric(lpar)
   ai = as.numeric((1+t(lambda)%*%sFmat%*%Lambda%*%sFmat%*%lambda)^.5)
@@ -2680,7 +2680,7 @@ scoreDECi <- function(jseq,y,x,z,time,beta1,sigmae,phiDEC,thetaDEC,D1,lambda,dis
     1/ai^2*Ai*sFmat%*%Lambda%*%sFmat%*%lambda + c.*Bi/ai/(bi^3)*lambda
   dAi[indpar=="sigma"] = -1/ai*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%Covmat%*%sPsi%*%(y1-med)-
     Ai/(2*ai^2*sigmae^2)*t(lambda)%*%sFmat%*%Lambda%*%t(z1)%*%sCovmat%*%z1%*%Lambda%*%sFmat%*%lambda
-  
+
   for (i in 1:q2) dAi[indpar=="dd"][i] = 1/ai*(t(lambda)%*%F.lista[[i]]%*%t(z1)%*%sPsi%*%(y1-med)-
                                                  t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%z1%*%(F.lista[[i]]%*%Fmat+Fmat%*%F.lista[[i]])%*%t(z1)%*%sPsi%*%(y1-med)-
                                                  c./bi*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%z1%*%F.lista[[i]]%*%lambda)+
@@ -2690,7 +2690,7 @@ scoreDECi <- function(jseq,y,x,z,time,beta1,sigmae,phiDEC,thetaDEC,D1,lambda,dis
     Ai/(2*ai^2*sigmae)*t(lambda)%*%sFmat%*%Lambda%*%t(z1)%*%sCovmat%*%dphiDEC%*%sCovmat%*%z1%*%Lambda%*%sFmat%*%lambda
   dAi[indpar=="theta"] = -sigmae/ai*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%dthetaDEC%*%sPsi%*%(y1-med)-
     Ai/(2*ai^2*sigmae)*t(lambda)%*%sFmat%*%Lambda%*%t(z1)%*%sCovmat%*%dthetaDEC%*%sCovmat%*%z1%*%Lambda%*%sFmat%*%lambda
-  
+
   ##### derivadas de di
   ddi = numeric(lpar)
   ddi[indpar=="beta"] =-2*t(x1)%*%sPsi%*%(y1-med)
@@ -2700,16 +2700,16 @@ scoreDECi <- function(jseq,y,x,z,time,beta1,sigmae,phiDEC,thetaDEC,D1,lambda,dis
     t(y1-med)%*%sPsi%*%z1%*%(F.lista[[i]]%*%Fmat+Fmat%*%F.lista[[i]])%*%t(z1)%*%sPsi%*%(y1-med)
   ddi[indpar=="phi"] = -sigmae*t(y1-med)%*%sPsi%*%dphiDEC%*%sPsi%*%(y1-med)
   ddi[indpar=="theta"] = -sigmae*t(y1-med)%*%sPsi%*%dthetaDEC%*%sPsi%*%(y1-med)
-  
-  ##### derivadas de ki 
+
+  ##### derivadas de ki
   ki = IPhi(ni/2,di=di,Ai=Ai,distr = distr,nu=nu)
   dki = numeric(lpar)
   dki = -.5*IPhi(ni/2+1,di=di,Ai=Ai,distr = distr,nu=nu)*ddi+
     Iphi(ni/2+.5,di=di,Ai=Ai,distr = distr,nu=nu)*dAi
-  
+
   sihat = -.5*dlogdpsi+1/ki*dki
   sihat
-  
+
 }
 
 
@@ -2765,7 +2765,7 @@ scoreCAR1i <- function(jseq,y,x,z,time,beta1,sigmae,phiDEC,D1,lambda,distr,nu) {
                                                                     Fmat%*%F.lista[[i]])%*%t(z1))
   dphiDEC <- dphiCovDEC(phiDEC,1,t1)
   dlogdpsi[indpar=="phi"] = sigmae*traceM(sPsi%*%dphiDEC)
-  
+
   ##### derivadas de Ai para diferente de nu
   dAi = numeric(lpar)
   ai = as.numeric((1+t(lambda)%*%sFmat%*%Lambda%*%sFmat%*%lambda)^.5)
@@ -2776,7 +2776,7 @@ scoreCAR1i <- function(jseq,y,x,z,time,beta1,sigmae,phiDEC,D1,lambda,distr,nu) {
     1/ai^2*Ai*sFmat%*%Lambda%*%sFmat%*%lambda + c.*Bi/ai/(bi^3)*lambda
   dAi[indpar=="sigma"] = -1/ai*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%Covmat%*%sPsi%*%(y1-med)-
     Ai/(2*ai^2*sigmae^2)*t(lambda)%*%sFmat%*%Lambda%*%t(z1)%*%sCovmat%*%z1%*%Lambda%*%sFmat%*%lambda
-  
+
   for (i in 1:q2) dAi[indpar=="dd"][i] = 1/ai*(t(lambda)%*%F.lista[[i]]%*%t(z1)%*%sPsi%*%(y1-med)-
                                                  t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%z1%*%(F.lista[[i]]%*%Fmat+Fmat%*%F.lista[[i]])%*%t(z1)%*%sPsi%*%(y1-med)-
                                                  c./bi*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%z1%*%F.lista[[i]]%*%lambda)+
@@ -2784,7 +2784,7 @@ scoreCAR1i <- function(jseq,y,x,z,time,beta1,sigmae,phiDEC,D1,lambda,distr,nu) {
                                        Lambda%*%sFmat%*%(F.lista[[i]]%*%sFmat+sFmat%*%F.lista[[i]])%*%sFmat%*%Lambda)%*%sFmat%*%lambda
   dAi[indpar=="phi"] = -sigmae/ai*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%dphiDEC%*%sPsi%*%(y1-med)-
     Ai/(2*ai^2*sigmae)*t(lambda)%*%sFmat%*%Lambda%*%t(z1)%*%sCovmat%*%dphiDEC%*%sCovmat%*%z1%*%Lambda%*%sFmat%*%lambda
-  
+
   ##### derivadas de di
   ddi = numeric(lpar)
   ddi[indpar=="beta"] =-2*t(x1)%*%sPsi%*%(y1-med)
@@ -2793,16 +2793,16 @@ scoreCAR1i <- function(jseq,y,x,z,time,beta1,sigmae,phiDEC,D1,lambda,distr,nu) {
   for (i in 1:q2) ddi[indpar=="dd"][i] =-2*c.*t(delta)%*%F.lista[[i]]%*%t(z1)%*%sPsi%*%(y1-med)-
     t(y1-med)%*%sPsi%*%z1%*%(F.lista[[i]]%*%Fmat+Fmat%*%F.lista[[i]])%*%t(z1)%*%sPsi%*%(y1-med)
   ddi[indpar=="phi"] = -sigmae*t(y1-med)%*%sPsi%*%dphiDEC%*%sPsi%*%(y1-med)
-  
-  ##### derivadas de ki 
+
+  ##### derivadas de ki
   ki = IPhi(ni/2,di=di,Ai=Ai,distr = distr,nu=nu)
   dki = numeric(lpar)
   dki = -.5*IPhi(ni/2+1,di=di,Ai=Ai,distr = distr,nu=nu)*ddi+
     Iphi(ni/2+.5,di=di,Ai=Ai,distr = distr,nu=nu)*dAi
-  
+
   sihat = -.5*dlogdpsi+1/ki*dki
   sihat
-  
+
 }
 
 

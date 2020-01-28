@@ -8,7 +8,7 @@
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
 \usage{
-fitted.SMSN(x)
+fitted(x)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

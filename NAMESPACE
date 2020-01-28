@@ -1,1 +1,22 @@
-exportPattern("^[[:alpha:]]+")
+export(rsmsn.lmm)
+export(errorVar)
+export(smsn.lmm)
+#
+import("dplyr")
+importFrom("stats", "ARMAacf", "dgamma", "dnorm", "integrate",
+               "model.matrix", "optim", "pacf", "pgamma", "pnorm", "pt",
+               "qgamma", "qnorm", "rbeta", "rgamma", "rnorm", "runif",
+               "toeplitz")
+importFrom("utils", "capture.output")
+importFrom("dplyr","n_distinct")
+importFrom("purrr","flatten_int")
+importFrom("nlme","corARMA","lme","corCAR1","random.effects","ranef")
+importFrom("mvtnorm","dmvt","dmvnorm","rmvnorm")
+importFrom("numDeriv","jacobian")
+importFrom("moments","skewness")
+#
+S3method(print, SMSN)
+S3method(fitted, SMSN)
+S3method(ranef, SMSN)
+S3method(summary, SMSN)
+S3method(fitted, SMSN)
