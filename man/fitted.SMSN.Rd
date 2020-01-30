@@ -1,57 +1,48 @@
 \name{fitted.SMSN}
 \alias{fitted.SMSN}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Fitted from SMSN class
+\title{Extract smsn.lmm fitted values
 %%  ~~function to do ... ~~
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
-}
+ The fitted values are obtained by adding together the
+  population fitted values (based only on the fixed effects estimates)
+  and the estimated contributions of the random effects to the fitted
+  values at grouping levels. }
+
 \usage{
-fitted(x)
+\method{fitted}{SMSN}(object, \dots)
 }
-%- maybe also 'usage' for other objects documented here.
+
 \arguments{
-  \item{x}{
-%%     ~~Describe \code{x} here~~
-}
-}
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+ \item{object}{an object inheriting from class \code{SMSN}, representing
+   a fitted scale mixture skew-normal linear mixed model.}
+  \item{\dots}{Additional arguments.}
+   }
+
 \value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
+  Vector of fitted values with length equal to \code{nrow(data)}.
 }
+
 \references{
-%% ~put references to the literature/web site here ~
+Schumacher, F.L., Matos, L.A., and Lachos, V.H. (2020+) "Scale mixture of skew-normal linear mixed models with within-subject serial dependence". Submitted.
 }
 \author{
-%%  ~~who you are~~
-}
-\note{
-%%  ~~further notes~~
+Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 }
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
+\code{\link{smsn.lmm}}, \code{\link{predict.SMSN}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
-
-## The function is currently defined as
-function (x)
-{
+\dontrun{
+    fm1 <- smsn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar="Subject")
+    fitted(fm1)
   }
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
-\keyword{ ~kwd1 }% use one of  RShowDoc("KEYWORDS")
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+\keyword{models}% use one of  RShowDoc("KEYWORDS")
+\keyword{robust}% __ONLY ONE__ keyword per line

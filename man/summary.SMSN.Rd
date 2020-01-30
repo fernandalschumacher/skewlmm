@@ -1,57 +1,50 @@
 \name{summary.SMSN}
 \alias{summary.SMSN}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Summary from SMSN class
+\title{Summary of a smsn.lmm object
 %%  ~~function to do ... ~~
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+  \code{summary} method for class "SMSN".
 }
+
 \usage{
-summary(x)
+\method{summary}{SMSN}(object, confint.level = 0.95, \dots)
 }
-%- maybe also 'usage' for other objects documented here.
+
 \arguments{
-  \item{x}{
-%%     ~~Describe \code{x} here~~
-}
-}
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+  \item{object}{an object inheriting from class \code{SMSN}, representing
+   a fitted scale mixture skew-normal linear mixed model.}
+  \item{confint.level}{Level of the approximate confidence intervals presented. Default=0.95.}
+  \item{\dots}{Additional arguments.}
+   }
+
 \value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
+  \item{varRandom}{estimated variance matrix from random effects (\eqn{D}).}
+  \item{varFixed}{parameter estimates of variance from random errors (\eqn{\Sigma}). For recovering the error variance matrix use \code{\link{errorVar}} function.}
+  \item{tableFixed}{estimated fixed effects, their standard errors and approximated confidence intervals.}
+  \item{criteria}{Log-likelihood value from MLE, AIC and BIC criteria.}
 }
+
 \references{
-%% ~put references to the literature/web site here ~
+Schumacher, F.L., Matos, L.A., and Lachos, V.H. (2020+) "Scale mixture of skew-normal linear mixed models with within-subject serial dependence". Submitted.
 }
 \author{
-%%  ~~who you are~~
-}
-\note{
-%%  ~~further notes~~
+Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 }
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
+\code{\link{smsn.lmm}}, \code{\link{errorVar}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
-
-## The function is currently defined as
-function (x)
-{
+\dontrun{
+    fm1 <- smsn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar="Subject")
+    summary(fm1)
   }
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
-\keyword{ ~kwd1 }% use one of  RShowDoc("KEYWORDS")
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+\keyword{models}% use one of  RShowDoc("KEYWORDS")
+\keyword{robust}% __ONLY ONE__ keyword per line

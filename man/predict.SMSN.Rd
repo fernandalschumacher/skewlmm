@@ -1,57 +1,47 @@
 \name{predict.SMSN}
 \alias{predict.SMSN}
-%- Also NEED an '\alias' for EACH other topic documented here.
-\title{Predict from SMSN class
-%%  ~~function to do ... ~~
+
+\title{Prediction of future observations from an smsn.lmm object
 }
 \description{
+  Predicted values are obtained through conditional expectation. For details, see Schumacher, Matos and Lachos (2020).
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
 \usage{
-predict(x)
+\method{predict}{SMSN}(object, newData,\dots)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{x}{
-%%     ~~Describe \code{x} here~~
-}
-}
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+ \item{object}{an object inheriting from class \code{SMSN}, representing
+   a fitted scale mixture skew-normal linear mixed model.}
+ \item{newData}{a data frame for which response variable should be predicted, including covariates, groupVar and possibly timeVar.}
+  \item{\dots}{Additional arguments.}
+   }
+
 \value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
+  A data frame with covariates, groupVar and ypred, where ypred contains the predicted values from the response variable.
 }
+
 \references{
-%% ~put references to the literature/web site here ~
+Schumacher, F.L., Matos, L.A., and Lachos, V.H. (2020+) "Scale mixture of skew-normal linear mixed models with within-subject serial dependence". Submitted.
 }
 \author{
-%%  ~~who you are~~
-}
-\note{
-%%  ~~further notes~~
+Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 }
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
+\code{\link{smsn.lmm}}, \code{\link{fitted.SMSN}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
-
-## The function is currently defined as
-function (x)
-{
+\dontrun{
+    dat1 <- nlme::Orthodont
+    fm1 <- smsn.lmm(distance ~ age + Sex, data = subset(dat1,age<14), groupVar="Subject")
+    predict(fm1,subset(dat1,age==14))
   }
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
-\keyword{ ~kwd1 }% use one of  RShowDoc("KEYWORDS")
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+\keyword{models}% use one of  RShowDoc("KEYWORDS")
+\keyword{robust}% __ONLY ONE__ keyword per line

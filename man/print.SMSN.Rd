@@ -1,57 +1,42 @@
 \name{print.SMSN}
 \alias{print.SMSN}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Print SMSN object
+\title{Print a smsn.lmm object
 %%  ~~function to do ... ~~
 }
 \description{
+Print a smsn.lmm object.
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
 \usage{
-print(x)
+\method{print}{SMSN}(x, \dots)
 }
-%- maybe also 'usage' for other objects documented here.
+
 \arguments{
-  \item{x}{
-%%     ~~Describe \code{x} here~~
-}
-}
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
-\value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
-}
+ \item{x}{an object inheriting from class \code{SMSN}, representing
+   a fitted scale mixture skew-normal linear mixed model.}
+  \item{\dots}{Additional print arguments.}
+   }
+
 \references{
-%% ~put references to the literature/web site here ~
+Schumacher, F.L., Matos, L.A., and Lachos, V.H. (2020+) "Scale mixture of skew-normal linear mixed models with within-subject serial dependence". Submitted.
 }
 \author{
-%%  ~~who you are~~
-}
-\note{
-%%  ~~further notes~~
+Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 }
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
+\code{\link{smsn.lmm}}, \code{\link{summary.SMSN}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
-
-## The function is currently defined as
-function (x)
-{
+\dontrun{
+    fm1 <- smsn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar="Subject")
+    fm1
   }
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
-\keyword{ ~kwd1 }% use one of  RShowDoc("KEYWORDS")
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+\keyword{models}% use one of  RShowDoc("KEYWORDS")
+\keyword{robust}% __ONLY ONE__ keyword per line

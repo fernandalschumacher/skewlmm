@@ -15,6 +15,7 @@ smsn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "CI", tim
   if (sum(!(c(all.vars(formFixed),all.vars(formRandom),groupVar,timeVar) %in% names(data)))>0) stop("Variable not found in data")
   #
   if (!is.data.frame(data)) stop("data must be a data.frame")
+  if (!is.factor(data[,groupVar])) data[,groupVar]<-as.factor(data[,groupVar])
   x <- model.matrix(formFixed,data=data)
   y <-data[,all.vars(formFixed)[1]]
   z<-model.matrix(formRandom,data=data)
@@ -210,6 +211,7 @@ summary.SMSN <- function(object,confint.level=.95,...){
 fitted.SMSN <- function(object,...) object$fitted
 ranef.SMSN <- function(object,...) object$random.effects
 
+#colocar if subj not in data
 predict.SMSN <- function(object,newData,...){
   dataFit <- object$data
   formFixed <- object$formula$formFixed
@@ -219,6 +221,10 @@ predict.SMSN <- function(object,newData,...){
   dataPred<- newData
   if (sum(!(c(all.vars(formFixed),all.vars(formRandom),groupVar,timeVar) %in% names(newData)))>0) stop("Variable not found in newData")
   depStruct <- object$depStruct
+  if (any(!(dataPred[,groupVar] %in% dataFit[,groupVar]))) stop("subjects for which future values should be predicted must also be at fitting data")
+  if (!is.factor(dataFit[,groupVar])) dataFit[,groupVar]<-as.factor(dataFit[,groupVar])
+  if (!is.factor(dataPred[,groupVar])) dataPred[,groupVar]<-factor(dataPred[,groupVar],levels=levels(dataFit[,groupVar]))
+  #
   if (depStruct=="CI") obj.out <- predictf.skew(formFixed,formRandom,dataFit,dataPred,groupVar,distr=object$distr,theta=object$theta)
   if (depStruct=="ARp") obj.out <- predictf.skewAR(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,distr=object$distr,
                                                   pAR=length(object$estimates$phi),theta=object$theta)

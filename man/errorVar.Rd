@@ -1,57 +1,50 @@
 \name{errorVar}
 \alias{errorVar}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Return error variance
+\title{Return error variance associated with \code{times}
 %%  ~~function to do ... ~~
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+  It returns a variance matrix associated with the error term at time \code{times}.
+  Can be applied to a smsn.lmm object or to a specific dependence structure with chosen parameter values.
 }
 \usage{
-errorVar(x)
+errorVar(times, object = NULL, sigma2 = NULL, depStruct = NULL,
+    phi = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{x}{
-%%     ~~Describe \code{x} here~~
-}
-}
-\details{
-%%  ~~ If necessary, more details than the description above ~~
+  \item{times}{A vector containing the times for which the matrix should be calculated.}
+  \item{object}{A smsn.lmm object for which the variance should be extracted.}
+  \item{sigma2}{Common variance parameter, such that \eqn{\Sigma = sigma2*R}. Only evaluated if object \code{is.null(object)}.}
+  \item{depStruct}{Dependence structure. \code{"CI"} for condicional independence, \code{"ARp"} for AR(p) -- p is \code{length(phi)}--, \code{"CS"} for compound symmetry, \code{"DEC"} for DEC, and \code{"CAR1"} for  continuous-time AR(1). Only evaluated if object \code{is.null(object)}.}
+  \item{phi}{Parameter vector indexing the dependence structure. Only evaluated if object \code{is.null(object)}.}
 }
 \value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
+  Matrix of dimension \code{length(times)}.
 }
 \references{
-%% ~put references to the literature/web site here ~
+Schumacher, F.L., Matos, L.A., and Lachos, V.H. (2020+) "Scale mixture of skew-normal linear mixed models with within-subject serial dependence". Submitted.
 }
 \author{
-%%  ~~who you are~~
-}
-\note{
-%%  ~~further notes~~
+Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 }
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
+\code{\link{smsn.lmm}}, \code{\link{summary.SMSN}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
-
-## The function is currently defined as
-function (x)
-{
+\dontrun{
+    fm1 <- smsn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar="Subject")
+    errorVar(times=1:4,fm1)
+    #
+    errorVar(times=1:5,sigma2 = 1, depStruct = "ARp",phi = .5)
+    errorVar(times=1:5,sigma2 = 1, depStruct = "DEC",phi = c(.5,.8))
   }
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
-\keyword{ ~kwd1 }% use one of  RShowDoc("KEYWORDS")
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+\keyword{models}% use one of  RShowDoc("KEYWORDS")
+\keyword{robust}% __ONLY ONE__ keyword per line
