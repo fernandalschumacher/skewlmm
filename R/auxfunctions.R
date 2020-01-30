@@ -371,7 +371,7 @@ lcAR <- function(piAR,beta1,sigmae,y,x,z,time,ind,u,ub,ub2) {
 
 EM.SkewAR<- function(formFixed,formRandom,data,groupVar,pAR,timeVar,
                      distr,beta1,sigmae,phiAR,D1,lambda,nu,lb,lu,
-                     precisao,informa,calcbi,max.iter){
+                     precisao,informa,calcbi,max.iter,showiter){
   ti <- Sys.time()
   x <- model.matrix(formFixed,data=data)
   varsx <- all.vars(formFixed)[-1]
@@ -454,7 +454,7 @@ EM.SkewAR<- function(formFixed,formRandom,data,groupVar,pAR,timeVar,
     llj1<-llji
     llji <- logveroARpi(y, x, z, time,ind, beta1, sigmae,piAR, D1, lambda, distr, nu)
     criterio <- abs((llji-llj1)/llj1)
-    cat("Iteration ",count," of ",max.iter,"\r") #  criterium ",criterio," or ",criterio2,"\r")
+    if (showiter) cat("Iteration ",count," of ",max.iter,"\r") #  criterium ",criterio," or ",criterio2,"\r")
     if (count==max.iter) message("\n maximum number of iterations reachead")
   }
 
@@ -781,7 +781,7 @@ emj = function(jseq, y, x, z, beta1, Gammab, Deltab, sigmae,zeta,distr,nu,calcbi
 }
 
 EM.Skew<- function(formFixed,formRandom,data,groupVar,distr,beta1,sigmae,D1,lambda,nu,lb,lu,
-                   precisao,informa,calcbi,max.iter){
+                   precisao,informa,calcbi,max.iter,showiter){
   ti = Sys.time()
   x <- model.matrix(formFixed,data=data)
   varsx <- all.vars(formFixed)[-1]
@@ -842,7 +842,7 @@ EM.Skew<- function(formFixed,formRandom,data,groupVar,distr,beta1,sigmae,D1,lamb
     llj1 <- llji
     llji <- logvero(y, x, z, ind, beta1, sigmae, D1, lambda, distr, nu)
     criterio <- abs((llji-llj1)/llj1)
-    cat("Iteration ",count,"  of ",max.iter,"\r")
+    if (showiter) cat("Iteration ",count,"  of ",max.iter,"\r")
     if (count==max.iter) message("\n maximum number of iterations reachead")
   }
   cat("\n")
@@ -1186,7 +1186,7 @@ lcCS <- function(phiCS,beta1,sigmae,y,x,z,ind,u,ub,ub2) {
 
 EM.SkewCS<- function(formFixed,formRandom,data,groupVar,
                      distr,beta1,sigmae,phiCS,D1,lambda,nu,lb,lu,
-                     precisao,informa,calcbi,max.iter){
+                     precisao,informa,calcbi,max.iter,showiter){
   ti <- Sys.time()
   x <- model.matrix(formFixed,data=data)
   varsx <- all.vars(formFixed)[-1]
@@ -1258,7 +1258,7 @@ EM.SkewCS<- function(formFixed,formRandom,data,groupVar,
     llj1<-llji
     llji <- logveroCS(y, x, z, ind, beta1, sigmae,phiCS, D1, lambda, distr, nu)
     criterio <- abs((llji-llj1)/llj1)
-    cat("Iteration ",count,"  of ",max.iter,"\r")
+    if (showiter) cat("Iteration ",count,"  of ",max.iter,"\r")
     if (count==max.iter) message("\n maximum number of iterations reachead")
   }
 
@@ -1621,7 +1621,7 @@ lcDEC <- function(parDEC,beta1,sigmae,y,x,z,time,ind,u,ub,ub2) {
 
 EM.SkewDEC<- function(formFixed,formRandom,data,groupVar,timeVar,
                       beta1,sigmae,D1,lambda,distr,nu,parDEC,lb,lu,luDEC,
-                      precisao,informa,calcbi,max.iter){
+                      precisao,informa,calcbi,max.iter,showiter){
   ti <- Sys.time()
   x <- model.matrix(formFixed,data=data)
   varsx <- all.vars(formFixed)[-1]
@@ -1710,7 +1710,7 @@ EM.SkewDEC<- function(formFixed,formRandom,data,groupVar,timeVar,
     llj1<-llji
     llji <- logveroDEC(y, x, z, time,ind, beta1, sigmae,phiDEC,thetaDEC, D1, lambda, distr, nu)
     criterio <- abs((llji-llj1)/llj1)
-    cat("Iteration ",count,"  of ",max.iter,"\r")
+    if (showiter) cat("Iteration ",count,"  of ",max.iter,"\r")
     if (count==max.iter) message("\n maximum number of iterations reachead")
   }
 
@@ -2078,7 +2078,7 @@ lcCAR1 <- function(phiCAR,beta1,sigmae,y,x,z,time,ind,u,ub,ub2) {
 
 EM.SkewCAR1<- function(formFixed,formRandom,data,groupVar,timeVar,
                        distr,beta1,sigmae,phiCAR1,D1,lambda,nu,lb,lu,
-                       precisao,informa,calcbi,max.iter){
+                       precisao,informa,calcbi,max.iter,showiter){
   ti <- Sys.time()
   x <- model.matrix(formFixed,data=data)
   varsx <- all.vars(formFixed)[-1]
@@ -2158,7 +2158,7 @@ EM.SkewCAR1<- function(formFixed,formRandom,data,groupVar,timeVar,
     llj1<-llji
     llji <- logveroCAR1(y, x, z, time,ind, beta1, sigmae,phiDEC, D1, lambda, distr, nu)
     criterio <- abs((llji-llj1)/llj1)
-    cat("Iteration ",count,"  of ",max.iter,"\r")
+    if (showiter) cat("Iteration ",count,"  of ",max.iter,"\r")
     if (count==max.iter) message("\n maximum number of iterations reachead")
   }
 

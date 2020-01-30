@@ -35,66 +35,16 @@ This is a basic example which shows you how to fit a SMSN-LMM:
 ``` r
 library(lmmsmsn)
     dat1 <- as.data.frame(nlme::Orthodont)
-    fm1 <- smsn.lmm(dat1,formFixed=distance ~ age,groupVar="Subject")
-#> Iteration  1   of  200 
-Iteration  2   of  200 
-Iteration  3   of  200 
-Iteration  4   of  200 
-Iteration  5   of  200 
-Iteration  6   of  200 
-Iteration  7   of  200 
-Iteration  8   of  200 
-Iteration  9   of  200 
-Iteration  10   of  200 
-Iteration  11   of  200 
-Iteration  12   of  200 
-Iteration  13   of  200 
-Iteration  14   of  200 
-Iteration  15   of  200 
-Iteration  16   of  200 
-Iteration  17   of  200 
-Iteration  18   of  200 
-Iteration  19   of  200 
-Iteration  20   of  200 
-Iteration  21   of  200 
-Iteration  22   of  200 
-Iteration  23   of  200 
-Iteration  24   of  200 
-Iteration  25   of  200 
-Iteration  26   of  200 
-Iteration  27   of  200 
-Iteration  28   of  200 
-Iteration  29   of  200 
-Iteration  30   of  200 
-Iteration  31   of  200 
-Iteration  32   of  200 
-Iteration  33   of  200 
-Iteration  34   of  200 
-Iteration  35   of  200 
-Iteration  36   of  200 
-Iteration  37   of  200 
-Iteration  38   of  200 
-Iteration  39   of  200 
-Iteration  40   of  200 
-Iteration  41   of  200 
-Iteration  42   of  200 
-Iteration  43   of  200 
-Iteration  44   of  200 
-Iteration  45   of  200 
-Iteration  46   of  200 
-Iteration  47   of  200 
-Iteration  48   of  200 
-Iteration  49   of  200 
-Iteration  50   of  200 
-Iteration  51   of  200 
+    fm1 <- smsn.lmm(dat1,formFixed=distance ~ age,groupVar="Subject",quiet=T)
     fm1
 #> Linear mixed models with distribution sn and dependency structure CI 
 #> Call:
-#> smsn.lmm(data = dat1, formFixed = distance ~ age, groupVar = "Subject")
+#> smsn.lmm(data = dat1, formFixed = distance ~ age, groupVar = "Subject", 
+#>     quiet = T)
 #> 
 #> Fixed:distance ~ age
 #> Random:~1
-#> <environment: 0x0000000012430348>
+#> <environment: 0x0000000012471b18>
 #>   Estimated variance (D):
 #>             (Intercept)
 #> (Intercept)    6.599775
@@ -113,11 +63,12 @@ Iteration  51   of  200
     summary(fm1)
 #> Linear mixed models with distribution sn and dependency structure CI 
 #> Call:
-#> smsn.lmm(data = dat1, formFixed = distance ~ age, groupVar = "Subject")
+#> smsn.lmm(data = dat1, formFixed = distance ~ age, groupVar = "Subject", 
+#>     quiet = T)
 #> 
 #> Distribution sn
 #> Random effects: ~1
-#> <environment: 0x0000000012430348>
+#> <environment: 0x0000000012471b18>
 #>   Estimated variance (D):
 #>             (Intercept)
 #> (Intercept)    6.599775

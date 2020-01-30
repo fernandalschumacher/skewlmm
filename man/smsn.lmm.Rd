@@ -12,7 +12,7 @@ smsn.lmm(data, formFixed, groupVar, formRandom = ~1, depStruct = "CI",
     timeVar = NULL, distr = "sn", pAR = 1, luDEC = 10,
     tol = 1e-06, max.iter = 200, calc.se = T, calc.bi = T, lb = NULL,
     lu = NULL, initialValues = list(beta = NULL, sigma2 = NULL,
-        D = NULL, lambda = NULL, phi = NULL, nu = NULL))
+        D = NULL, lambda = NULL, phi = NULL, nu = NULL), quiet = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -32,6 +32,7 @@ smsn.lmm(data, formFixed, groupVar, formRandom = ~1, depStruct = "CI",
   \item{lb}{Optional. Bottom limit for estimating \code{nu}.}
   \item{lu}{Optional. Upper limit for estimating \code{nu}.}
   \item{initialValues}{Optional. A named list containing initial parameter values, with at most the following elements: \code{beta}, \code{sigma2}, \code{D}, \code{lambda}, \code{phi}, \code{nu}.}
+  \item{quiet}{A logical value indicating if the iteration message should be suppressed. Useful when calling the function in R Markdown.}
 }
 \details{
 It fits the model \eqn{Y_i = X_i \beta + Z_i b_i + \epsilon_i}, for \eqn{i=1,\dots,n}, where \eqn{Y_i} is a vector with \eqn{n_i} observed continuous responses, \eqn{b_i ~ SMSN(c\Delta, D,\lambda;H)} and \eqn{\epsilon_i ~ SMN(0, \Sigma_i; H)}, indexed by the same mixing distribution.

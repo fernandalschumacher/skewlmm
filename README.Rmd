@@ -42,7 +42,7 @@ This is a basic example which shows you how to fit a SMSN-LMM:
 ```{r example}
 library(lmmsmsn)
     dat1 <- as.data.frame(nlme::Orthodont)
-    fm1 <- smsn.lmm(dat1,formFixed=distance ~ age,groupVar="Subject")
+    fm1 <- smsn.lmm(dat1,formFixed=distance ~ age,groupVar="Subject",quiet=T)
     fm1
     summary(fm1)
 ```

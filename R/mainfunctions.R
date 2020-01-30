@@ -2,9 +2,8 @@
 smsn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "CI", timeVar=NULL,
                      distr="sn",pAR=1,luDEC=10,
                      tol=1e-6,max.iter=200,calc.se=T,calc.bi=T,lb=NULL,lu=NULL,
-                     initialValues =list(beta=NULL,sigma2=NULL,D=NULL,lambda=NULL,phi=NULL,nu=NULL)) {
-                     #beta1,sigmae,D1,lambda,pAR=length(phiAR),phiAR=NULL,
-                     #phi1DEC=NULL,phi2DEC=NULL,phiCAR=NULL,phiCS=NULL,
+                     initialValues =list(beta=NULL,sigma2=NULL,D=NULL,lambda=NULL,phi=NULL,nu=NULL),
+                     quiet=FALSE) {
   if (!is.list(initialValues)) stop("initialValues must be a list")
   if (any(!(names(initialValues) %in% c("beta","sigma2","D","lambda","phi","nu")))) stop("initialValues must be a list with
                                                                                          named elements beta, sigma2, D, lambda, phi and/or nu")
@@ -77,19 +76,19 @@ smsn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "CI", tim
   if (distr=="scn"&length(nu)!=2) stop ("wrong dimension of nu")
   ###
   if (depStruct=="CI") obj.out <- EM.Skew(formFixed,formRandom,data,groupVar,distr,beta1,sigmae,D1,
-                                    lambda,nu,lb,lu,precisao=tol,informa=calc.se,calcbi=calc.bi,max.iter=max.iter)
+                                    lambda,nu,lb,lu,precisao=tol,informa=calc.se,calcbi=calc.bi,max.iter=max.iter,showiter=!quiet)
   if (depStruct=="ARp") obj.out <- EM.SkewAR(formFixed,formRandom,data,groupVar,pAR,timeVar,
                                       distr,beta1,sigmae,phiAR,D1,lambda,nu,lb,lu,
-                                      precisao=tol,informa=calc.se,calcbi=calc.bi,max.iter=max.iter)
+                                      precisao=tol,informa=calc.se,calcbi=calc.bi,max.iter=max.iter,showiter=!quiet)
   if (depStruct=="CS") obj.out <-EM.SkewCS(formFixed,formRandom,data,groupVar,
                                             distr,beta1,sigmae,phiCS,D1,lambda,nu,lb,lu,
-                                         precisao=tol,informa=calc.se,calcbi=calc.bi,max.iter=max.iter)
+                                         precisao=tol,informa=calc.se,calcbi=calc.bi,max.iter=max.iter,showiter=!quiet)
   if (depStruct=="DEC") obj.out <-EM.SkewDEC(formFixed,formRandom,data,groupVar,timeVar,
                                           beta1,sigmae,D1,lambda,distr,nu,parDEC,lb,lu,luDEC,
-                                          precisao=tol,informa=calc.se,calcbi=calc.bi,max.iter=max.iter)
+                                          precisao=tol,informa=calc.se,calcbi=calc.bi,max.iter=max.iter,showiter=!quiet)
   if (depStruct=="CAR1") obj.out <-EM.SkewCAR1(formFixed,formRandom,data,groupVar,timeVar,
                                         distr,beta1,sigmae,phiCAR1,D1,lambda,nu,lb,lu,
-                                        precisao=tol,informa=calc.se,calcbi=calc.bi,max.iter=max.iter)
+                                        precisao=tol,informa=calc.se,calcbi=calc.bi,max.iter=max.iter,showiter=!quiet)
   obj.out$call <- match.call()
 
   npar<-length(obj.out$theta);N<-nrow(data)
