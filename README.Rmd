@@ -22,15 +22,22 @@ The goal of lmmsmsn is to fit scale mixture of skew-normal linear mixed models w
 
 ## Installation
 
-You can install the released version of lmmsmsn from [CRAN](https://CRAN.R-project.org) with:
+<!-- You can install the released version of lmmsmsn from [CRAN](https://CRAN.R-project.org) with: -->
 
-``` r
-install.packages("lmmsmsn")
+<!-- ``` r -->
+<!-- install.packages("lmmsmsn") -->
+<!-- ``` -->
+
+You can install lmmsmsn from GitHub with:
+
+```r
+library(devtools)
+install_github("fernandalschumacher/lmmsmsn")
 ```
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+This is a basic example which shows you how to fit a SMSN-LMM:
 
 ```{r example}
 library(lmmsmsn)
@@ -40,3 +47,4 @@ library(lmmsmsn)
     summary(fm1)
 ```
 
+For more examples, see help(smsn.lmm).
