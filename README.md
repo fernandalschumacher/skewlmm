@@ -1,15 +1,15 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# lmmsmsn
+# skewlmm
 
 <!-- badges: start -->
 
 <!-- badges: end -->
 
-The goal of lmmsmsn is to fit scale mixture of skew-normal linear mixed
-models with possible within-subject dependence structure, using an
-EM-type algorithm.
+The goal of skewlmm is to fit skew robust linear mixed models, using
+scale mixture of skew-normal linear mixed models with possible
+within-subject dependence structure, using an EM-type algorithm.
 
 ## Installation
 
@@ -21,11 +21,11 @@ EM-type algorithm.
 
 <!-- ``` -->
 
-You can install lmmsmsn from GitHub with:
+You can install skewlmm from GitHub with:
 
 ``` r
 library(devtools)
-install_github("fernandalschumacher/lmmsmsn")
+install_github("fernandalschumacher/skewlmm")
 ```
 
 ## Example
@@ -33,7 +33,7 @@ install_github("fernandalschumacher/lmmsmsn")
 This is a basic example which shows you how to fit a SMSN-LMM:
 
 ``` r
-library(lmmsmsn)
+library(skewlmm)
     dat1 <- as.data.frame(nlme::Orthodont)
     fm1 <- smsn.lmm(dat1,formFixed=distance ~ age,groupVar="Subject",quiet=T)
     fm1
@@ -44,7 +44,7 @@ library(lmmsmsn)
 #> 
 #> Fixed:distance ~ age
 #> Random:~1
-#> <environment: 0x0000000012471b18>
+#> <environment: 0x0000000017927488>
 #>   Estimated variance (D):
 #>             (Intercept)
 #> (Intercept)    6.599775
@@ -68,7 +68,7 @@ library(lmmsmsn)
 #> 
 #> Distribution sn
 #> Random effects: ~1
-#> <environment: 0x0000000012471b18>
+#> <environment: 0x0000000017927488>
 #>   Estimated variance (D):
 #>             (Intercept)
 #> (Intercept)    6.599775

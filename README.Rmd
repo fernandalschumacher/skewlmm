@@ -13,12 +13,12 @@ knitr::opts_chunk$set(
 )
 ```
 
-# lmmsmsn
+# skewlmm
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of lmmsmsn is to fit scale mixture of skew-normal linear mixed models with possible within-subject dependence structure, using an EM-type algorithm.
+The goal of skewlmm is to fit skew robust linear mixed models, using scale mixture of skew-normal linear mixed models with possible within-subject dependence structure, using an EM-type algorithm.
 
 ## Installation
 
@@ -28,11 +28,11 @@ The goal of lmmsmsn is to fit scale mixture of skew-normal linear mixed models w
 <!-- install.packages("lmmsmsn") -->
 <!-- ``` -->
 
-You can install lmmsmsn from GitHub with:
+You can install skewlmm from GitHub with:
 
 ```r
 library(devtools)
-install_github("fernandalschumacher/lmmsmsn")
+install_github("fernandalschumacher/skewlmm")
 ```
 
 ## Example
@@ -40,7 +40,7 @@ install_github("fernandalschumacher/lmmsmsn")
 This is a basic example which shows you how to fit a SMSN-LMM:
 
 ```{r example}
-library(lmmsmsn)
+library(skewlmm)
     dat1 <- as.data.frame(nlme::Orthodont)
     fm1 <- smsn.lmm(dat1,formFixed=distance ~ age,groupVar="Subject",quiet=T)
     fm1
