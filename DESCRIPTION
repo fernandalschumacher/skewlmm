@@ -1,4 +1,4 @@
-Package: lmmsmsn
+Package: skewlmm
 Type: Package
 Title: Scale mixture of Skew-Normal Linear Mixed Models
 Version: 0.1.0
