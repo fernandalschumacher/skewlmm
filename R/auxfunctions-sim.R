@@ -254,7 +254,7 @@ EM.AR<- function(formFixed,formRandom,data,groupVar,pAR,timeVar,
   obj.out
   }
 ####
-predict.AR<- function(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,distr,pAR,theta){
+predictf.AR<- function(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,distr,pAR,theta){
   dataPred[,all.vars(formFixed)[1]] <- 0
   dataFit$ind <-dataFit[,groupVar]
   dataPred$ind <-dataPred[,groupVar]
@@ -529,7 +529,7 @@ EM.sim<- function(formFixed,formRandom,data,groupVar,distr,beta1,sigmae,D1,nu,lb
   obj.out
   }
 #
-predict.sim<- function(formFixed,formRandom,dataFit,dataPred,groupVar,distr,theta){
+predictf.sim<- function(formFixed,formRandom,dataFit,dataPred,groupVar,distr,theta){
   dataPred[,all.vars(formFixed)[1]] <- 0
   dataFit$ind <-dataFit[,groupVar]
   dataPred$ind <-dataPred[,groupVar]
@@ -811,7 +811,7 @@ EM.CS<- function(formFixed,formRandom,data,groupVar,
   obj.out
   }
 #
-predict.CS<- function(formFixed,formRandom,dataFit,dataPred,groupVar,distr,theta){
+predictf.CS<- function(formFixed,formRandom,dataFit,dataPred,groupVar,distr,theta){
   dataPred[,all.vars(formFixed)[1]] <- 0
   dataFit$ind <-dataFit[,groupVar]
   dataPred$ind <-dataPred[,groupVar]
@@ -1119,7 +1119,7 @@ EM.DEC<- function(formFixed,formRandom,data,groupVar,timeVar,
   obj.out
   }
 
-predict.DEC<- function(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,distr,theta){
+predictf.DEC<- function(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,distr,theta){
   dataPred[,all.vars(formFixed)[1]] <- 0
   dataFit$ind <-dataFit[,groupVar]
   dataPred$ind <-dataPred[,groupVar]
@@ -1427,7 +1427,7 @@ EM.CAR1<- function(formFixed,formRandom,data,groupVar,timeVar,
   obj.out
   }
 #
-predict.CAR1<- function(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,distr,theta){
+predictf.CAR1<- function(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,distr,theta){
   dataPred[,all.vars(formFixed)[1]] <- 0
   dataFit$ind <-dataFit[,groupVar]
   dataPred$ind <-dataPred[,groupVar]

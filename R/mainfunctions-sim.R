@@ -1,12 +1,12 @@
-#main functions from skewlmm package - SMSN-LMM
-smsn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "CI", timeVar=NULL,
-                     distr="sn",pAR=1,luDEC=10,
+#main functions from skewlmm package - SMN-LMM
+smn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "CI", timeVar=NULL,
+                     distr="norm",pAR=1,luDEC=10,
                      tol=1e-6,max.iter=200,calc.se=T,calc.bi=T,lb=NULL,lu=NULL,
-                     initialValues =list(beta=NULL,sigma2=NULL,D=NULL,lambda=NULL,phi=NULL,nu=NULL),
+                     initialValues =list(beta=NULL,sigma2=NULL,D=NULL,phi=NULL,nu=NULL),
                      quiet=FALSE) {
   if (!is.list(initialValues)) stop("initialValues must be a list")
-  if (any(!(names(initialValues) %in% c("beta","sigma2","D","lambda","phi","nu")))) stop("initialValues must be a list with
-                                                                                         named elements beta, sigma2, D, lambda, phi and/or nu")
+  if (any(!(names(initialValues) %in% c("beta","sigma2","D","phi","nu")))) stop("initialValues must be a list with
+                                                                                         named elements beta, sigma2, D, phi and/or nu")
   #
   if (!is.character(groupVar)) stop("groupVar must be a character containing the name of the grouping variable in data")
   if (!is.null(timeVar)&!is.character(timeVar)) stop("timeVar must be a character containing the name of the time variable in data")
@@ -25,16 +25,16 @@ smsn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "CI", tim
   if ((sum(is.na(x))+sum(is.na(z))+sum(is.na(y))+sum(is.na(ind)))>0) stop ("NAs not allowed")
   if (!is.null(timeVar) & sum(is.na(data[,timeVar]))) stop ("NAs not allowed")
   #
-  if (!(distr %in% c("sn","st","ss","scn"))) stop("Accepted distributions: sn, st, ss, scn")
-  if ((!is.null(lb))&distr!="sn") if((distr=="st"&(lb<=1))|(distr=="ss"&(lb<=.5))) stop("Invalid lb")
-  if (is.null(lb)&distr!="sn") lb = ifelse(distr=="scn",rep(.01,2),ifelse(distr=="st",1.01,.51))
-  if (is.null(lu)&distr!="sn") lu = ifelse(distr=="scn",rep(.99,2),ifelse(distr=="st",100,50))
+  if (!(distr %in% c("norm","t","sl","cn"))) stop("Accepted distributions: norm, t, sl, cn")
+  if ((!is.null(lb))&distr!="norm") if((distr=="t"&(lb<=1))|(distr=="sl"&(lb<=.5))) stop("Invalid lb")
+  if (is.null(lb)&distr!="norm") lb = ifelse(distr=="cn",rep(.01,2),ifelse(distr=="t",1.01,.51))
+  if (is.null(lu)&distr!="norm") lu = ifelse(distr=="cn",rep(.99,2),ifelse(distr=="t",100,50))
   #
   if (depStruct=="ARp" & !is.null(timeVar) & ((sum(!is.wholenumber(data[,timeVar]))>0)|(sum(data[,timeVar]<=0)>0))) stop("timeVar must contain positive integer numbers when using ARp dependency")
   if (depStruct=="ARp" & !is.null(timeVar)) if (min(data[,timeVar])!=1) warning("consider using a transformation such that timeVar starts at 1")
   if (!(depStruct %in% c("CI","ARp","CS","DEC","CAR1"))) stop("accepted depStruct: CI, ARp, CS, DEC or CAR1")
   #
-  if (is.null(initialValues$beta)|is.null(initialValues$sigma2)|is.null(initialValues$lambda)) {
+  if (is.null(initialValues$beta)|is.null(initialValues$sigma2)) {
     lmefit = try(lme(formFixed,random=~1|ind,data=data),silent=T)
     if (class(lmefit)=="try-error") stop("error in calculating initial values")
   }
@@ -47,14 +47,10 @@ smsn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "CI", tim
   if (!is.null(initialValues$D)) {
     D1 <- initialValues$D
   } else D1 <- diag(q1)
-  if (!is.null(initialValues$lambda)) {
-    lambda <- initialValues$lambda
-  } else lambda <- rep(3,q1)*sign(as.numeric(skewness(random.effects(lmefit))))
   #
   if (length(D1)==1 & !is.matrix(D1)) D1=as.matrix(D1)
   #
   if (length(beta1)!=p) stop ("wrong dimension of beta")
-  if (length(lambda)!=q1) stop ("wrong dimension of lambda")
   if (!is.matrix(D1)) stop("D must be a matrix")
   if ((ncol(D1)!=q1)|(nrow(D1)!=q1)) stop ("wrong dimension of D")
   if (length(sigmae)!=1) stop ("wrong dimension of sigma2")
@@ -67,28 +63,35 @@ smsn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "CI", tim
   #
   nu = initialValues$nu
   #
-  if (distr=="st"&is.null(nu)) nu=10
-  if (distr=="ss"&is.null(nu)) nu=5
-  if (distr=="scn"&is.null(nu)) nu=c(.05,.8)
+  if (distr=="t"&is.null(nu)) nu=10
+  if (distr=="sl"&is.null(nu)) nu=5
+  if (distr=="cn"&is.null(nu)) nu=c(.05,.8)
   #
-  if (distr=="st"&length(nu)!=1) stop ("wrong dimension of nu")
-  if (distr=="ss"&length(nu)!=1) stop ("wrong dimension of nu")
-  if (distr=="scn"&length(nu)!=2) stop ("wrong dimension of nu")
+  if (distr=="t"&length(nu)!=1) stop ("wrong dimension of nu")
+  if (distr=="sl"&length(nu)!=1) stop ("wrong dimension of nu")
+  if (distr=="cn"&length(nu)!=2) stop ("wrong dimension of nu")
+  #
+  if (distr=="norm") distrs="sn"
+  if (distr=="t") distrs="st"
+  if (distr=="sl") distrs="ss"
+  if (distr=="cn") distrs="scn"
   ###
-  if (depStruct=="CI") obj.out <- EM.Skew(formFixed,formRandom,data,groupVar,distr,beta1,sigmae,D1,
-                                    lambda,nu,lb,lu,precisao=tol,informa=calc.se,calcbi=calc.bi,max.iter=max.iter,showiter=!quiet)
-  if (depStruct=="ARp") obj.out <- EM.SkewAR(formFixed,formRandom,data,groupVar,pAR,timeVar,
-                                      distr,beta1,sigmae,phiAR,D1,lambda,nu,lb,lu,
-                                      precisao=tol,informa=calc.se,calcbi=calc.bi,max.iter=max.iter,showiter=!quiet)
-  if (depStruct=="CS") obj.out <-EM.SkewCS(formFixed,formRandom,data,groupVar,
-                                            distr,beta1,sigmae,phiCS,D1,lambda,nu,lb,lu,
+  if (depStruct=="CI") obj.out <- EM.sim(formFixed,formRandom,data,groupVar,distr=distrs,beta1,sigmae,D1,
+                                          nu,lb,lu,precisao=tol,informa=calc.se,calcbi=calc.bi,max.iter=max.iter,showiter=!quiet)
+  if (depStruct=="ARp") obj.out <- EM.AR(formFixed,formRandom,data,groupVar,pAR,timeVar,
+                                         distr=distrs,beta1,sigmae,phiAR,D1,nu,lb,lu,
                                          precisao=tol,informa=calc.se,calcbi=calc.bi,max.iter=max.iter,showiter=!quiet)
-  if (depStruct=="DEC") obj.out <-EM.SkewDEC(formFixed,formRandom,data,groupVar,timeVar,
-                                          beta1,sigmae,D1,lambda,distr,nu,parDEC,lb,lu,luDEC,
-                                          precisao=tol,informa=calc.se,calcbi=calc.bi,max.iter=max.iter,showiter=!quiet)
-  if (depStruct=="CAR1") obj.out <-EM.SkewCAR1(formFixed,formRandom,data,groupVar,timeVar,
-                                        distr,beta1,sigmae,phiCAR1,D1,lambda,nu,lb,lu,
-                                        precisao=tol,informa=calc.se,calcbi=calc.bi,max.iter=max.iter,showiter=!quiet)
+  if (depStruct=="CS") obj.out <-EM.CS(formFixed,formRandom,data,groupVar,
+                                       distr=distrs,beta1,sigmae,phiCS,D1,nu,lb,lu,
+                                           precisao=tol,informa=calc.se,calcbi=calc.bi,max.iter=max.iter,showiter=!quiet)
+  if (depStruct=="DEC") obj.out <-EM.DEC(formFixed,formRandom,data,groupVar,timeVar,
+                                             beta1,sigmae,D1,distr=distrs,nu,parDEC,lb,lu,luDEC,
+                                             precisao=tol,informa=calc.se,calcbi=calc.bi,max.iter=max.iter,showiter=!quiet)
+  if (depStruct=="CAR1") obj.out <-EM.CAR1(formFixed = formFixed,formRandom = formRandom,
+                                               data = data,groupVar = groupVar,timeVar = timeVar,
+                                               distr=distrs,beta1 = beta1,sigmae = sigmae,
+                                               phiCAR1 = phiCAR1,D1 = D1,nu = nu,lb = lb,lu = lu,
+                                               precisao=tol,informa=calc.se,calcbi=calc.bi,max.iter=max.iter,showiter=!quiet)
   obj.out$call <- match.call()
 
   npar<-length(obj.out$theta);N<-nrow(data)
@@ -116,11 +119,11 @@ smsn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "CI", tim
     obj.out$fitted <- fitted
   }
 
-  class(obj.out)<- c("SMSN","list")
+  class(obj.out)<- c("SMN","list")
   obj.out
 }
 
-print.SMSN <- function(x,...){
+print.SMN <- function(x,...){
   cat("Linear mixed models with distribution", x$distr, "and dependency structure",x$depStruct,"\n")
   cat("Call:\n")
   print(x$call)
@@ -156,12 +159,12 @@ print.SMSN <- function(x,...){
   cat('Number of groups:',x$n,'\n')
 }
 
-summary.SMSN <- function(object,confint.level=.95,...){
+summary.SMN <- function(object,confint.level=.95,...){
   cat("Linear mixed models with distribution", object$distr, "and dependency structure",object$depStruct,"\n")
   cat("Call:\n")
   print(object$call)
   cat("\nDistribution", object$distr)
-  if (object$distr!="sn") cat(" with nu =", object$estimates$nu,"\n")
+  if (object$distr!="norm") cat(" with nu =", object$estimates$nu,"\n")
   cat("\nRandom effects: ")
   print(object$formula$formRandom)
   cat("  Estimated variance (D):\n")
@@ -176,15 +179,14 @@ summary.SMSN <- function(object,confint.level=.95,...){
   if (!is.null(object$std.error)) {
     qIC <- qnorm(.5+confint.level/2)
     ICtab <- cbind(object$estimates$beta-qIC*object$std.error[1:p],
-                  object$estimates$beta+qIC*object$std.error[1:p])
+                   object$estimates$beta+qIC*object$std.error[1:p])
     tab = (cbind(object$estimates$beta,object$std.error[1:p],
-                      ICtab))
+                 ICtab))
     rownames(tab) = names(object$theta[1:p])
     colnames(tab) = c("Value","Std.error",paste0("IC ",confint.level*100,"% lower"),
                       paste0("IC ",confint.level*100,"% upper"))
-  }
-  else {
-    tab = rbind(object$estimates$beta)
+  } else {
+    tab = (rbind(object$estimates$beta))
     colnames(tab) = names(object$theta[1:p])
     rownames(tab) = c("Value")
   }
@@ -195,8 +197,6 @@ summary.SMSN <- function(object,confint.level=.95,...){
   if (object$depStruct=="CI") names(covParam) <- "sigma2"
   else names(covParam) <- c("sigma2",paste0("phi",1:(length(covParam)-1)))
   print(covParam)
-  cat("\nSkewness parameter estimate:", object$estimates$lambda)
-  cat('\n')
   cat('\nModel selection criteria:\n')
   criteria <- c(object$loglik, object$criteria$AIC, object$criteria$BIC)
   criteria <- round(t(as.matrix(criteria)),digits=3)
@@ -208,81 +208,34 @@ summary.SMSN <- function(object,confint.level=.95,...){
   invisible(list(varRandom=D1,varFixed=covParam,tableFixed=tab,criteria=criteria))
 }
 
-fitted.SMSN <- function(object,...) object$fitted
-ranef.SMSN <- function(object,...) object$random.effects
+fitted.SMN <- function(object,...) object$fitted
+ranef.SMN <- function(object,...) object$random.effects
 
 #colocar if subj not in data
-predict.SMSN <- function(object,newData,...){
+predict.SMN <- function(object,newData,...){
   dataFit <- object$data
   formFixed <- object$formula$formFixed
   formRandom <- object$formula$formRandom
   groupVar<-object$groupVar
   timeVar <- object$timeVar
   dataPred<- newData
+  #
+  if (object$distr=="norm") distrs="sn"
+  if (object$distr=="t") distrs="st"
+  if (object$distr=="sl") distrs="ss"
+  if (object$distr=="cn") distrs="scn"
+  #
   if (sum(!(c(all.vars(formFixed),all.vars(formRandom),groupVar,timeVar) %in% names(newData)))>0) stop("Variable not found in newData")
   depStruct <- object$depStruct
   if (any(!(dataPred[,groupVar] %in% dataFit[,groupVar]))) stop("subjects for which future values should be predicted must also be at fitting data")
   if (!is.factor(dataFit[,groupVar])) dataFit[,groupVar]<-as.factor(dataFit[,groupVar])
   if (!is.factor(dataPred[,groupVar])) dataPred[,groupVar]<-factor(dataPred[,groupVar],levels=levels(dataFit[,groupVar]))
   #
-  if (depStruct=="CI") obj.out <- predictf.skew(formFixed,formRandom,dataFit,dataPred,groupVar,distr=object$distr,theta=object$theta)
-  if (depStruct=="ARp") obj.out <- predictf.skewAR(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,distr=object$distr,
-                                                  pAR=length(object$estimates$phi),theta=object$theta)
-  if (depStruct=="CS") obj.out <-predictf.skewCS(formFixed,formRandom,dataFit,dataPred,groupVar,distr=object$distr,theta=object$theta)
-  if (depStruct=="DEC") obj.out <-predictf.skewDEC(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,distr=object$distr,theta=object$theta)
-  if (depStruct=="CAR1") obj.out <-predictf.skewCAR1(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,distr=object$distr,theta=object$theta)
+  if (depStruct=="CI") obj.out <- predictf.sim(formFixed,formRandom,dataFit,dataPred,groupVar,distr=distrs,theta=object$theta)
+  if (depStruct=="ARp") obj.out <- predictf.AR(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,distr=distrs,
+                                                   pAR=length(object$estimates$phi),theta=object$theta)
+  if (depStruct=="CS") obj.out <-predictf.CS(formFixed,formRandom,dataFit,dataPred,groupVar,distr=distrs,theta=object$theta)
+  if (depStruct=="DEC") obj.out <-predictf.DEC(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,distr=distrs,theta=object$theta)
+  if (depStruct=="CAR1") obj.out <-predictf.CAR1(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,distr=distrs,theta=object$theta)
   obj.out
 }
-
-errorVar<- function(times,object=NULL,sigma2=NULL,depStruct=NULL,phi=NULL) {
-  if (is.null(object)&is.null(depStruct)) stop("object or depStruct must be provided")
-  if (is.null(object)&is.null(sigma2)) stop("object or sigma2 must be provided")
-  if (is.null(depStruct)) depStruct<-object$depStruct
-  if (depStruct!="CI" & is.null(object)&is.null(phi)) stop("object or phi must be provided")
-  if (!(depStruct %in% c("CI","ARp","CS","DEC","CAR1"))) stop("accepted depStruct: CI, ARp, CS, DEC or CAR1")
-  if (is.null(sigma2)) sigma2<-object$estimates$sigma2
-  if (is.null(phi)&depStruct!="CI") phi<-object$estimates$phi
-  if (depStruct=="ARp" & (any(!is.wholenumber(times))|any(times<=0))) stop("times must contain positive integer numbers when using ARp dependency")
-  if (depStruct=="ARp" & any(tphitopi(phi)< -1|tphitopi(phi)>1)) stop("AR(p) non stationary, choose other phi")
-  #
-  if (depStruct=="CI") var.out<- sigma2*diag(length(times))
-  if (depStruct=="ARp") var.out<- sigma2*CovARp(phi,times)
-  if (depStruct=="CS") var.out<- sigma2*CovCS(phi,length(times))
-  if (depStruct=="DEC") var.out<- sigma2*CovDEC(phi[1],phi[2],times)
-  if (depStruct=="CAR1") var.out<- sigma2*CovDEC(phi,1,times)
-  var.out
-}
-
-rsmsn.lmm <- function(time1,x1,z1,sigma2,D1,beta,lambda,depStruct="CI",phi=NULL,distr="sn",nu=NULL) {
-  if (length(D1)==1 & !is.matrix(D1)) D1=as.matrix(D1)
-  q1 = nrow(D1)
-  p = length(beta)
-  if (ncol(as.matrix(x1))!=p) stop("incompatible dimension of x1/beta")
-  if (ncol(as.matrix(z1))!=q1) stop ("incompatible dimension of z1/D1")
-  if (length(lambda)!=q1) stop ("incompatible dimension of lambda/D1")
-  if (!is.matrix(D1)) stop("D must be a matrix")
-  if ((ncol(D1)!=q1)|(nrow(D1)!=q1)) stop ("wrong dimension of D")
-  if (length(sigma2)!=1) stop ("wrong dimension of sigma2")
-  if (sigma2<=0) stop("sigma2 must be positive")
-  Sig <- errorVar(time1,depStruct = depStruct,sigma2=sigma2,phi=phi)
-  #
-  if (!(distr %in% c("sn","st","ss","scn"))) stop("Invalid distribution")
-  if (distr=="sn") {ui=1; c.=-sqrt(2/pi)}
-  if (distr=="st") {ui=rgamma(1,nu/2,nu/2); c.=-sqrt(nu/pi)*gamma((nu-1)/2)/gamma(nu/2)}
-  if (distr=="ss") {ui=rbeta(1,nu,1); c.=-sqrt(2/pi)*nu/(nu-.5)}
-  if (distr=="scn") {ui=ifelse(runif(1)<nu[1],nu[2],1);
-                      c.=-sqrt(2/pi)*(1+nu[1]*(nu[2]^(-.5)-1))}
-  delta = lambda/as.numeric(sqrt(1+t(lambda)%*%(lambda)))
-  Delta = matrix.sqrt(D1)%*%delta
-  Gammab = D1 - Delta%*%t(Delta)
-  Xi = matrix(x1,ncol=p)
-  Zi = matrix(z1,ncol=q1)
-  Beta = matrix(beta,ncol=1)
-  ti = c.+abs(rnorm(1,0,ui^-.5))
-  bi = t(rmvnorm(1,Delta*ti,sigma=ui^(-1)*Gammab))
-  Yi = t(rmvnorm(1,Xi%*%Beta+Zi%*%bi,sigma=ui^(-1)*Sig))
-  if (all(Xi[,1]==1)) Xi = Xi[,-1]
-  if (all(Zi[,1]==1)) Zi = Zi[,-1]
-  return(data.frame(time=time1,y=Yi,x=Xi,z=Zi))
-}
-
