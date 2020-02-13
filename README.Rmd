@@ -37,9 +37,12 @@ install_github("fernandalschumacher/skewlmm")
 
 ## Example
 
+For more information about the model formulation and estimation, please see  
+Schumacher, F.L., Matos, L.A., and Lachos, V.H. (2020+) "Scale mixture of skew-normal linear mixed models with within-subject serial dependence". Submitted. Preprint available at https://arxiv.org/abs/2002.01040.
+
 This is a basic example which shows you how to fit a SMSN-LMM:
 
-```{r example}
+```{r}
 library(skewlmm)
     dat1 <- as.data.frame(nlme::Orthodont)
     fm1 <- smsn.lmm(dat1,formFixed=distance ~ age,groupVar="Subject",quiet=T)
@@ -47,4 +50,16 @@ library(skewlmm)
     summary(fm1)
 ```
 
-For more examples, see help(smsn.lmm).
+To fit a SMN-LMM one can use the following:
+```{r}
+    fm2 <- smn.lmm(dat1,formFixed=distance ~ age,groupVar="Subject",quiet=T)
+    fm2
+    summary(fm2)
+```
+
+Now, for performing a LRT for testing if the skewness parameter is 0, one can use the following:
+```{r}
+    lr.test(fm1,fm2)
+```
+
+For more examples, see help(smsn.lmm) and help(smn.lmm).

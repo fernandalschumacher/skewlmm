@@ -1,20 +1,20 @@
-\name{summary.SMSN}
-\alias{summary.SMSN}
+\name{summary.SMN}
+\alias{summary.SMN}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Summary of a smsn.lmm object
+\title{Summary of a smn.lmm object
 %%  ~~function to do ... ~~
 }
 \description{
-  \code{summary} method for class "SMSN".
+  \code{summary} method for class "SMN".
 }
 
 \usage{
-\method{summary}{SMSN}(object, confint.level = 0.95, \dots)
+\method{summary}{SMN}(object, confint.level = 0.95, \dots)
 }
 
 \arguments{
-  \item{object}{an object inheriting from class \code{SMSN}, representing
-   a fitted scale mixture skew-normal linear mixed model.}
+  \item{object}{an object inheriting from class \code{SMN}, representing
+   a fitted scale mixture normal linear mixed model.}
   \item{confint.level}{Level of the approximate confidence intervals presented. Default=0.95.}
   \item{\dots}{Additional arguments.}
    }
@@ -38,12 +38,12 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 
 
 \seealso{
-\code{\link{smsn.lmm}}, \code{\link{errorVar}}
+\code{\link{smn.lmm}}, \code{\link{errorVar}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
 \dontrun{
-    fm1 <- smsn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar="Subject")
+    fm1 <- smn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar="Subject")
     summary(fm1)
   }
 }

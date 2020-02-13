@@ -1,22 +1,28 @@
-\name{print.SMSN}
-\alias{print.SMSN}
+\name{fitted.SMN}
+\alias{fitted.SMN}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Print a smsn.lmm object
+\title{Extract smn.lmm fitted values
 %%  ~~function to do ... ~~
 }
 \description{
-Print a smsn.lmm object.
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
-}
+ The fitted values are obtained by adding together the
+  population fitted values (based only on the fixed effects estimates)
+  and the estimated contributions of the random effects to the fitted
+  values at grouping levels. }
+
 \usage{
-\method{print}{SMSN}(x, \dots)
+\method{fitted}{SMN}(object, \dots)
 }
 
 \arguments{
- \item{x}{an object inheriting from class \code{SMSN}, representing
-   a fitted scale mixture skew-normal linear mixed model.}
-  \item{\dots}{Additional print arguments.}
+ \item{object}{an object inheriting from class \code{SMN}, representing
+   a fitted scale mixture normal linear mixed model.}
+  \item{\dots}{Additional arguments.}
    }
+
+\value{
+  Vector of fitted values with length equal to \code{nrow(data)}.
+}
 
 \references{
 Lachos, V. H., P. Ghosh, and R. B. Arellano-Valle (2010). Likelihood based inference for skew-normal independent linear mixed models. Statistica Sinica 20, 303-322.
@@ -30,13 +36,13 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 
 
 \seealso{
-\code{\link{smsn.lmm}}, \code{\link{summary.SMSN}}
+\code{\link{smn.lmm}}, \code{\link{predict.SMN}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
 \dontrun{
-    fm1 <- smsn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar="Subject")
-    fm1
+    fm1 <- smn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar="Subject")
+    fitted(fm1)
   }
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

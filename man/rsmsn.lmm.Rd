@@ -5,7 +5,7 @@
 %%  ~~function to do ... ~~
 }
 \description{
-It creates a simulated data set from SMSN-LMM with several possible dependence structures, for one subject.
+It creates a simulated data set from SMSN-LMM (or from SMN-LMM, if \code{lambda=0}) with several possible dependence structures, for one subject.
 }
 \usage{
 rsmsn.lmm(time1, x1, z1, sigma2, D1, beta, lambda, depStruct = "CI",
@@ -35,9 +35,10 @@ rsmsn.lmm(time1, x1, z1, sigma2, D1, beta, lambda, depStruct = "CI",
 %% ...
 }
 \references{
-Lachos, V. H., P. Ghosh, and R. B. Arellano-Valle (2010). Likelihood based inference for skew–normal independent linear mixed models. Statistica Sinica 20, 303–322.
+Lachos, V. H., P. Ghosh, and R. B. Arellano-Valle (2010). Likelihood based inference for skew-normal independent linear mixed models. Statistica Sinica 20, 303-322.
 
 Schumacher, F.L., L.A. Matos, and V.H. Lachos (2020+). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Submitted.
+Preprint available at \url{https://arxiv.org/abs/2002.01040}.
 }
 \author{
 Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
@@ -64,7 +65,7 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
     D1=.5*diag(1),beta = c(1,2),lambda = 2,depStruct = "ARp",phi=.5))
     gendat<- bind_rows(gendatList,.id="ind")
     ggplot(gendat,aes(x=x,y=y,group=ind)) + geom_line() +
-  stat_summary(aes(group = 1),geom = "line", fun.y = mean, col="blue",size=2)
+    stat_summary(aes(group = 1),geom = "line", fun.y = mean, col="blue",size=2)
 \dontrun{
     fm1 <- smsn.lmm(y ~ x, data = gendat, groupVar="ind", depStruct="ARp", pAR=1)
     summary(fm1)

@@ -10,5 +10,5 @@ Depends: R (>= 3.4.0)
 Encoding: UTF-8
 LazyData: true
 Imports: dplyr, moments, mvtnorm, nlme, numDeriv, purrr, ggplot2
-URL: https://github.com/fernandalschumacher/lmmsmsn
-BugReports: https://github.com/fernandalschumacher/lmmsmsn/issues
+URL: https://github.com/fernandalschumacher/skewlmm
+BugReports: https://github.com/fernandalschumacher/skewlmm/issues

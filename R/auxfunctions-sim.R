@@ -282,8 +282,8 @@ predictf.AR<- function(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,di
   #
   for (indj in levels(dataPred$ind)) {
     #indj = levels(dataPred$ind)[1]
-    dataFitj <- subset(dataFit,ind==indj,select = c("ind",all.vars(formFixed),all.vars(formRandom),timeVar))
-    dataPredj <- subset(dataPred,ind==indj,select = c("ind",all.vars(formFixed),all.vars(formRandom),timeVar))
+    dataFitj <- subset(dataFit,dataFit$ind==indj,select = c("ind",all.vars(formFixed),all.vars(formRandom),timeVar))
+    dataPredj <- subset(dataPred,dataPred$ind==indj,select = c("ind",all.vars(formFixed),all.vars(formRandom),timeVar))
     if (!is.null(timeVar)) {
       dataFitj$time <- dataFitj[,timeVar]
       dataPredj$time <- dataPredj[,timeVar]
@@ -554,8 +554,8 @@ predictf.sim<- function(formFixed,formRandom,dataFit,dataPred,groupVar,distr,the
   #
   for (indj in levels(dataPred$ind)) {
     #indj = levels(dataPred$ind)[1]
-    dataFitj <- subset(dataFit,ind==indj,select = c("ind",all.vars(formFixed),all.vars(formRandom)))
-    dataPredj <- subset(dataPred,ind==indj,select = c("ind",all.vars(formFixed),all.vars(formRandom)))
+    dataFitj <- subset(dataFit,dataFit$ind==indj,select = c("ind",all.vars(formFixed),all.vars(formRandom)))
+    dataPredj <- subset(dataPred,dataPred$ind==indj,select = c("ind",all.vars(formFixed),all.vars(formRandom)))
     dataPlus <- rbind(dataFitj,dataPredj)
     njFit = nrow(dataFitj)
     njPred = nrow(dataPredj)
@@ -838,8 +838,8 @@ predictf.CS<- function(formFixed,formRandom,dataFit,dataPred,groupVar,distr,thet
   #
   for (indj in levels(dataPred$ind)) {
     #indj = levels(dataPred$ind)[1]
-    dataFitj <- subset(dataFit,ind==indj,select = c("ind",all.vars(formFixed),all.vars(formRandom)))
-    dataPredj <- subset(dataPred,ind==indj,select = c("ind",all.vars(formFixed),all.vars(formRandom)))
+    dataFitj <- subset(dataFit,dataFit$ind==indj,select = c("ind",all.vars(formFixed),all.vars(formRandom)))
+    dataPredj <- subset(dataPred,dataPred$ind==indj,select = c("ind",all.vars(formFixed),all.vars(formRandom)))
     njFit = nrow(dataFitj)
     njPred = nrow(dataPredj)
     seqFit = 1:njFit
@@ -1148,8 +1148,8 @@ predictf.DEC<- function(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,d
   #
   for (indj in levels(dataPred$ind)) {
     #indj = levels(dataPred$ind)[1]
-    dataFitj <- subset(dataFit,ind==indj,select = c("ind",all.vars(formFixed),all.vars(formRandom),timeVar))
-    dataPredj <- subset(dataPred,ind==indj,select = c("ind",all.vars(formFixed),all.vars(formRandom),timeVar))
+    dataFitj <- subset(dataFit,dataFit$ind==indj,select = c("ind",all.vars(formFixed),all.vars(formRandom),timeVar))
+    dataPredj <- subset(dataPred,dataPred$ind==indj,select = c("ind",all.vars(formFixed),all.vars(formRandom),timeVar))
     if (!is.null(timeVar)) {
       dataFitj$time <- dataFitj[,timeVar]
       dataPredj$time <- dataPredj[,timeVar]
@@ -1455,8 +1455,8 @@ predictf.CAR1<- function(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,
   #
   for (indj in levels(dataPred$ind)) {
     #indj = levels(dataPred$ind)[1]
-    dataFitj <- subset(dataFit,ind==indj,select = c("ind",all.vars(formFixed),all.vars(formRandom),timeVar))
-    dataPredj <- subset(dataPred,ind==indj,select = c("ind",all.vars(formFixed),all.vars(formRandom),timeVar))
+    dataFitj <- subset(dataFit,dataFit$ind==indj,select = c("ind",all.vars(formFixed),all.vars(formRandom),timeVar))
+    dataPredj <- subset(dataPred,dataPred$ind==indj,select = c("ind",all.vars(formFixed),all.vars(formRandom),timeVar))
     if (!is.null(timeVar)) {
       dataFitj$time <- dataFitj[,timeVar]
       dataPredj$time <- dataPredj[,timeVar]

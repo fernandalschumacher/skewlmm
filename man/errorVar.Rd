@@ -25,6 +25,7 @@ errorVar(times, object = NULL, sigma2 = NULL, depStruct = NULL,
 }
 \references{
 Schumacher, F.L., Matos, L.A., and Lachos, V.H. (2020+) "Scale mixture of skew-normal linear mixed models with within-subject serial dependence". Submitted.
+Preprint available at \url{https://arxiv.org/abs/2002.01040}.
 }
 \author{
 Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos

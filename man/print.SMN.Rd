@@ -1,20 +1,20 @@
-\name{print.SMSN}
-\alias{print.SMSN}
+\name{print.SMN}
+\alias{print.SMN}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Print a smsn.lmm object
+\title{Print a smn.lmm object
 %%  ~~function to do ... ~~
 }
 \description{
-Print a smsn.lmm object.
+Print a smn.lmm object.
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
 \usage{
-\method{print}{SMSN}(x, \dots)
+\method{print}{SMN}(x, \dots)
 }
 
 \arguments{
- \item{x}{an object inheriting from class \code{SMSN}, representing
-   a fitted scale mixture skew-normal linear mixed model.}
+ \item{x}{an object inheriting from class \code{SMN}, representing
+   a fitted scale mixture normal linear mixed model.}
   \item{\dots}{Additional print arguments.}
    }
 
@@ -30,12 +30,12 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 
 
 \seealso{
-\code{\link{smsn.lmm}}, \code{\link{summary.SMSN}}
+\code{\link{smn.lmm}}, \code{\link{summary.SMN}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
 \dontrun{
-    fm1 <- smsn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar="Subject")
+    fm1 <- smn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar="Subject")
     fm1
   }
 }

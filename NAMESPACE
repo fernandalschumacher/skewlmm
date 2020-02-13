@@ -1,13 +1,15 @@
 export(rsmsn.lmm)
 export(errorVar)
 export(smsn.lmm)
+export(smn.lmm)
+export(lr.test)
 #
 import("dplyr")
 import("ggplot2")
 importFrom("stats", "ARMAacf", "dgamma", "dnorm", "integrate",
                "model.matrix", "optim", "pacf", "pgamma", "pnorm", "pt",
                "qgamma", "qnorm", "rbeta", "rgamma", "rnorm", "runif",
-               "toeplitz")
+               "toeplitz","pchisq")
 importFrom("utils", "capture.output")
 importFrom("dplyr","n_distinct")
 importFrom("purrr","flatten_int","map")
@@ -21,3 +23,10 @@ S3method(fitted, SMSN)
 S3method(ranef, SMSN)
 S3method(summary, SMSN)
 S3method(fitted, SMSN)
+#
+S3method(print, SMN)
+S3method(fitted, SMN)
+S3method(ranef, SMN)
+S3method(summary, SMN)
+S3method(fitted, SMN)
+

@@ -286,3 +286,28 @@ rsmsn.lmm <- function(time1,x1,z1,sigma2,D1,beta,lambda,depStruct="CI",phi=NULL,
   return(data.frame(time=time1,y=Yi,x=Xi,z=Zi))
 }
 
+lr.test <- function(obj1,obj2,level=0.05,quiet=FALSE) {
+  if (!all(c(class(obj1)[1],class(obj2)[1])%in%c("SMN","SMSN"))) stop("obj1 and obj2 should be smsn.lmm or smn.lmm objects")
+  if (level<=0 | level>=1) stop("0<level<1 needed")
+  if (obj1$N!=obj2$N) stop("obj1 and obj2 should refer to the same data set")
+  if (obj1$n!=obj2$n) stop("obj1 and obj2 should refer to the same data set")
+  npar1 <- length(obj1$theta)
+  npar2 <- length(obj2$theta)
+  if (npar1==npar2) stop("obj1 and obj2 should contain nested models with different number of parameters")
+  if (npar1<npar2) {objB <- obj2;objS<-obj1} else {objB <- obj1;objS<-obj2}
+  if (!all(names(objS$theta)%in%names(objB$theta))) stop("obj1 and obj2 should contain nested models")
+  if ((objB$loglik-objS$loglik)<=0) stop("loglik from model with more parameters is not bigger than the one
+                                         with less parameters. This indicates problems on convergence,
+                                         try changing the initial values and/or maximum number of iteration")
+  lrstat <- 2*(objB$loglik-objS$loglik)
+  pval <- pchisq(lrstat,df=abs(npar1-npar2),lower.tail = F)
+  if (!quiet) {
+    cat("    Likelihood-ratio Test\n\n")
+    cat("chi-square statistics = ",lrstat,"\n")
+    cat("df = ",abs(npar1-npar2),"\n")
+    cat("p-value = ",pval,"\n")
+    if (pval<=level) cat("\nThe null hypothesis that both models represent the \ndata equally well is rejected at level ",level)
+    else cat("\nThe null hypothesis that both models represent the \ndata equally well is not rejected at level ",level)
+  }
+  invisible(list(statistic=lrstat,p.value=pval,df=abs(npar1-npar2)))
+}
