@@ -10,7 +10,7 @@ It provides estimates and standard errors of parameters.
 \usage{
 smn.lmm(data, formFixed, groupVar, formRandom = ~1, depStruct = "CI",
     timeVar = NULL, distr = "norm", pAR = 1, luDEC = 10,
-    tol = 1e-06, max.iter = 200, calc.se = T, calc.bi = T, lb = NULL,
+    tol = 1e-06, max.iter = 200, calc.se = TRUE, calc.bi = TRUE, lb = NULL,
     lu = NULL, initialValues = list(beta = NULL, sigma2 = NULL,
         D = NULL, phi = NULL, nu = NULL), quiet = FALSE)
 }
@@ -80,12 +80,10 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 }
 \examples{
 #simple example
-    dat1 <- as.data.frame(nlme::Orthodont)
-    fm1 <- smn.lmm(dat1,formFixed=distance ~ age,groupVar="Subject",max.iter = 30)
-    fm1
-
-\dontrun{
-#fitting for several distributions / dependence structures
+  dat1 <- as.data.frame(nlme::Orthodont)
+  fm1 <- smn.lmm(dat1,formFixed=distance ~ age,groupVar="Subject",max.iter = 30)
+  fm1
+\donttest{#fitting for several distributions / dependence structures
     fm1 <- smn.lmm(dat1,formFixed=distance ~ age+Sex,groupVar="Subject")
     fm2 <- smn.lmm(dat1,formFixed=distance ~ age+Sex,groupVar="Subject", distr="t")
     fm3 <- smn.lmm(dat1,formFixed=distance ~ age+Sex,groupVar="Subject", distr="sl")

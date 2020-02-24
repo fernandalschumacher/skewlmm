@@ -38,11 +38,9 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-\dontrun{
-    dat1 <- nlme::Orthodont
-    fm1 <- smn.lmm(distance ~ age + Sex, data = subset(dat1,age<14), groupVar="Subject")
-    predict(fm1,subset(dat1,age==14))
-  }
+  dat1 <- nlme::Orthodont
+  fm1 <- smn.lmm(distance ~ age + Sex, data = subset(dat1,age<14), groupVar="Subject")
+  predict(fm1,subset(dat1,age==14))
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

@@ -36,12 +36,10 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 \code{\link{smsn.lmm}}, \code{\link{fitted.SMSN}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-\dontrun{
+\examples{\donttest{
     dat1 <- nlme::Orthodont
     fm1 <- smsn.lmm(distance ~ age + Sex, data = subset(dat1,age<14), groupVar="Subject")
-    predict(fm1,subset(dat1,age==14))
-  }
+    predict(fm1,subset(dat1,age==14))}
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

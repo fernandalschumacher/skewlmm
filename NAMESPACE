@@ -23,10 +23,12 @@ S3method(fitted, SMSN)
 S3method(ranef, SMSN)
 S3method(summary, SMSN)
 S3method(fitted, SMSN)
+S3method(predict, SMSN)
 #
 S3method(print, SMN)
 S3method(fitted, SMN)
 S3method(ranef, SMN)
 S3method(summary, SMN)
 S3method(fitted, SMN)
+S3method(predict, SMN)
 

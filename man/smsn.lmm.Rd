@@ -10,9 +10,9 @@ It provides estimates and standard errors of parameters.
 \usage{
 smsn.lmm(data, formFixed, groupVar, formRandom = ~1, depStruct = "CI",
     timeVar = NULL, distr = "sn", pAR = 1, luDEC = 10,
-    tol = 1e-06, max.iter = 200, calc.se = T, calc.bi = T, lb = NULL,
+    tol = 1e-06, max.iter = 200, calc.se = TRUE, calc.bi = TRUE, lb = NULL,
     lu = NULL, initialValues = list(beta = NULL, sigma2 = NULL,
-        D = NULL, lambda = NULL, phi = NULL, nu = NULL), quiet = FALSE)
+      D = NULL, lambda = NULL, phi = NULL, nu = NULL), quiet = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -80,19 +80,17 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 }
 \examples{
 #simple example
-    dat1 <- as.data.frame(nlme::Orthodont)
-    fm1 <- smsn.lmm(dat1,formFixed=distance ~ age,groupVar="Subject",max.iter = 30)
-    fm1
-
-\dontrun{
-#fitting for several distributions / dependence structures
-    fm1 <- smsn.lmm(dat1,formFixed=distance ~ age+Sex,groupVar="Subject")
-    fm2 <- smsn.lmm(dat1,formFixed=distance ~ age+Sex,groupVar="Subject", distr="st")
-    fm3 <- smsn.lmm(dat1,formFixed=distance ~ age+Sex,groupVar="Subject", distr="ss")
-    fm4 <- smsn.lmm(dat1,formFixed=distance ~ age+Sex,groupVar="Subject", depStruct="ARp",pAR=1)
-    rbind(fm1$criteria,fm2$criteria,fm3$criteria,fm4$criteria)
-    summary(fm3)
-  }
+  dat1 <- as.data.frame(nlme::Orthodont)
+  fm1 <- smsn.lmm(dat1,formFixed=distance ~ age,groupVar="Subject",max.iter = 30)
+  fm1
+\donttest{#fitting for several distributions / dependence structures
+  fm1 <- smsn.lmm(dat1,formFixed=distance ~ age+Sex,groupVar="Subject")
+  fm2 <- smsn.lmm(dat1,formFixed=distance ~ age+Sex,groupVar="Subject", distr="st")
+  fm3 <- smsn.lmm(dat1,formFixed=distance ~ age+Sex,groupVar="Subject", distr="ss")
+  fm4 <- smsn.lmm(dat1,formFixed=distance ~ age+Sex,groupVar="Subject", depStruct="ARp",pAR=1)
+  rbind(fm1$criteria,fm2$criteria,fm3$criteria,fm4$criteria)
+  summary(fm3)
+}
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

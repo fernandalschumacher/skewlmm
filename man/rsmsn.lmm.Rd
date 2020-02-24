@@ -51,24 +51,24 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 }
 \examples{
 #generating a sample for 1 individual at 5 times
-    nj1<-5
-    rsmsn.lmm(1:nj1,cbind(1,1:nj1),rep(1,nj1),sigma2=.25,
-              D1=diag(1),beta = c(1,2),lambda = 2,depStruct = "ARp",phi=.5,
-              distr="st",nu=5)
+  nj1<-5
+  rsmsn.lmm(1:nj1,cbind(1,1:nj1),rep(1,nj1),sigma2=.25,
+            D1=diag(1),beta = c(1,2),lambda = 2,depStruct = "ARp",phi=.5,
+            distr="st",nu=5)
 #generating a sample for m=20 individuals at 5 times
-    library(dplyr)
-    library(purrr)
-    library(ggplot2)
-    nj1<-5
-    m<-50
-    gendatList<- map(rep(nj1,m), function(nj) rsmsn.lmm(1:nj,cbind(1,1:nj),rep(1,nj),sigma2=.25,
-    D1=.5*diag(1),beta = c(1,2),lambda = 2,depStruct = "ARp",phi=.5))
-    gendat<- bind_rows(gendatList,.id="ind")
-    ggplot(gendat,aes(x=x,y=y,group=ind)) + geom_line() +
+  library(dplyr)
+  library(purrr)
+  library(ggplot2)
+  nj1<-5
+  m<-50
+  gendatList<- map(rep(nj1,m), function(nj) rsmsn.lmm(1:nj,cbind(1,1:nj),rep(1,nj),sigma2=.25,
+  D1=.5*diag(1),beta = c(1,2),lambda = 2,depStruct = "ARp",phi=.5))
+  gendat<- bind_rows(gendatList,.id="ind")
+  ggplot(gendat,aes(x=x,y=y,group=ind)) + geom_line() +
     stat_summary(aes(group = 1),geom = "line", fun.y = mean, col="blue",size=2)
-\dontrun{
-    fm1 <- smsn.lmm(y ~ x, data = gendat, groupVar="ind", depStruct="ARp", pAR=1)
-    summary(fm1)
+  #
+\donttest{  fm1 <- smsn.lmm(y ~ x, data = gendat, groupVar="ind", depStruct="ARp", pAR=1)
+  summary(fm1)
   }
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

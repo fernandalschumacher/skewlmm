@@ -37,13 +37,10 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 
 \seealso{
 \code{\link{smn.lmm}}, \code{\link{predict.SMN}}
-%% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-\dontrun{
-    fm1 <- smn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar="Subject")
-    fitted(fm1)
-  }
+  fm1 <- smn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar="Subject")
+  fitted(fm1)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

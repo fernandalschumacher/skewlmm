@@ -37,13 +37,12 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-\dontrun{
-    fm1 <- smsn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar="Subject")
-    errorVar(times=1:4,fm1)
-    #
-    errorVar(times=1:5,sigma2 = 1, depStruct = "ARp",phi = .5)
-    errorVar(times=1:5,sigma2 = 1, depStruct = "DEC",phi = c(.5,.8))
-  }
+\donttest{
+  fm1 <- smsn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar="Subject")
+  errorVar(times=1:4,fm1)
+  #}
+  errorVar(times=1:5,sigma2 = 1, depStruct = "ARp",phi = .5)
+  errorVar(times=1:5,sigma2 = 1, depStruct = "DEC",phi = c(.5,.8))
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

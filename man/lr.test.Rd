@@ -34,11 +34,9 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-\dontrun{
-    fm1<- smn.lmm(dat1,formFixed=distance ~ age+Sex,groupVar="Subject")
-    fm2<- smsn.lmm(dat1,formFixed=distance ~ age+Sex,groupVar="Subject")
-    lr.test(fm1,fm2)
-  }
+  fm1<- smn.lmm(nlme::Orthodont,formFixed=distance ~ age+Sex,groupVar="Subject")
+  fm2<- smsn.lmm(nlme::Orthodont,formFixed=distance ~ age+Sex,groupVar="Subject",tol=.0001)
+  lr.test(fm1,fm2)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
