@@ -1,9 +1,11 @@
 #main functions from skewlmm package - SMN-LMM
 smn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "CI", timeVar=NULL,
                      distr="norm",pAR=1,luDEC=10,
-                     tol=1e-6,max.iter=200,calc.se=T,calc.bi=T,lb=NULL,lu=NULL,
+                     tol=1e-6,max.iter=200,calc.se=TRUE,calc.bi=TRUE,lb=NULL,lu=NULL,
                      initialValues =list(beta=NULL,sigma2=NULL,D=NULL,phi=NULL,nu=NULL),
                      quiet=FALSE) {
+  if (class(formFixed)!="formula") stop("formFixed must be a formula")
+  if (class(formRandom)!="formula") stop("formRandom must be a formula")
   if (!is.list(initialValues)) stop("initialValues must be a list")
   if (any(!(names(initialValues) %in% c("beta","sigma2","D","phi","nu")))) stop("initialValues must be a list with
                                                                                          named elements beta, sigma2, D, phi and/or nu")
@@ -35,7 +37,7 @@ smn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "CI", time
   if (!(depStruct %in% c("CI","ARp","CS","DEC","CAR1"))) stop("accepted depStruct: CI, ARp, CS, DEC or CAR1")
   #
   if (is.null(initialValues$beta)|is.null(initialValues$sigma2)) {
-    lmefit = try(lme(formFixed,random=~1|ind,data=data),silent=T)
+    lmefit = try(lme(formFixed,random=~1|ind,data=data),silent=TRUE)
     if (class(lmefit)=="try-error") stop("error in calculating initial values")
   }
   if (!is.null(initialValues$beta)) {

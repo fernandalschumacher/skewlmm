@@ -1,9 +1,11 @@
 #main functions from skewlmm package - SMSN-LMM
 smsn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "CI", timeVar=NULL,
                      distr="sn",pAR=1,luDEC=10,
-                     tol=1e-6,max.iter=200,calc.se=T,calc.bi=T,lb=NULL,lu=NULL,
+                     tol=1e-6,max.iter=200,calc.se=TRUE,calc.bi=TRUE,lb=NULL,lu=NULL,
                      initialValues =list(beta=NULL,sigma2=NULL,D=NULL,lambda=NULL,phi=NULL,nu=NULL),
                      quiet=FALSE) {
+  if (class(formFixed)!="formula") stop("formFixed must be a formula")
+  if (class(formRandom)!="formula") stop("formRandom must be a formula")
   if (!is.list(initialValues)) stop("initialValues must be a list")
   if (any(!(names(initialValues) %in% c("beta","sigma2","D","lambda","phi","nu")))) stop("initialValues must be a list with
                                                                                          named elements beta, sigma2, D, lambda, phi and/or nu")
@@ -35,7 +37,7 @@ smsn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "CI", tim
   if (!(depStruct %in% c("CI","ARp","CS","DEC","CAR1"))) stop("accepted depStruct: CI, ARp, CS, DEC or CAR1")
   #
   if (is.null(initialValues$beta)|is.null(initialValues$sigma2)|is.null(initialValues$lambda)) {
-    lmefit = try(lme(formFixed,random=~1|ind,data=data),silent=T)
+    lmefit = try(lme(formFixed,random=~1|ind,data=data),silent=TRUE)
     if (class(lmefit)=="try-error") stop("error in calculating initial values")
   }
   if (!is.null(initialValues$beta)) {
@@ -300,7 +302,7 @@ lr.test <- function(obj1,obj2,level=0.05,quiet=FALSE) {
                                          with less parameters. This indicates problems on convergence,
                                          try changing the initial values and/or maximum number of iteration")
   lrstat <- 2*(objB$loglik-objS$loglik)
-  pval <- pchisq(lrstat,df=abs(npar1-npar2),lower.tail = F)
+  pval <- pchisq(lrstat,df=abs(npar1-npar2),lower.tail = FALSE)
   if (!quiet) {
     cat("    Likelihood-ratio Test\n\n")
     cat("chi-square statistics = ",lrstat,"\n")
