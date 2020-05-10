@@ -3,13 +3,17 @@ export(errorVar)
 export(smsn.lmm)
 export(smn.lmm)
 export(lr.test)
+export(acfresid)
+export(mahalDist)
+export(healy.plot)
 #
 import("dplyr")
 import("ggplot2")
 importFrom("stats", "ARMAacf", "dgamma", "dnorm", "integrate",
                "model.matrix", "optim", "pacf", "pgamma", "pnorm", "pt",
                "qgamma", "qnorm", "rbeta", "rgamma", "rnorm", "runif",
-               "toeplitz","pchisq")
+               "toeplitz","pchisq","fitted", "pf", "qchisq", "qf", "quantile",
+               "residuals", "uniroot")
 importFrom("utils", "capture.output")
 importFrom("dplyr","n_distinct")
 importFrom("purrr","flatten_int","map")
@@ -22,13 +26,17 @@ S3method(print, SMSN)
 S3method(fitted, SMSN)
 S3method(ranef, SMSN)
 S3method(summary, SMSN)
-S3method(fitted, SMSN)
 S3method(predict, SMSN)
+S3method(plot, SMSN)
+S3method(residuals, SMSN)
 #
 S3method(print, SMN)
 S3method(fitted, SMN)
 S3method(ranef, SMN)
 S3method(summary, SMN)
-S3method(fitted, SMN)
 S3method(predict, SMN)
-
+S3method(plot, SMN)
+S3method(residuals, SMN)
+#
+S3method(plot, mahalDist)
+S3method(plot, ACF)

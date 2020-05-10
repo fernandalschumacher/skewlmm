@@ -1,9 +1,9 @@
 #main functions from skewlmm package - SMN-LMM
 smn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "CI", timeVar=NULL,
-                     distr="norm",pAR=1,luDEC=10,
-                     tol=1e-6,max.iter=200,calc.se=TRUE,calc.bi=TRUE,lb=NULL,lu=NULL,
-                     initialValues =list(beta=NULL,sigma2=NULL,D=NULL,phi=NULL,nu=NULL),
-                     quiet=FALSE) {
+                    distr="norm",pAR=1,luDEC=10,
+                    tol=1e-6,max.iter=200,calc.se=TRUE,lb=NULL,lu=NULL,
+                    initialValues =list(beta=NULL,sigma2=NULL,D=NULL,phi=NULL,nu=NULL),
+                    quiet=FALSE,showCriterium=FALSE) {
   if (class(formFixed)!="formula") stop("formFixed must be a formula")
   if (class(formRandom)!="formula") stop("formRandom must be a formula")
   if (!is.list(initialValues)) stop("initialValues must be a list")
@@ -13,7 +13,9 @@ smn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "CI", time
   if (!is.character(groupVar)) stop("groupVar must be a character containing the name of the grouping variable in data")
   if (!is.null(timeVar)&!is.character(timeVar)) stop("timeVar must be a character containing the name of the time variable in data")
   if (length(formFixed)!=3) stop("formFixed must be a two-sided linear formula object")
-  if (sum(!(c(all.vars(formFixed),all.vars(formRandom),groupVar,timeVar) %in% names(data)))>0) stop("Variable not found in data")
+  vars_used<-unique(c(all.vars(formFixed),all.vars(formRandom),groupVar,timeVar))
+  vars_miss <- which(!(vars_used %in% names(data)))
+  if (length(vars_miss)>0) stop(paste(vars_used[vars_miss],"not found in data"))
   #
   if (!is.data.frame(data)) stop("data must be a data.frame")
   if (!is.factor(data[,groupVar])) data[,groupVar]<-as.factor(data[,groupVar])
@@ -79,23 +81,23 @@ smn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "CI", time
   if (distr=="cn") distrs="scn"
   ###
   if (depStruct=="CI") obj.out <- EM.sim(formFixed,formRandom,data,groupVar,distr=distrs,beta1,sigmae,D1,
-                                          nu,lb,lu,precisao=tol,informa=calc.se,calcbi=calc.bi,max.iter=max.iter,showiter=!quiet)
+                                         nu,lb,lu,precisao=tol,informa=calc.se,max.iter=max.iter,showiter=!quiet,showerroriter = (!quiet)&showCriterium)
   if (depStruct=="ARp") obj.out <- EM.AR(formFixed,formRandom,data,groupVar,pAR,timeVar,
                                          distr=distrs,beta1,sigmae,phiAR,D1,nu,lb,lu,
-                                         precisao=tol,informa=calc.se,calcbi=calc.bi,max.iter=max.iter,showiter=!quiet)
+                                         precisao=tol,informa=calc.se,max.iter=max.iter,showiter=!quiet,showerroriter = (!quiet)&showCriterium)
   if (depStruct=="CS") obj.out <-EM.CS(formFixed,formRandom,data,groupVar,
                                        distr=distrs,beta1,sigmae,phiCS,D1,nu,lb,lu,
-                                           precisao=tol,informa=calc.se,calcbi=calc.bi,max.iter=max.iter,showiter=!quiet)
+                                       precisao=tol,informa=calc.se,max.iter=max.iter,showiter=!quiet,showerroriter = (!quiet)&showCriterium)
   if (depStruct=="DEC") obj.out <-EM.DEC(formFixed,formRandom,data,groupVar,timeVar,
-                                             beta1,sigmae,D1,distr=distrs,nu,parDEC,lb,lu,luDEC,
-                                             precisao=tol,informa=calc.se,calcbi=calc.bi,max.iter=max.iter,showiter=!quiet)
+                                         beta1,sigmae,D1,distr=distrs,nu,parDEC,lb,lu,luDEC,
+                                         precisao=tol,informa=calc.se,max.iter=max.iter,showiter=!quiet,showerroriter = (!quiet)&showCriterium)
   if (depStruct=="CAR1") obj.out <-EM.CAR1(formFixed = formFixed,formRandom = formRandom,
-                                               data = data,groupVar = groupVar,timeVar = timeVar,
-                                               distr=distrs,beta1 = beta1,sigmae = sigmae,
-                                               phiCAR1 = phiCAR1,D1 = D1,nu = nu,lb = lb,lu = lu,
-                                               precisao=tol,informa=calc.se,calcbi=calc.bi,max.iter=max.iter,showiter=!quiet)
+                                           data = data,groupVar = groupVar,timeVar = timeVar,
+                                           distr=distrs,beta1 = beta1,sigmae = sigmae,
+                                           phiCAR1 = phiCAR1,D1 = D1,nu = nu,lb = lb,lu = lu,
+                                           precisao=tol,informa=calc.se,max.iter=max.iter,showiter=!quiet,showerroriter = (!quiet)&showCriterium)
   obj.out$call <- match.call()
-
+  
   npar<-length(obj.out$theta);N<-nrow(data)
   obj.out$criteria$AIC <- 2*npar-2*obj.out$loglik
   obj.out$criteria$BIC <- log(N)*npar - 2*obj.out$loglik
@@ -104,23 +106,21 @@ smn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "CI", time
   obj.out$formula$formRandom=formRandom
   obj.out$depStruct = depStruct
   obj.out$distr=distr
-  obj.out$N = nrow(data)
+  obj.out$N = N
   obj.out$n = n_distinct(ind)
   obj.out$groupVar = groupVar
   obj.out$timeVar = timeVar
   #
-  if (calc.bi) {
-    fitted <- numeric(N)
-    ind_levels <- levels(ind)
-    for (i in seq_along(ind_levels)) {
-      seqi <- ind==ind_levels[i]
-      xfiti <- matrix(x[seqi,],ncol=p)
-      zfiti <- matrix(z[seqi,],ncol=q1)
-      fitted[seqi]<- xfiti%*%obj.out$estimates$beta + zfiti%*%obj.out$random.effects[i,]
-    }
-    obj.out$fitted <- fitted
+  fitted <- numeric(N)
+  ind_levels <- levels(ind)
+  for (i in seq_along(ind_levels)) {
+    seqi <- ind==ind_levels[i]
+    xfiti <- matrix(x[seqi,],ncol=p)
+    zfiti <- matrix(z[seqi,],ncol=q1)
+    fitted[seqi]<- xfiti%*%obj.out$estimates$beta + zfiti%*%obj.out$random.effects[i,]
   }
-
+  obj.out$fitted <- fitted
+  
   class(obj.out)<- c("SMN","list")
   obj.out
 }
@@ -227,7 +227,9 @@ predict.SMN <- function(object,newData,...){
   if (object$distr=="sl") distrs="ss"
   if (object$distr=="cn") distrs="scn"
   #
-  if (sum(!(c(all.vars(formFixed),all.vars(formRandom),groupVar,timeVar) %in% names(newData)))>0) stop("Variable not found in newData")
+  vars_used<-unique(c(all.vars(formFixed)[-1],all.vars(formRandom),groupVar,timeVar))
+  vars_miss <- which(!(vars_used %in% names(newData)))
+  if (length(vars_miss)>0) stop(paste(vars_used[vars_miss],"not found in newData"))
   depStruct <- object$depStruct
   if (any(!(dataPred[,groupVar] %in% dataFit[,groupVar]))) stop("subjects for which future values should be predicted must also be at fitting data")
   if (!is.factor(dataFit[,groupVar])) dataFit[,groupVar]<-as.factor(dataFit[,groupVar])

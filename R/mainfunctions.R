@@ -1,9 +1,9 @@
 #main functions from skewlmm package - SMSN-LMM
 smsn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "CI", timeVar=NULL,
                      distr="sn",pAR=1,luDEC=10,
-                     tol=1e-6,max.iter=200,calc.se=TRUE,calc.bi=TRUE,lb=NULL,lu=NULL,
+                     tol=1e-6,max.iter=200,calc.se=TRUE,lb=NULL,lu=NULL,
                      initialValues =list(beta=NULL,sigma2=NULL,D=NULL,lambda=NULL,phi=NULL,nu=NULL),
-                     quiet=FALSE) {
+                     quiet=FALSE,showCriterium=FALSE) {
   if (class(formFixed)!="formula") stop("formFixed must be a formula")
   if (class(formRandom)!="formula") stop("formRandom must be a formula")
   if (!is.list(initialValues)) stop("initialValues must be a list")
@@ -13,7 +13,9 @@ smsn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "CI", tim
   if (!is.character(groupVar)) stop("groupVar must be a character containing the name of the grouping variable in data")
   if (!is.null(timeVar)&!is.character(timeVar)) stop("timeVar must be a character containing the name of the time variable in data")
   if (length(formFixed)!=3) stop("formFixed must be a two-sided linear formula object")
-  if (sum(!(c(all.vars(formFixed),all.vars(formRandom),groupVar,timeVar) %in% names(data)))>0) stop("Variable not found in data")
+  vars_used<-unique(c(all.vars(formFixed),all.vars(formRandom),groupVar,timeVar))
+  vars_miss <- which(!(vars_used %in% names(data)))
+  if (length(vars_miss)>0) stop(paste(vars_used[vars_miss],"not found in data"))
   #
   if (!is.data.frame(data)) stop("data must be a data.frame")
   if (!is.factor(data[,groupVar])) data[,groupVar]<-as.factor(data[,groupVar])
@@ -27,7 +29,8 @@ smsn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "CI", tim
   if ((sum(is.na(x))+sum(is.na(z))+sum(is.na(y))+sum(is.na(ind)))>0) stop ("NAs not allowed")
   if (!is.null(timeVar) & sum(is.na(data[,timeVar]))) stop ("NAs not allowed")
   #
-  if (!(distr %in% c("sn","st","ss","scn"))) stop("Accepted distributions: sn, st, ss, scn")
+  if (distr=="ssl") distr<-"ss"
+  if (!(distr %in% c("sn","st","ss","scn"))) stop("Accepted distributions: sn, st, ssl, scn")
   if ((!is.null(lb))&distr!="sn") if((distr=="st"&(lb<=1))|(distr=="ss"&(lb<=.5))) stop("Invalid lb")
   if (is.null(lb)&distr!="sn") lb = ifelse(distr=="scn",rep(.01,2),ifelse(distr=="st",1.01,.51))
   if (is.null(lu)&distr!="sn") lu = ifelse(distr=="scn",rep(.99,2),ifelse(distr=="st",100,50))
@@ -78,21 +81,21 @@ smsn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "CI", tim
   if (distr=="scn"&length(nu)!=2) stop ("wrong dimension of nu")
   ###
   if (depStruct=="CI") obj.out <- EM.Skew(formFixed,formRandom,data,groupVar,distr,beta1,sigmae,D1,
-                                    lambda,nu,lb,lu,precisao=tol,informa=calc.se,calcbi=calc.bi,max.iter=max.iter,showiter=!quiet)
+                                          lambda,nu,lb,lu,precisao=tol,informa=calc.se,max.iter=max.iter,showiter=!quiet,showerroriter = (!quiet)&showCriterium)
   if (depStruct=="ARp") obj.out <- EM.SkewAR(formFixed,formRandom,data,groupVar,pAR,timeVar,
-                                      distr,beta1,sigmae,phiAR,D1,lambda,nu,lb,lu,
-                                      precisao=tol,informa=calc.se,calcbi=calc.bi,max.iter=max.iter,showiter=!quiet)
+                                             distr,beta1,sigmae,phiAR,D1,lambda,nu,lb,lu,
+                                             precisao=tol,informa=calc.se,max.iter=max.iter,showiter=!quiet,showerroriter = (!quiet)&showCriterium)
   if (depStruct=="CS") obj.out <-EM.SkewCS(formFixed,formRandom,data,groupVar,
-                                            distr,beta1,sigmae,phiCS,D1,lambda,nu,lb,lu,
-                                         precisao=tol,informa=calc.se,calcbi=calc.bi,max.iter=max.iter,showiter=!quiet)
+                                           distr,beta1,sigmae,phiCS,D1,lambda,nu,lb,lu,
+                                           precisao=tol,informa=calc.se,max.iter=max.iter,showiter=!quiet,showerroriter = (!quiet)&showCriterium)
   if (depStruct=="DEC") obj.out <-EM.SkewDEC(formFixed,formRandom,data,groupVar,timeVar,
-                                          beta1,sigmae,D1,lambda,distr,nu,parDEC,lb,lu,luDEC,
-                                          precisao=tol,informa=calc.se,calcbi=calc.bi,max.iter=max.iter,showiter=!quiet)
+                                             beta1,sigmae,D1,lambda,distr,nu,parDEC,lb,lu,luDEC,
+                                             precisao=tol,informa=calc.se,max.iter=max.iter,showiter=!quiet,showerroriter = (!quiet)&showCriterium)
   if (depStruct=="CAR1") obj.out <-EM.SkewCAR1(formFixed,formRandom,data,groupVar,timeVar,
-                                        distr,beta1,sigmae,phiCAR1,D1,lambda,nu,lb,lu,
-                                        precisao=tol,informa=calc.se,calcbi=calc.bi,max.iter=max.iter,showiter=!quiet)
+                                               distr,beta1,sigmae,phiCAR1,D1,lambda,nu,lb,lu,
+                                               precisao=tol,informa=calc.se,max.iter=max.iter,showiter=!quiet,showerroriter = (!quiet)&showCriterium)
   obj.out$call <- match.call()
-
+  
   npar<-length(obj.out$theta);N<-nrow(data)
   obj.out$criteria$AIC <- 2*npar-2*obj.out$loglik
   obj.out$criteria$BIC <- log(N)*npar - 2*obj.out$loglik
@@ -100,24 +103,23 @@ smsn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "CI", tim
   obj.out$formula$formFixed=formFixed
   obj.out$formula$formRandom=formRandom
   obj.out$depStruct = depStruct
+  if (distr=="ss") distr<-"ssl"
   obj.out$distr=distr
-  obj.out$N = nrow(data)
+  obj.out$N = N
   obj.out$n = n_distinct(ind)
   obj.out$groupVar = groupVar
   obj.out$timeVar = timeVar
   #
-  if (calc.bi) {
-    fitted <- numeric(N)
-    ind_levels <- levels(ind)
-    for (i in seq_along(ind_levels)) {
-      seqi <- ind==ind_levels[i]
-      xfiti <- matrix(x[seqi,],ncol=p)
-      zfiti <- matrix(z[seqi,],ncol=q1)
-      fitted[seqi]<- xfiti%*%obj.out$estimates$beta + zfiti%*%obj.out$random.effects[i,]
-    }
-    obj.out$fitted <- fitted
+  fitted <- numeric(N)
+  ind_levels <- levels(ind)
+  for (i in seq_along(ind_levels)) {
+    seqi <- ind==ind_levels[i]
+    xfiti <- matrix(x[seqi,],ncol=p)
+    zfiti <- matrix(z[seqi,],ncol=q1)
+    fitted[seqi]<- xfiti%*%obj.out$estimates$beta + zfiti%*%obj.out$random.effects[i,]
   }
-
+  obj.out$fitted <- fitted
+  
   class(obj.out)<- c("SMSN","list")
   obj.out
 }
@@ -213,7 +215,6 @@ summary.SMSN <- function(object,confint.level=.95,...){
 fitted.SMSN <- function(object,...) object$fitted
 ranef.SMSN <- function(object,...) object$random.effects
 
-#colocar if subj not in data
 predict.SMSN <- function(object,newData,...){
   dataFit <- object$data
   formFixed <- object$formula$formFixed
@@ -221,11 +222,15 @@ predict.SMSN <- function(object,newData,...){
   groupVar<-object$groupVar
   timeVar <- object$timeVar
   dataPred<- newData
-  if (sum(!(c(all.vars(formFixed),all.vars(formRandom),groupVar,timeVar) %in% names(newData)))>0) stop("Variable not found in newData")
+  vars_used<-unique(c(all.vars(formFixed)[-1],all.vars(formRandom),groupVar,timeVar))
+  vars_miss <- which(!(vars_used %in% names(newData)))
+  if (length(vars_miss)>0) stop(paste(vars_used[vars_miss],"not found in newData"))
   depStruct <- object$depStruct
   if (any(!(dataPred[,groupVar] %in% dataFit[,groupVar]))) stop("subjects for which future values should be predicted must also be at fitting data")
   if (!is.factor(dataFit[,groupVar])) dataFit[,groupVar]<-as.factor(dataFit[,groupVar])
   if (!is.factor(dataPred[,groupVar])) dataPred[,groupVar]<-factor(dataPred[,groupVar],levels=levels(dataFit[,groupVar]))
+  #
+  if (object$distr=="ssl") object$distr<-"ss"
   #
   if (depStruct=="CI") obj.out <- predictf.skew(formFixed,formRandom,dataFit,dataPred,groupVar,distr=object$distr,theta=object$theta)
   if (depStruct=="ARp") obj.out <- predictf.skewAR(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,distr=object$distr,
@@ -268,12 +273,14 @@ rsmsn.lmm <- function(time1,x1,z1,sigma2,D1,beta,lambda,depStruct="CI",phi=NULL,
   if (sigma2<=0) stop("sigma2 must be positive")
   Sig <- errorVar(time1,depStruct = depStruct,sigma2=sigma2,phi=phi)
   #
+  if (distr=="ssl") distr<-"ss"
   if (!(distr %in% c("sn","st","ss","scn"))) stop("Invalid distribution")
   if (distr=="sn") {ui=1; c.=-sqrt(2/pi)}
   if (distr=="st") {ui=rgamma(1,nu/2,nu/2); c.=-sqrt(nu/pi)*gamma((nu-1)/2)/gamma(nu/2)}
   if (distr=="ss") {ui=rbeta(1,nu,1); c.=-sqrt(2/pi)*nu/(nu-.5)}
   if (distr=="scn") {ui=ifelse(runif(1)<nu[1],nu[2],1);
                       c.=-sqrt(2/pi)*(1+nu[1]*(nu[2]^(-.5)-1))}
+  #if (all(lambda==0)) c.=0
   delta = lambda/as.numeric(sqrt(1+t(lambda)%*%(lambda)))
   Delta = matrix.sqrt(D1)%*%delta
   Gammab = D1 - Delta%*%t(Delta)
@@ -295,12 +302,25 @@ lr.test <- function(obj1,obj2,level=0.05,quiet=FALSE) {
   if (obj1$n!=obj2$n) stop("obj1 and obj2 should refer to the same data set")
   npar1 <- length(obj1$theta)
   npar2 <- length(obj2$theta)
+  #
+  if (!quiet) {
+    cat('\nModel selection criteria:\n')
+    criteria <- rbind(c(obj1$loglik, obj1$criteria$AIC, obj1$criteria$BIC),
+                      c(obj2$loglik, obj2$criteria$AIC, obj2$criteria$BIC))
+    criteria <- round((as.matrix(criteria)),digits=3)
+    dimnames(criteria) <- list(c(deparse(substitute(obj1)),deparse(substitute(obj2))),
+                               c("logLik", "AIC", "BIC"))
+    print(criteria)
+    cat("\n")
+  }
   if (npar1==npar2) stop("obj1 and obj2 should contain nested models with different number of parameters")
   if (npar1<npar2) {objB <- obj2;objS<-obj1} else {objB <- obj1;objS<-obj2}
   if (!all(names(objS$theta)%in%names(objB$theta))) stop("obj1 and obj2 should contain nested models")
-  if ((objB$loglik-objS$loglik)<=0) stop("loglik from model with more parameters is not bigger than the one
-                                         with less parameters. This indicates problems on convergence,
-                                         try changing the initial values and/or maximum number of iteration")
+  if ((objB$loglik-objS$loglik)<=0) {
+  stop("loglik from model with more parameters is not bigger than the one
+  with less parameters. This probably indicates problems on convergence,
+  try changing the initial values and/or maximum number of iteration")
+  }
   lrstat <- 2*(objB$loglik-objS$loglik)
   pval <- pchisq(lrstat,df=abs(npar1-npar2),lower.tail = FALSE)
   if (!quiet) {
@@ -310,6 +330,6 @@ lr.test <- function(obj1,obj2,level=0.05,quiet=FALSE) {
     cat("p-value = ",pval,"\n")
     if (pval<=level) cat("\nThe null hypothesis that both models represent the \ndata equally well is rejected at level ",level)
     else cat("\nThe null hypothesis that both models represent the \ndata equally well is not rejected at level ",level)
-  }
+    }
   invisible(list(statistic=lrstat,p.value=pval,df=abs(npar1-npar2)))
 }

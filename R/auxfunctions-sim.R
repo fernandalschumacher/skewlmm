@@ -89,7 +89,21 @@ logveroARpis = function(y,x,z,time,ind,beta1,sigmae,piAR,D1,distr,nu){ #ind = in
 ##############################################################################
 # EM - AR(p)
 ##############################################################################
-emjARs = function(jseq, y, x, z,time, beta1, D1,sigmae,piAR,distr,nu,calcbi) {
+calcbi_emjARs <- function(jseq,y,x,z,time,beta1,D1,sigmae,piAR,distr,nu) {
+  y1=y[jseq]
+  t1=time[jseq]
+  p= ncol(x);q1=ncol(z)
+  x1=matrix(x[jseq,  ],ncol=p)
+  z1=matrix(z[jseq,  ],ncol=q1)
+  med<-x1%*%beta1
+  nj = length(y1)
+  Sigma = sigmae*CovARp(phi = estphit(piAR),t1)
+  Psi<-(z1)%*%D1%*%t(z1)+Sigma
+  #
+  bi<-D1%*%t(z1)%*%solve(Psi)%*%(y1-med)
+  bi
+}
+emjARs = function(jseq, y, x, z,time, beta1, D1,sigmae,piAR,distr,nu) {
   y1=y[jseq]
   t1=time[jseq]
   p= ncol(x);q1=ncol(z)
@@ -100,10 +114,6 @@ emjARs = function(jseq, y, x, z,time, beta1, D1,sigmae,piAR,distr,nu,calcbi) {
   Sigma = sigmae*CovARp(phi = estphit(piAR),t1)
   Psi<-(z1)%*%(D1)%*%t(z1)+Sigma
   dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med))
-  #
-  if(calcbi){
-    bi<-D1%*%t(z1)%*%solve(Psi)%*%(y1-med)
-  }
   #
   if  (distr=="sn"){
     uj<-1
@@ -136,13 +146,13 @@ emjARs = function(jseq, y, x, z,time, beta1, D1,sigmae,piAR,distr,nu,calcbi) {
     t(ub)%*%t(z1)%*%sRi%*%(y1-x1%*%beta1)+traceM(sRi%*%z1%*%ub2j%*%t(z1)) #soma do sig2
   sum4<-ub2j #soma do D1
   obj.out = list(sum1=sum1,sum2=sum2,sum3=sum3,sum4=sum4,uj=uj,ubj=ub,ub2j=ub2j)
-  if (calcbi) obj.out$bi=bi
+  #if (calcbi) obj.out$bi=bi
   return(obj.out)
 }
 
 EM.AR<- function(formFixed,formRandom,data,groupVar,pAR,timeVar,
                  distr,beta1,sigmae,phiAR,D1,nu,lb,lu,
-                 precisao,informa,calcbi,max.iter,showiter){
+                 precisao,informa,max.iter,showiter,showerroriter){
   ti <- Sys.time()
   x <- model.matrix(formFixed,data=data)
   varsx <- all.vars(formFixed)[-1]
@@ -186,14 +196,13 @@ EM.AR<- function(formFixed,formRandom,data,groupVar,pAR,timeVar,
 
     count <- count + 1
     res_emj = revert_list(tapply(1:N,ind,emjARs,y=y, x=x, z=z,time=time, beta1=beta1, D1=D1,
-                                 sigmae=sigmae,piAR=piAR, distr=distr,nu=nu,calcbi=calcbi))
+                                 sigmae=sigmae,piAR=piAR, distr=distr,nu=nu))
     sum1 = Reduce("+",res_emj$sum1)
     sum2 = Reduce("+",res_emj$sum2)
     sum3 = sum(unlist(res_emj$sum3))
     sum4 = Reduce("+",res_emj$sum4)
-
-    if (calcbi) {bi = t(matrix(unlist(res_emj$bi),nrow=q1))}
-
+    
+    #if (calcbi) bi = t(bind_cols(res_emj$bi))#t(matrix(unlist(res_emj$bi),nrow=q1))
     beta1<-solve(sum1)%*%sum2
     sigmae<-as.numeric(sum3)/N
     D1<-sum4/m
@@ -215,11 +224,14 @@ EM.AR<- function(formFixed,formRandom,data,groupVar,pAR,timeVar,
     llj1<-llji
     llji <- logveroARpis(y, x, z, time,ind, beta1, sigmae,piAR, D1, distr, nu)
     criterio <- abs((llji-llj1)/llj1)
-    if (showiter) cat("Iteration ",count," of ",max.iter,"\r") #  criterium ",criterio," or ",criterio2,"\r")
+    if (showiter&!showerroriter) cat("Iteration ",count," of ",max.iter,"\r") #  criterium ",criterio," or ",criterio2,"\r")
+    if (showerroriter) cat("Iteration ",count," of ",max.iter," - criterium =",criterio,"\r") #  criterium ",criterio," or ",criterio2,"\r")
     if (count==max.iter) message("\n maximum number of iterations reachead")
   }
 
   cat("\n")
+  bi <- t(bind_cols(tapply(1:N,ind,calcbi_emjARs,y=y, x=x, z=z,time=time, beta1=beta1, D1=D1,
+                           sigmae=sigmae,piAR=piAR, distr=distr,nu=nu,simplify = FALSE)))
   dd<-matrix.sqrt(D1)[upper.tri(D1, diag = T)]
   phiAR=estphit(piAR)
   theta = c(beta1,sigmae,phiAR,dd,nu)
@@ -228,12 +240,11 @@ EM.AR<- function(formFixed,formRandom,data,groupVar,pAR,timeVar,
   else names(theta)<- c(colnames(x),"sigma2",paste0("phiAR",1:length(piAR)),paste0("Dsqrt",1:length(dd)),paste0("nu",1:length(nu)))
 
   obj.out <- list(theta=theta, iter = count,estimates=list(beta=as.numeric(beta1),sigma2=sigmae,
-                                                           phi=phiAR,dsqrt=dd))
+                                                           phi=phiAR,dsqrt=dd),
+                  uhat=unlist(res_emj$uj))
   if (distr != "sn") obj.out$estimates$nu = nu
-  if(calcbi) {
-    colnames(bi) <- colnames(z)
-    obj.out$random.effects<- bi
-  }
+  colnames(bi) <- colnames(z)
+  obj.out$random.effects<- bi
 
   if (informa) {
     desvios<-try(InfmatrixARs(y,x,z,time,ind,beta1,sigmae,phiAR,D1,distr = distr,nu = nu),silent = T)
@@ -396,7 +407,19 @@ logveros = function(y,x,z,ind,beta1,sigmae,D1,distr,nu){ #ind = indicadora de in
 # ##############################################################################
 # # EM - independent
 # ##############################################################################
-emjs = function(jseq, y, x, z, beta1,D1, sigmae,distr,nu,calcbi) {
+calcbi_emjs = function(jseq, y, x, z, beta1,D1, sigmae,distr,nu) {
+  y1=y[jseq]
+  p= ncol(x);q1=ncol(z)
+  x1=matrix(x[jseq,  ],ncol=p)
+  z1=matrix(z[jseq,  ],ncol=q1)
+  med<-x1%*%beta1
+  nj = length(y1)
+  Psi<-(z1)%*%(D1)%*%t(z1)+sigmae*diag(nj)
+  #
+  bi<-D1%*%t(z1)%*%solve(Psi)%*%(y1-med)
+  bi
+ }
+emjs = function(jseq, y, x, z, beta1,D1, sigmae,distr,nu) {
   y1=y[jseq]
   p= ncol(x);q1=ncol(z)
   x1=matrix(x[jseq,  ],ncol=p)
@@ -405,10 +428,6 @@ emjs = function(jseq, y, x, z, beta1,D1, sigmae,distr,nu,calcbi) {
   nj = length(y1)
   Psi<-(z1)%*%(D1)%*%t(z1)+sigmae*diag(nj)
   dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med))
-  #
-  if(calcbi){
-    bi<-D1%*%t(z1)%*%solve(Psi)%*%(y1-med)
-  }
   #
   if  (distr=="sn"){
     uj<-1
@@ -439,12 +458,12 @@ emjs = function(jseq, y, x, z, beta1,D1, sigmae,distr,nu,calcbi) {
     t(ub)%*%t(z1)%*%(y1-x1%*%beta1)+traceM(ub2j%*%t(z1)%*%z1) #soma do sig2
   sum4<-ub2j #soma do Gamma
   obj.out = list(sum1=sum1,sum2=sum2,sum3=sum3,sum4=sum4,uj=uj)
-  if (calcbi) obj.out$bi=bi
+  #if (calcbi) obj.out$bi=bi
   return(obj.out)
 }
 #
 EM.sim<- function(formFixed,formRandom,data,groupVar,distr,beta1,sigmae,D1,nu,lb,lu,
-                  precisao,informa,calcbi,max.iter,showiter){
+                  precisao,informa,max.iter,showiter,showerroriter){
   ti = Sys.time()
   x <- model.matrix(formFixed,data=data)
   varsx <- all.vars(formFixed)[-1]
@@ -469,14 +488,14 @@ EM.sim<- function(formFixed,formRandom,data,groupVar,distr,beta1,sigmae,D1,nu,lb
 
     count <- count + 1
     res_emj = revert_list(tapply(1:N,ind,emjs,y=y, x=x, z=z, beta1=beta1, D1=D1,
-                                 sigmae=sigmae, distr=distr,nu=nu,calcbi=calcbi))
+                                 sigmae=sigmae, distr=distr,nu=nu))
     sum1 = Reduce("+",res_emj$sum1)
     sum2 = Reduce("+",res_emj$sum2)
     sum3 = sum(unlist(res_emj$sum3))
     sum4 = Reduce("+",res_emj$sum4)
     uj = unlist(res_emj$uj,use.names = F)
-    if (calcbi) {bi = t(matrix(unlist(res_emj$bi),nrow=q1))}
-
+    #if (calcbi) bi = t(bind_cols(res_emj$bi))#t(matrix(unlist(res_emj$bi),nrow=q1))
+    
     beta1<-solve(sum1)%*%sum2
     sigmae<-as.numeric(sum3)/N
     D1<-sum4/m
@@ -493,10 +512,13 @@ EM.sim<- function(formFixed,formRandom,data,groupVar,distr,beta1,sigmae,D1,nu,lb
     llj1 <- llji
     llji <- logveros(y, x, z, ind, beta1, sigmae, D1, distr, nu)
     criterio <- abs((llji-llj1)/llj1)
-    if (showiter) cat("Iteration ",count,"  of ",max.iter,"\r")
+    if (showiter&!showerroriter) cat("Iteration ",count," of ",max.iter,"\r") #  criterium ",criterio," or ",criterio2,"\r")
+    if (showerroriter) cat("Iteration ",count," of ",max.iter," - criterium =",criterio,"\r") #  criterium ",criterio," or ",criterio2,"\r")
     if (count==max.iter) message("\n maximum number of iterations reachead")
   }
   cat("\n")
+  bi <- t(bind_cols(tapply(1:N,ind,calcbi_emjs,y=y, x=x, z=z, beta1=beta1, D1=D1,
+                           sigmae=sigmae, distr=distr,nu=nu,simplify = FALSE)))
   dd<-matrix.sqrt(D1)[upper.tri(D1, diag = T)]
   theta = c(beta1,sigmae,dd,nu)
   if (is.null(colnames(x))) colnames(x) <- paste0("beta",1:p-1)
@@ -504,12 +526,12 @@ EM.sim<- function(formFixed,formRandom,data,groupVar,distr,beta1,sigmae,D1,nu,lb
   else names(theta)<- c(colnames(x),"sigma2",paste0("Dsqrt",1:length(dd)),paste0("nu",1:length(nu)))
 
   obj.out <- list(theta=theta, iter = count,estimates=list(beta=as.numeric(beta1),sigma2=sigmae,
-                                                           dsqrt=dd))
+                                                           dsqrt=dd),
+                  uhat=unlist(res_emj$uj))
   if (distr != "sn") obj.out$estimates$nu = nu
-  if(calcbi) {
-    colnames(bi) <- colnames(z)
-    obj.out$random.effects<- bi
-  }
+  colnames(bi) <- colnames(z)
+  obj.out$random.effects<- bi
+  
   if (informa) {
     desvios<-try(Infmatrixs(y,x,z,ind,beta1,sigmae,D1,distr = distr,nu = nu),silent = T)
     if (class(desvios)=="try-error") {
@@ -661,7 +683,20 @@ logveroCSs = function(y,x,z,ind,beta1,sigmae,phiCS,D1,distr,nu){ #ind = indicado
 # ##############################################################################
 # # EM - CS
 # ##############################################################################
-emjCSs = function(jseq, y, x, z, beta1, D1, sigmae,phiCS,zeta,distr,nu,calcbi) {
+calcbi_emjCSs = function(jseq, y, x, z, beta1, D1, sigmae,phiCS,distr,nu) {
+  y1=y[jseq]
+  p= ncol(x);q1=ncol(z)
+  x1=matrix(x[jseq,  ],ncol=p)
+  z1=matrix(z[jseq,  ],ncol=q1)
+  med<-x1%*%beta1
+  nj = length(y1)
+  Sigma = sigmae*CovCS(phiCS,nj)
+  Psi<-(z1)%*%(D1)%*%t(z1)+Sigma
+  #
+  bi<-D1%*%t(z1)%*%solve(Psi)%*%(y1-med)
+  bi
+}
+emjCSs = function(jseq, y, x, z, beta1, D1, sigmae,phiCS,distr,nu) {
   y1=y[jseq]
   p= ncol(x);q1=ncol(z)
   x1=matrix(x[jseq,  ],ncol=p)
@@ -671,10 +706,6 @@ emjCSs = function(jseq, y, x, z, beta1, D1, sigmae,phiCS,zeta,distr,nu,calcbi) {
   Sigma = sigmae*CovCS(phiCS,nj)
   Psi<-(z1)%*%(D1)%*%t(z1)+Sigma
   dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med))
-  #
-  if(calcbi){
-    bi<-D1%*%t(z1)%*%solve(Psi)%*%(y1-med)
-  }
   #
   if  (distr=="sn"){
     uj<-1
@@ -707,13 +738,13 @@ emjCSs = function(jseq, y, x, z, beta1, D1, sigmae,phiCS,zeta,distr,nu,calcbi) {
     t(ub)%*%t(z1)%*%sRi%*%(y1-x1%*%beta1)+traceM(sRi%*%z1%*%ub2j%*%t(z1)) #soma do sig2
   sum4<-ub2j #soma do D1
   obj.out = list(sum1=sum1,sum2=sum2,sum3=sum3,sum4=sum4,uj=uj,ubj=ub,ub2j=ub2j)
-  if (calcbi) obj.out$bi=bi
+  #if (calcbi) obj.out$bi=bi
   return(obj.out)
 }
 #
 EM.CS<- function(formFixed,formRandom,data,groupVar,
                  distr,beta1,sigmae,phiCS,D1,nu,lb,lu,
-                 precisao,informa,calcbi,max.iter,showiter){
+                 precisao,informa,max.iter,showiter,showerroriter){
   ti <- Sys.time()
   x <- model.matrix(formFixed,data=data)
   varsx <- all.vars(formFixed)[-1]
@@ -746,14 +777,13 @@ EM.CS<- function(formFixed,formRandom,data,groupVar,
 
     count <- count + 1
     res_emj = revert_list(tapply(1:N,ind,emjCSs,y=y, x=x, z=z, beta1=beta1, D1=D1,
-                                 sigmae=sigmae,phiCS=phiCS, distr=distr,nu=nu,calcbi=calcbi))
+                                 sigmae=sigmae,phiCS=phiCS, distr=distr,nu=nu))
     sum1 = Reduce("+",res_emj$sum1)
     sum2 = Reduce("+",res_emj$sum2)
     sum3 = sum(unlist(res_emj$sum3))
     sum4 = Reduce("+",res_emj$sum4)
 
-    if (calcbi) {bi = t(matrix(unlist(res_emj$bi),nrow=q1))}
-
+    #if (calcbi) bi = t(bind_cols(res_emj$bi))#t(matrix(unlist(res_emj$bi),nrow=q1))
     beta1<-solve(sum1)%*%sum2
     sigmae<-as.numeric(sum3)/N
     D1<-sum4/m
@@ -773,11 +803,15 @@ EM.CS<- function(formFixed,formRandom,data,groupVar,
     llj1<-llji
     llji <- logveroCSs(y, x, z, ind, beta1, sigmae,phiCS, D1, distr, nu)
     criterio <- abs((llji-llj1)/llj1)
-    if (showiter) cat("Iteration ",count,"  of ",max.iter,"\r")
+    if (showiter&!showerroriter) cat("Iteration ",count," of ",max.iter,"\r") #  criterium ",criterio," or ",criterio2,"\r")
+    if (showerroriter) cat("Iteration ",count," of ",max.iter," - criterium =",criterio,"\r") #  criterium ",criterio," or ",criterio2,"\r")
     if (count==max.iter) message("\n maximum number of iterations reachead")
   }
 
   cat("\n")
+  bi <- t(bind_cols(tapply(1:N,ind,calcbi_emjCSs,y=y, x=x, z=z, beta1=beta1, D1=D1,
+                           sigmae=sigmae,phiCS=phiCS, distr=distr,nu=nu,simplify = FALSE)))
+  
   dd<-matrix.sqrt(D1)[upper.tri(D1, diag = T)]
   theta = c(beta1,sigmae,phiCS,dd,nu)
   if (is.null(colnames(x))) colnames(x) <- paste0("beta",1:p-1)
@@ -785,12 +819,12 @@ EM.CS<- function(formFixed,formRandom,data,groupVar,
   else names(theta)<- c(colnames(x),"sigma2","phiCS",paste0("Dsqrt",1:length(dd)),paste0("nu",1:length(nu)))
 
   obj.out <- list(theta=theta, iter = count,estimates=list(beta=as.numeric(beta1),sigma2=sigmae,
-                                                           phi=phiCS,dsqrt=dd))
+                                                           phi=phiCS,dsqrt=dd),
+                  uhat=unlist(res_emj$uj))
   if (distr != "sn") obj.out$estimates$nu = nu
-  if(calcbi) {
-    colnames(bi) <- colnames(z)
-    obj.out$random.effects<- bi
-  }
+  colnames(bi) <- colnames(z)
+  obj.out$random.effects<- bi
+  
 
   if (informa) {
     desvios<-try(InfmatrixCS(y,x,z,ind,beta1,sigmae,phiCS,D1,distr = distr,nu = nu),silent = T)
@@ -948,7 +982,21 @@ logveroDECs = function(y,x,z,time,ind,beta1,sigmae,phiDEC,thetaDEC,D1,distr,nu){
 # ##############################################################################
 # # EM - DEC
 # ##############################################################################
-emjDECs = function(jseq, y, x, z,time, beta1, D1, sigmae,phiDEC,thetaDEC,distr,nu,calcbi) {
+calcbi_emjDECs = function(jseq, y, x, z,time, beta1, D1, sigmae,phiDEC,thetaDEC,distr,nu) {
+  y1=y[jseq]
+  t1=time[jseq]
+  p= ncol(x);q1=ncol(z)
+  x1=matrix(x[jseq,  ],ncol=p)
+  z1=matrix(z[jseq,  ],ncol=q1)
+  med<-x1%*%beta1
+  nj = length(y1)
+  Sigma = sigmae*CovDEC(phiDEC,thetaDEC,t1)#CovARp(phi = estphit(piAR),t1)
+  Psi<-(z1)%*%(D1)%*%t(z1)+Sigma
+  #
+  bi<-D1%*%t(z1)%*%solve(Psi)%*%(y1-med)
+  bi
+}
+emjDECs = function(jseq, y, x, z,time, beta1, D1, sigmae,phiDEC,thetaDEC,distr,nu) {
   y1=y[jseq]
   t1=time[jseq]
   p= ncol(x);q1=ncol(z)
@@ -959,10 +1007,6 @@ emjDECs = function(jseq, y, x, z,time, beta1, D1, sigmae,phiDEC,thetaDEC,distr,n
   Sigma = sigmae*CovDEC(phiDEC,thetaDEC,t1)#CovARp(phi = estphit(piAR),t1)
   Psi<-(z1)%*%(D1)%*%t(z1)+Sigma
   dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med))
-  #
-  if(calcbi){
-    bi<-D1%*%t(z1)%*%solve(Psi)%*%(y1-med)
-  }
   #
   if  (distr=="sn"){
     uj<-1
@@ -995,14 +1039,14 @@ emjDECs = function(jseq, y, x, z,time, beta1, D1, sigmae,phiDEC,thetaDEC,distr,n
     t(ub)%*%t(z1)%*%sRi%*%(y1-x1%*%beta1)+traceM(sRi%*%z1%*%ub2j%*%t(z1)) #soma do sig2
   sum4<-ub2j #soma do D1
   obj.out = list(sum1=sum1,sum2=sum2,sum3=sum3,sum4=sum4,uj=uj,ubj=ub,ub2j=ub2j)
-  if (calcbi) obj.out$bi=bi
+  #if (calcbi) obj.out$bi=bi
   return(obj.out)
 }
 
 #
 EM.DEC<- function(formFixed,formRandom,data,groupVar,timeVar,
                   beta1,sigmae,D1,distr,nu,parDEC,lb,lu,luDEC,
-                  precisao,informa,calcbi,max.iter,showiter){
+                  precisao,informa,max.iter,showiter,showerroriter){
   ti <- Sys.time()
   x <- model.matrix(formFixed,data=data)
   varsx <- all.vars(formFixed)[-1]
@@ -1052,14 +1096,13 @@ EM.DEC<- function(formFixed,formRandom,data,groupVar,timeVar,
 
     count <- count + 1
     res_emj = revert_list(tapply(1:N,ind,emjDECs,y=y, x=x, z=z,time=time, beta1=beta1, D1=D1,
-                                 sigmae=sigmae,phiDEC=phiDEC,thetaDEC=thetaDEC, distr=distr,nu=nu,calcbi=calcbi))
+                                 sigmae=sigmae,phiDEC=phiDEC,thetaDEC=thetaDEC, distr=distr,nu=nu))
     sum1 = Reduce("+",res_emj$sum1)
     sum2 = Reduce("+",res_emj$sum2)
     sum3 = sum(unlist(res_emj$sum3))
     sum4 = Reduce("+",res_emj$sum4)
 
-    if (calcbi) {bi = t(matrix(unlist(res_emj$bi),nrow=q1))}
-
+    #if (calcbi) bi = t(bind_cols(res_emj$bi))#t(matrix(unlist(res_emj$bi),nrow=q1))
     beta1<-solve(sum1)%*%sum2
     sigmae<-as.numeric(sum3)/N
     D1<-sum4/m
@@ -1080,11 +1123,14 @@ EM.DEC<- function(formFixed,formRandom,data,groupVar,timeVar,
     llj1<-llji
     llji <- logveroDECs(y, x, z, time,ind, beta1, sigmae,phiDEC,thetaDEC, D1, distr, nu)
     criterio <- abs((llji-llj1)/llj1)
-    if (showiter) cat("Iteration ",count,"  of ",max.iter,"\r")
+    if (showiter&!showerroriter) cat("Iteration ",count," of ",max.iter,"\r") #  criterium ",criterio," or ",criterio2,"\r")
+    if (showerroriter) cat("Iteration ",count," of ",max.iter," - criterium =",criterio,"\r") #  criterium ",criterio," or ",criterio2,"\r")
     if (count==max.iter) message("\n maximum number of iterations reachead")
   }
 
   cat("\n")
+  bi <- t(bind_cols(tapply(1:N,ind,calcbi_emjDECs,y=y, x=x, z=z,time=time, beta1=beta1, D1=D1,
+                           sigmae=sigmae,phiDEC=phiDEC,thetaDEC=thetaDEC, distr=distr,nu=nu,simplify = FALSE)))
   dd<-matrix.sqrt(D1)[upper.tri(D1, diag = T)]
   theta = c(beta1,sigmae,phiDEC,thetaDEC,dd,nu)
   if (is.null(colnames(x))) colnames(x) <- paste0("beta",1:p-1)
@@ -1092,12 +1138,11 @@ EM.DEC<- function(formFixed,formRandom,data,groupVar,timeVar,
   else names(theta)<- c(colnames(x),"sigma2","phiDEC","thetaDEC",paste0("Dsqrt",1:length(dd)),paste0("nu",1:length(nu)))
 
   obj.out <- list(theta=theta, iter = count,estimates=list(beta=as.numeric(beta1),sigma2=sigmae,
-                                                           phi=c(phiDEC,thetaDEC),dsqrt=dd))
+                                            phi=c(phiDEC,thetaDEC),dsqrt=dd),
+                  uhat=unlist(res_emj$uj))
   if (distr != "sn") obj.out$estimates$nu = nu
-  if(calcbi) {
-    colnames(bi) <- colnames(z)
-    obj.out$random.effects<- bi
-  }
+  colnames(bi) <- colnames(z)
+  obj.out$random.effects<- bi
 
   if (informa) {
     desvios<-try(InfmatrixDECs(y,x,z,time,ind,beta1,sigmae,phiDEC,thetaDEC,D1,distr = distr,nu = nu),silent = T)
@@ -1268,7 +1313,7 @@ logveroCAR1s = function(y,x,z,time,ind,beta1,sigmae,phiDEC,D1,distr,nu){ #ind = 
 ##############################################################################
 # EM - CAR(1)
 ##############################################################################
-emjCAR1s = function(jseq, y, x, z,time, beta1, D1, sigmae,phiDEC,zeta,distr,nu,calcbi) {
+emjCAR1s = function(jseq, y, x, z,time, beta1, D1, sigmae,phiDEC,distr,nu) {
   y1=y[jseq]
   t1=time[jseq]
   p= ncol(x);q1=ncol(z)
@@ -1279,10 +1324,6 @@ emjCAR1s = function(jseq, y, x, z,time, beta1, D1, sigmae,phiDEC,zeta,distr,nu,c
   Sigma = sigmae*CovDEC(phiDEC,1,t1)#CovARp(phi = estphit(piAR),t1)
   Psi<-(z1)%*%(D1)%*%t(z1)+Sigma
   dj<-as.numeric(t(y1-med)%*%solve(Psi)%*%(y1-med))
-  #
-  if(calcbi){
-    bi<-D1%*%t(z1)%*%solve(Psi)%*%(y1-med)
-  }
   #
   if  (distr=="sn"){
     uj<-1
@@ -1315,13 +1356,13 @@ emjCAR1s = function(jseq, y, x, z,time, beta1, D1, sigmae,phiDEC,zeta,distr,nu,c
     t(ub)%*%t(z1)%*%sRi%*%(y1-x1%*%beta1)+traceM(sRi%*%z1%*%ub2j%*%t(z1)) #soma do sig2
   sum4<-ub2j #soma do D1
   obj.out = list(sum1=sum1,sum2=sum2,sum3=sum3,sum4=sum4,uj=uj,ubj=ub,ub2j=ub2j)
-  if (calcbi) obj.out$bi=bi
+  #if (calcbi) obj.out$bi=bi
   return(obj.out)
 }
 #
 EM.CAR1<- function(formFixed,formRandom,data,groupVar,timeVar,
                    distr,beta1,sigmae,phiCAR1,D1,nu,lb,lu,
-                   precisao,informa,calcbi,max.iter,showiter){
+                   precisao,informa,max.iter,showiter,showerroriter){
   ti <- Sys.time()
   x <- model.matrix(formFixed,data=data)
   varsx <- all.vars(formFixed)[-1]
@@ -1362,14 +1403,14 @@ EM.CAR1<- function(formFixed,formRandom,data,groupVar,timeVar,
 
     count <- count + 1
     res_emj = revert_list(tapply(1:N,ind,emjCAR1s,y=y, x=x, z=z,time=time, beta1=beta1, D1=D1,
-                                 sigmae=sigmae,phiDEC=phiDEC,distr=distr,nu=nu,calcbi=calcbi))
+                                 sigmae=sigmae,phiDEC=phiDEC,distr=distr,nu=nu))
     sum1 = Reduce("+",res_emj$sum1)
     sum2 = Reduce("+",res_emj$sum2)
     sum3 = sum(unlist(res_emj$sum3))
     sum4 = Reduce("+",res_emj$sum4)
 
-    if (calcbi) {bi = t(matrix(unlist(res_emj$bi),nrow=q1))}
-
+    #if (calcbi) bi = t(bind_cols(res_emj$bi))#t(matrix(unlist(res_emj$bi),nrow=q1))
+    
     beta1<-solve(sum1)%*%sum2
     sigmae<-as.numeric(sum3)/N
     D1<-sum4/m
@@ -1389,11 +1430,14 @@ EM.CAR1<- function(formFixed,formRandom,data,groupVar,timeVar,
     llj1<-llji
     llji <- logveroCAR1s(y, x, z, time,ind, beta1, sigmae,phiDEC, D1, distr, nu)
     criterio <- abs((llji-llj1)/llj1)
-    if (showiter) cat("Iteration ",count,"  of ",max.iter,"\r")
+    if (showiter&!showerroriter) cat("Iteration ",count," of ",max.iter,"\r") #  criterium ",criterio," or ",criterio2,"\r")
+    if (showerroriter) cat("Iteration ",count," of ",max.iter," - criterium =",criterio,"\r") #  criterium ",criterio," or ",criterio2,"\r")
     if (count==max.iter) message("\n maximum number of iterations reachead")
   }
 
   cat("\n")
+  bi <- t(bind_cols(tapply(1:N,ind,calcbi_emjDECs,y=y, x=x, z=z,time=time, beta1=beta1, D1=D1,
+                           sigmae=sigmae,phiDEC=phiDEC,thetaDEC=1, distr=distr,nu=nu,simplify = FALSE)))
   dd<-matrix.sqrt(D1)[upper.tri(D1, diag = T)]
   theta = c(beta1,sigmae,phiDEC,dd,nu)
   if (is.null(colnames(x))) colnames(x) <- paste0("beta",1:p-1)
@@ -1401,12 +1445,11 @@ EM.CAR1<- function(formFixed,formRandom,data,groupVar,timeVar,
   else names(theta)<- c(colnames(x),"sigma2","phiCAR1",paste0("Dsqrt",1:length(dd)),paste0("nu",1:length(nu)))
 
   obj.out <- list(theta=theta, iter = count,estimates=list(beta=as.numeric(beta1),sigma2=sigmae,
-                                                           phi=phiDEC,dsqrt=dd))
+                                                           phi=phiDEC,dsqrt=dd),
+                  uhat=unlist(res_emj$uj))
   if (distr != "sn") obj.out$estimates$nu = nu
-  if(calcbi) {
-    colnames(bi) <- colnames(z)
-    obj.out$random.effects<- bi
-  }
+  colnames(bi) <- colnames(z)
+  obj.out$random.effects<- bi
 
   if (informa) {
     desvios<-try(InfmatrixCAR1s(y,x,z,time,ind,beta1,sigmae,phiDEC,D1,distr = distr,nu = nu),silent = T)

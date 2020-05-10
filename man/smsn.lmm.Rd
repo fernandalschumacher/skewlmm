@@ -10,9 +10,9 @@ It provides estimates and standard errors of parameters.
 \usage{
 smsn.lmm(data, formFixed, groupVar, formRandom = ~1, depStruct = "CI",
     timeVar = NULL, distr = "sn", pAR = 1, luDEC = 10,
-    tol = 1e-06, max.iter = 200, calc.se = TRUE, calc.bi = TRUE, lb = NULL,
+    tol = 1e-06, max.iter = 200, calc.se = TRUE, lb = NULL,
     lu = NULL, initialValues = list(beta = NULL, sigma2 = NULL,
-      D = NULL, lambda = NULL, phi = NULL, nu = NULL), quiet = FALSE)
+      D = NULL, lambda = NULL, phi = NULL, nu = NULL), quiet = FALSE, showCriterium=FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -28,12 +28,12 @@ smsn.lmm(data, formFixed, groupVar, formRandom = ~1, depStruct = "CI",
   \item{tol}{Tolerance for the convergence criterion. Default=\code{1e-6}.}
   \item{max.iter}{Maximum number of iterations for the EM algorithm. Default=\code{200}.}
   \item{calc.se}{A logical value indicating if standard errors should be calculated.}
-  \item{calc.bi}{A logical value indicating if random effects should be estimated.}
   \item{lb}{Optional. Bottom limit for estimating \code{nu}.}
   \item{lu}{Optional. Upper limit for estimating \code{nu}.}
   \item{initialValues}{Optional. A named list containing initial parameter values, with at most the following elements: \code{beta}, \code{sigma2}, \code{D}, \code{lambda}, \code{phi}, \code{nu}.}
   \item{quiet}{A logical value indicating if the iteration message should be suppressed. Useful when calling the function in R Markdown.}
-}
+  \item{showCriterium}{A logical value indicating if the criterium should be shown at each iteration.}
+  }
 \details{
 It fits the model \eqn{Y_i = X_i \beta + Z_i b_i + \epsilon_i}, for \eqn{i=1,\dots,n}, where \eqn{Y_i} is a vector with \eqn{n_i} observed continuous responses, \eqn{b_i ~ SMSN(c\Delta, D,\lambda;H)} and \eqn{\epsilon_i ~ SMN(0, \Sigma_i; H)}, indexed by the same mixing distribution.
 
