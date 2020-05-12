@@ -198,13 +198,17 @@ acfresid <- function(object,maxLag,resLevel="marginal",resType="normalized",
 
 mahalDist<- function(object,decomposed=FALSE,dataPlus=NULL){
   if(!inherits(object,c("SMSN","SMN"))) stop("object must inherit from class SMSN or SMN")
-  if (!is.null(dataPlus)) {
-    data <- dataPlus
-  } else data <- object$data
   formFixed <- object$formula$formFixed
   formRandom <- object$formula$formRandom
   groupVar<-object$groupVar
   timeVar <- object$timeVar
+  if (!is.null(dataPlus)) {
+    data <- dataPlus
+    if (!is.data.frame(data)) stop("data must be a data.frame")
+    vars_used<-unique(c(all.vars(formFixed),all.vars(formRandom),groupVar,timeVar))
+    vars_miss <- which(!(vars_used %in% names(data)))
+    if (length(vars_miss)>0) stop(paste(vars_used[vars_miss],"not found in dataPlus"))
+  } else data <- object$data
   x <- model.matrix(formFixed,data=data)
   y <-data[,all.vars(formFixed)[1]]
   z<-model.matrix(formRandom,data=data)
@@ -302,7 +306,7 @@ gerar_ind_smsnACF = function(jvec,x,z,sigma2,Dsqrti,beta1,lambda,distr,nu,ind,ti
 # }
 plot.ACF <-  function(x,...) {
   if (ncol(x)<=3) {
-    ggplot(x,aes(x = lag,y=ACF))+
+    ggplot(data = x,aes_string(x = "lag",y="ACF"))+
       theme_minimal()+geom_hline(aes(yintercept = 0))+
       geom_segment(mapping = aes(xend = lag, yend = 0))+ ylim(c(-1,1))
   } else {
@@ -310,11 +314,13 @@ plot.ACF <-  function(x,...) {
                    c(5,min(x[4],na.rm=T),max(x[5],na.rm=T)))
     datIC$lag <- datIC$lag-.5
     names(datIC) <- c("lag","inf","sup")
-    ggplot(x,aes(x = lag,y=ACF)) +  geom_hline(aes(yintercept = 0)) +
+    ggplot(x,aes_string(x = "lag",y="ACF")) +
+    #ggplot(x,aes(x = lag,y=ACF)) +
+    geom_hline(aes(yintercept = 0)) +
       coord_cartesian(xlim=0:max(x$lag))+
-      geom_segment(mapping = aes(xend = lag, yend = 0)) +
-      geom_step(aes(x=lag,y=inf),data=datIC,color=4,linetype="dashed",na.rm=TRUE)+
-      geom_step(aes(x=lag,y=sup),data=datIC,color=4,linetype="dashed",na.rm=TRUE)+
+      geom_segment(mapping = aes_string(xend = "lag", yend = 0)) +
+      geom_step(aes_string(x="lag",y="inf"),data=datIC,color=4,linetype="dashed",na.rm=TRUE)+
+      geom_step(aes_string(x="lag",y="sup"),data=datIC,color=4,linetype="dashed",na.rm=TRUE)+
       theme_minimal()+ ylim(c(-1,1))
       }
 }
@@ -335,6 +341,7 @@ plot.mahalDist <- function(x,fitobject,type,level=.99,nlabels=3,...){
   } else if (!(type %in% c("total","error","b"))) stop("type must be one of the following: total,error,b")
   if ((!is.data.frame(x))&(type!="total")) stop(paste("for type",type,"x must have decomposed=TRUE"))
   if (!is.data.frame(x)) x <- data.frame(md=x)
+  if (level>=1|level<=0) stop("0<level<1 needed")
   #
   if(!inherits(fitobject,c("SMSN","SMN"))) stop("fitobject must inherit from class SMSN or SMN")
   data <- fitobject$data
@@ -358,30 +365,30 @@ plot.mahalDist <- function(x,fitobject,type,level=.99,nlabels=3,...){
   if (type!="total") {
     if (n_distinct(x$nj) ==1){
       if (type=="error") {
-        plotout<-ggplot(x,aes(index,md.error)) +
+        plotout<-ggplot(x,aes_string("index","md.error")) +
           geom_point(shape=1) + ylab("error distance")+
-          geom_text(aes(label=ind),data=subset(x,rank(x$md.error)>length(x$nj)-nlabels),
+          geom_text(aes_string(label="ind"),data=subset(x,rank(x$md.error)>length(x$nj)-nlabels),
                     nudge_x=1.5,nudge_y = .5,size=3)
       } else {
-        plotout<-ggplot(x,aes(index,md.b)) +
+        plotout<-ggplot(x,aes_string("index","md.b")) +
           geom_point(shape=1) + ylab("R.E. distance")+
-          geom_text(aes(label=ind),data=subset(x,rank(x$md.b)>length(x$nj)-nlabels),
+          geom_text(aes_string(label="ind"),data=subset(x,rank(x$md.b)>length(x$nj)-nlabels),
                     nudge_x=1.5,nudge_y = 0,size=3)
       }
     } else {
       njvec <- sort(unique(x$nj))
       if (type=="error") {
-        plotout<-ggplot(x,aes(nj,md.error)) +
+        plotout<-ggplot(x,aes_string("nj","md.error")) +
           geom_point(position = position_jitter(width = .3,height = 0,seed=111),
                      shape=1) + ylab("error distance")+xlab("number of observations")+
-          geom_text(aes(label=ind),data=subset(x,rank(x$md.error)>length(x$nj)-nlabels),
+          geom_text(aes_string(label="ind"),data=subset(x,rank(x$md.error)>length(x$nj)-nlabels),
                     nudge_x=0,nudge_y = .5,size=3)+
           scale_x_continuous(breaks=njvec)
       } else {
-        plotout<-ggplot(x,aes(nj,md.b)) +
+        plotout<-ggplot(x,aes_string("nj","md.b")) +
           geom_point(position = position_jitter(width = .3,height = 0,seed=111),
                      shape=1) + ylab("R.E. distance")+xlab("number of observations")+
-          geom_text(aes(label=ind),data=subset(x,rank(x$md.b)>length(x$nj)-nlabels),
+          geom_text(aes_string(label="ind"),data=subset(x,rank(x$md.b)>length(x$nj)-nlabels),
                     nudge_x=0,nudge_y = .5,size=3)+
           scale_x_continuous(breaks=njvec)
       }
@@ -404,9 +411,9 @@ plot.mahalDist <- function(x,fitobject,type,level=.99,nlabels=3,...){
                               c(1,qchisq(level,nj1)^2))$root
       }
 
-      plotout<-ggplot(x,aes(index,md)) +
+      plotout<-ggplot(x,aes_string("index","md")) +
         geom_point(shape=1) + ylab("Mahalanobis distance")+
-        geom_text(aes(label=ind),data=subset(x,rank(x$md)>length(x$nj)-nlabels),
+        geom_text(aes_string(label="ind"),data=subset(x,rank(x$md)>length(x$nj)-nlabels),
                   nudge_x=1.5,nudge_y = .5,size=3) +
         geom_hline(yintercept = mdquantile,col=4,linetype="dashed")
       attr(plotout,"label") <- data.frame(nj= nj1,quantile=c(mdquantile))
@@ -423,12 +430,13 @@ plot.mahalDist <- function(x,fitobject,type,level=.99,nlabels=3,...){
                                                                          c(1,qchisq(level,nj1)^2))$root))
       }
       datline <- data.frame(nj= c(njvec,max(njvec)+1),quantile=c(mdquantile,max(mdquantile)))
-      plotout<-ggplot(x,aes(nj,md)) +
+      datline$nj2<-datline$nj-.5
+      plotout<-ggplot(x,aes_string("nj","md")) +
         geom_point(position = position_jitter(width = .25,height = 0,seed=111),
                    shape=1) + ylab("Mahalanobis distance")+ xlab("number of observations")+
-        geom_text(aes(label=ind),data=subset(x,rank(x$md)>length(x$nj)-nlabels),
+        geom_text(aes_string(label="ind"),data=subset(x,rank(x$md)>length(x$nj)-nlabels),
                   nudge_x=0,nudge_y = 0,size=3) +
-        geom_step(aes(x=nj-.5,y=quantile),data=datline,color=4,linetype="dashed")+
+        geom_step(aes_string(x="nj2",y="quantile"),data=datline,color=4,linetype="dashed")+
         scale_x_continuous(breaks=njvec)
       attr(plotout,"info") <- data.frame(nj= c(njvec),quantile=c(mdquantile))
     }

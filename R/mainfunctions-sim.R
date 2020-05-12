@@ -13,11 +13,11 @@ smn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "CI", time
   if (!is.character(groupVar)) stop("groupVar must be a character containing the name of the grouping variable in data")
   if (!is.null(timeVar)&!is.character(timeVar)) stop("timeVar must be a character containing the name of the time variable in data")
   if (length(formFixed)!=3) stop("formFixed must be a two-sided linear formula object")
+  if (!is.data.frame(data)) stop("data must be a data.frame")
   vars_used<-unique(c(all.vars(formFixed),all.vars(formRandom),groupVar,timeVar))
   vars_miss <- which(!(vars_used %in% names(data)))
   if (length(vars_miss)>0) stop(paste(vars_used[vars_miss],"not found in data"))
   #
-  if (!is.data.frame(data)) stop("data must be a data.frame")
   if (!is.factor(data[,groupVar])) data[,groupVar]<-as.factor(data[,groupVar])
   x <- model.matrix(formFixed,data=data)
   y <-data[,all.vars(formFixed)[1]]
@@ -97,7 +97,7 @@ smn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "CI", time
                                            phiCAR1 = phiCAR1,D1 = D1,nu = nu,lb = lb,lu = lu,
                                            precisao=tol,informa=calc.se,max.iter=max.iter,showiter=!quiet,showerroriter = (!quiet)&showCriterium)
   obj.out$call <- match.call()
-  
+
   npar<-length(obj.out$theta);N<-nrow(data)
   obj.out$criteria$AIC <- 2*npar-2*obj.out$loglik
   obj.out$criteria$BIC <- log(N)*npar - 2*obj.out$loglik
@@ -120,7 +120,7 @@ smn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "CI", time
     fitted[seqi]<- xfiti%*%obj.out$estimates$beta + zfiti%*%obj.out$random.effects[i,]
   }
   obj.out$fitted <- fitted
-  
+
   class(obj.out)<- c("SMN","list")
   obj.out
 }
