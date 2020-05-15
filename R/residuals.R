@@ -1,6 +1,6 @@
-residuals.SMSN<- function(object,level="conditional",type="normalized",...){
+residuals.SMSN<- function(object,level="conditional",type="response",...){
   if (!(level %in% c("marginal","conditional"))) stop("Accepted levels: marginal, conditional")
-  if (!(type %in% c("normalized","response"))) stop("Accepted types: normalized, response")
+  if (!(type %in% c("response","modified","normalized"))) stop("Accepted types: response, normalized or modified")
   data <- object$data
   formFixed <- object$formula$formFixed
   formRandom <- object$formula$formRandom
@@ -19,6 +19,7 @@ residuals.SMSN<- function(object,level="conditional",type="normalized",...){
   q1<-ncol(z)
   N<- nrow(data)
   ind_levels <- levels(ind)
+  distr <- object$distr
   #depStruct <- object$depStruct
   #
   res <- numeric(N)
@@ -40,8 +41,54 @@ residuals.SMSN<- function(object,level="conditional",type="normalized",...){
         res[seqi]<- y[seqi]- (xfiti%*%object$estimates$beta + zfiti%*%object$random.effects[i,])
       }
     }
-  } else{
+  }
+  if (type=="modified"){
     if (level=="marginal") {
+      lab <- "marginal modified residuals"
+      Dest <- Dmatrix(object$estimates$dsqrt)%*%Dmatrix(object$estimates$dsqrt)
+      for (i in seq_along(ind_levels)) {
+        seqi <- ind==ind_levels[i]
+        xfiti <- matrix(x[seqi,],ncol=p)
+        zfiti <- matrix(z[seqi,],ncol=q1)
+        timei <- time[seqi]
+        Sigmaest <- errorVar(timei,object)
+        vary <- Sigmaest+ (zfiti)%*%Dest%*%t(zfiti)
+        sigFitinv <- matrix.sqrt(solve(vary))
+        res[seqi]<- sigFitinv%*%(y[seqi]- xfiti%*%object$estimates$beta)
+      }
+    } else{
+      lab <- "conditional modified residuals"
+      for (i in seq_along(ind_levels)) {
+        seqi <- ind==ind_levels[i]
+        xfiti <- matrix(x[seqi,],ncol=p)
+        zfiti <- matrix(z[seqi,],ncol=q1)
+        timei <- time[seqi]
+        Sigmaest <- errorVar(timei,object)
+        sigeFitinv <- matrix.sqrt(solve(Sigmaest))
+        res[seqi]<- sigeFitinv%*%(y[seqi]- (xfiti%*%object$estimates$beta + zfiti%*%object$random.effects[i,]))
+      }
+    }
+  }
+  if (type=="normalized"){
+    if (distr=="st"|distr=="t") if (object$estimates$nu<=2) stop("normalized residual not defined for nu<=2")
+    if (distr=="ssl"|distr=="sl") if (object$estimates$nu<=1) stop("normalized residual not defined for nu<=1")
+    if (distr=="sn"|distr=="norm") {c.=-sqrt(2/pi);k2=1}
+    if (distr=="st"|distr=="t") {c.=-sqrt(object$estimates$nu/pi)*
+      gamma((object$estimates$nu-1)/2)/gamma(object$estimates$nu/2);
+          k2=object$estimates$nu/(object$estimates$nu-2)}
+    if (distr=="ssl"|distr=="sl") {c.=-sqrt(2/pi)*object$estimates$nu/(object$estimates$nu-.5);
+          k2=object$estimates$nu/(object$estimates$nu-1)}
+    if (distr=="scn"|distr=="cn") {c.=-sqrt(2/pi)*(1+object$estimates$nu[1]*
+                                         (object$estimates$nu[2]^(-.5)-1));
+          k2=1+object$estimates$nu[1]*(object$estimates$nu[2]^(-1)-1)}
+    if (level=="marginal") {
+      if (inherits(object,"SMN")) {
+        object$estimates$lambda <- rep(0,q1);c.=0
+      }
+      Dest <- Dmatrix(object$estimates$dsqrt)%*%Dmatrix(object$estimates$dsqrt)
+      delta = object$estimates$lambda/as.numeric(
+        sqrt(1+t(object$estimates$lambda)%*%(object$estimates$lambda)))
+      Delta = Dmatrix(object$estimates$dsqrt)%*%delta
       lab <- "marginal standardized residuals"
       for (i in seq_along(ind_levels)) {
         seqi <- ind==ind_levels[i]
@@ -49,9 +96,8 @@ residuals.SMSN<- function(object,level="conditional",type="normalized",...){
         zfiti <- matrix(z[seqi,],ncol=q1)
         timei <- time[seqi]
         Sigmaest <- errorVar(timei,object)
-        Dest <- Dmatrix(object$estimates$dsqrt)%*%Dmatrix(object$estimates$dsqrt)
         vary <- Sigmaest+ (zfiti)%*%Dest%*%t(zfiti)
-        sigFitinv <- matrix.sqrt(solve(vary))
+        sigFitinv <- matrix.sqrt(solve(k2*vary - c.^2*zfiti%*%Delta%*%t(zfiti%*%Delta)))
         res[seqi]<- sigFitinv%*%(y[seqi]- xfiti%*%object$estimates$beta)
       }
     } else{
@@ -62,7 +108,7 @@ residuals.SMSN<- function(object,level="conditional",type="normalized",...){
         zfiti <- matrix(z[seqi,],ncol=q1)
         timei <- time[seqi]
         Sigmaest <- errorVar(timei,object)
-        sigeFitinv <- matrix.sqrt(solve(Sigmaest))
+        sigeFitinv <- matrix.sqrt(solve(k2*Sigmaest))
         res[seqi]<- sigeFitinv%*%(y[seqi]- (xfiti%*%object$estimates$beta + zfiti%*%object$random.effects[i,]))
       }
     }
@@ -104,10 +150,11 @@ acfresid <- function(object,maxLag,resLevel="marginal",resType="normalized",
         min(c(maxL,as.integer(10 * log10(maxL + 1))))
   }
   if (calcCI) {
-    if ((resType !="normalized")|(resLevel!="marginal"))
+    if ((resType =="response")|(resLevel!="marginal"))
       stop("ICs are obtained through an empirical method that is only
-      appropriate for marginal normalized residuals, please use
-      resType='normalized' and resLevel='marginal', or calcCI=FALSE")
+      appropriate for marginal modified/normalized residuals, please use
+      (resType='normalized' or resType='modified') and resLevel='marginal',
+      or calcCI=FALSE")
     if (!missing(IClevel)) {
       if (IClevel>=1|IClevel<=0) stop("0<IClevel<1 needed")
     } else IClevel <- .95
@@ -146,53 +193,108 @@ acfresid <- function(object,maxLag,resLevel="marginal",resType="normalized",
     p<-ncol(x)
     q1<-ncol(z)
     distr <- object$distr
-    if (distr=="ssl") distr="ss"
     #
     acfMC <- matrix(nrow=MCiter,ncol=maxLag)
     Dfit <- Dmatrix(object$estimates$dsqrt)
+    Dfit2 <- Dfit%*%Dfit
     sigma2<-object$estimates$sigma2
     lambda <- object$estimates$lambda
     if (is.null(lambda)) lambda<- rep(0,nrow(Dfit))
     beta<- object$estimates$beta
     nu <- object$estimates$nu
-    for (sample in 1:MCiter) {
-      dadosi = tapply(1:N,ind,gerar_ind_smsnACF,x=x,z=z,sigma2=sigma2,Dsqrti=Dfit,
-                      beta1=beta,lambda=lambda,distr=distr,nu=nu,ind=ind,time=time) %>% bind_rows()
-      #dadosi$ind <- ind
-      #calculating residuals
-      resMC<- numeric(N)
-      for (i in seq_along(ind_levels)) {
-        seqi <- dadosi$ind==ind_levels[i]#;print(sum(seqi))
-        xfiti <- matrix(x[seqi,],ncol=p)
-        zfiti <- matrix(z[seqi,],ncol=q1)
-        Sigmaest <- sigma2*diag(sum(seqi))#errorVar(timei,object)
-        vary <- Sigmaest+ (zfiti)%*%Dfit%*%Dfit%*%t(zfiti)
-        sigFitinv <- matrix.sqrt(solve(vary))
-        resMC[seqi]<- sigFitinv%*%(dadosi$y[seqi]- xfiti%*%beta)
-      }
-      corindi <- nindi<-matrix(ncol=maxLag+1,nrow=length(ind_levels))
-      for (i in seq_along(ind_levels)) {
-        seqi <- dadosi$ind==ind_levels[i]
-        resim <-resMC[seqi]
-        timei <- dadosi$time[seqi]
-        resi <- rep(NA,diff(range(timei))+1)
-        resi[timei] <- resim
-        corindi[i,1] <- sum(resi^2,na.rm=T); nindi[i,1]<- sum(!is.na(resi))
-        kmaxi <- min(maxLag,diff(range(timei)))#nind[i,1]-1)
-        for (k in seq_len(kmaxi)) {
-          nindi[i,k+1]<- sum(!is.na(diff(resi,k)))
-          corindi[i,k+1] <- sum(resi[-seq_len(k)]*
-                                  resi[-seq.int(length(resi),by=-1,length.out = k)],na.rm=T)
+    #
+    if (resType=="modified") {#modified residual
+      for (sample in 1:MCiter) {
+        dadosi = tapply(1:N,ind,gerar_ind_smsnACF,x=x,z=z,sigma2=sigma2,Dsqrti=Dfit,
+                        beta1=beta,lambda=lambda,distr=distr,nu=nu,ind=ind,time=time) %>% bind_rows()
+        #dadosi$ind <- ind
+        #calculating residuals
+        resMC<- numeric(N)
+        for (i in seq_along(ind_levels)) {
+          seqi <- dadosi$ind==ind_levels[i]#;print(sum(seqi))
+          xfiti <- matrix(x[seqi,],ncol=p)
+          zfiti <- matrix(z[seqi,],ncol=q1)
+          Sigmaest <- sigma2*diag(sum(seqi))#errorVar(timei,object)
+          vary <- Sigmaest+ (zfiti)%*%Dfit2%*%t(zfiti)
+          sigFitinv <- matrix.sqrt(solve(vary))
+          resMC[seqi]<- sigFitinv%*%(dadosi$y[seqi]- xfiti%*%beta)
         }
-      } #
-      #ormeani <-apply(corindi/nindi,2,sum,na.rm=T)
-      cormeani <- apply(corindi, 2, sum,na.rm=T)/apply(nindi, 2, sum,na.rm=T)
-      acfMC[sample,] <-cormeani[-1]/cormeani[1]
+        corindi <- nindi<-matrix(ncol=maxLag+1,nrow=length(ind_levels))
+        for (i in seq_along(ind_levels)) {
+          seqi <- dadosi$ind==ind_levels[i]
+          resim <-resMC[seqi]
+          timei <- dadosi$time[seqi]
+          resi <- rep(NA,diff(range(timei))+1)
+          resi[timei] <- resim
+          corindi[i,1] <- sum(resi^2,na.rm=T); nindi[i,1]<- sum(!is.na(resi))
+          kmaxi <- min(maxLag,diff(range(timei)))#nind[i,1]-1)
+          for (k in seq_len(kmaxi)) {
+            nindi[i,k+1]<- sum(!is.na(diff(resi,k)))
+            corindi[i,k+1] <- sum(resi[-seq_len(k)]*
+                                    resi[-seq.int(length(resi),by=-1,length.out = k)],na.rm=T)
+          }
+        } #
+        #ormeani <-apply(corindi/nindi,2,sum,na.rm=T)
+        cormeani <- apply(corindi, 2, sum,na.rm=T)/apply(nindi, 2, sum,na.rm=T)
+        acfMC[sample,] <-cormeani[-1]/cormeani[1]
+      }
+      MCacfIC<-apply(acfMC,2,function(x) quantile(x,probs = c((1-IClevel)/2,(1+IClevel)/2)))
+      out <- cbind(out,IC = rbind(rep(NA,2),t(MCacfIC)))
+    } else { #normalized residual
+        if (distr=="st"|distr=="t") if (nu<=2) stop("normalized residual not defined for nu<=2")
+        if (distr=="ssl"|distr=="sl") if (nu<=1) stop("normalized residual not defined for nu<=1")
+        if (distr=="sn"|distr=="norm") {c.=-sqrt(2/pi);k2=1}
+        if (distr=="st"|distr=="t") {c.=-sqrt(nu/pi)*
+          gamma((nu-1)/2)/gamma(nu/2);
+        k2=nu/(nu-2)}
+        if (distr=="ssl"|distr=="sl") {c.=-sqrt(2/pi)*nu/(nu-.5);
+        k2=nu/(nu-1)}
+        if (distr=="scn"|distr=="cn") {c.=-sqrt(2/pi)*(1+nu[1]*
+                                                         (nu[2]^(-.5)-1));
+        k2=1+nu[1]*(nu[2]^(-1)-1)}
+        if (inherits(object,"SMN")) {
+            c.=0
+        }
+        delta = lambda/as.numeric(sqrt(1+t(lambda)%*%(lambda)))
+        Delta = Dfit%*%delta
+        for (sample in 1:MCiter) {
+          dadosi = tapply(1:N,ind,gerar_ind_smsnACF,x=x,z=z,sigma2=sigma2,Dsqrti=Dfit,
+                          beta1=beta,lambda=lambda,distr=distr,nu=nu,ind=ind,time=time) %>% bind_rows()
+          #calculating residuals
+          resMC<- numeric(N)
+          for (i in seq_along(ind_levels)) {
+            seqi <- dadosi$ind==ind_levels[i]#;print(sum(seqi))
+            xfiti <- matrix(x[seqi,],ncol=p)
+            zfiti <- matrix(z[seqi,],ncol=q1)
+            Sigmaest <- sigma2*diag(sum(seqi))#errorVar(timei,object)
+            vary <- Sigmaest+ (zfiti)%*%Dfit2%*%t(zfiti)
+            sigFitinv <- matrix.sqrt(solve(k2*vary - c.^2*zfiti%*%Delta%*%t(zfiti%*%Delta)))
+            #sigFitinv <- matrix.sqrt(solve(vary))
+            resMC[seqi]<- sigFitinv%*%(dadosi$y[seqi]- xfiti%*%beta)
+          }
+          corindi <- nindi<-matrix(ncol=maxLag+1,nrow=length(ind_levels))
+          for (i in seq_along(ind_levels)) {
+            seqi <- dadosi$ind==ind_levels[i]
+            resim <-resMC[seqi]
+            timei <- dadosi$time[seqi]
+            resi <- rep(NA,diff(range(timei))+1)
+            resi[timei] <- resim
+            corindi[i,1] <- sum(resi^2,na.rm=T); nindi[i,1]<- sum(!is.na(resi))
+            kmaxi <- min(maxLag,diff(range(timei)))#nind[i,1]-1)
+            for (k in seq_len(kmaxi)) {
+              nindi[i,k+1]<- sum(!is.na(diff(resi,k)))
+              corindi[i,k+1] <- sum(resi[-seq_len(k)]*
+                                      resi[-seq.int(length(resi),by=-1,length.out = k)],na.rm=T)
+            }
+          } #
+          cormeani <- apply(corindi, 2, sum,na.rm=T)/apply(nindi, 2, sum,na.rm=T)
+          acfMC[sample,] <-cormeani[-1]/cormeani[1]
+      }
+      MCacfIC<-apply(acfMC,2,function(x) quantile(x,probs = c((1-IClevel)/2,(1+IClevel)/2)))
+      out <- cbind(out,IC = rbind(rep(NA,2),t(MCacfIC)))
     }
-    MCacfIC<-apply(acfMC,2,function(x) quantile(x,probs = c((1-IClevel)/2,(1+IClevel)/2)))
-    out <- cbind(out,IC = rbind(rep(NA,2),t(MCacfIC)))
   }
-  class(out) <- c("ACF","data.frame")
+  class(out) <- c("acfresid","data.frame")
   out
 }
 
@@ -275,7 +377,7 @@ mahalDist<- function(object,decomposed=FALSE,dataPlus=NULL){
 gerar_ind_smsnACF = function(jvec,x,z,sigma2,Dsqrti,beta1,lambda,distr,nu,ind,time) {
   if (distr=="sn"|distr=="norm") {ui=1; c.=-sqrt(2/pi)}
   if (distr=="st"|distr=="t") {ui=rgamma(1,nu/2,nu/2); c.=-sqrt(nu/pi)*gamma((nu-1)/2)/gamma(nu/2)}
-  if (distr=="ss"|distr=="sl") {ui=rbeta(1,nu,1); c.=-sqrt(2/pi)*nu/(nu-.5)}
+  if (distr=="ssl"|distr=="sl") {ui=rbeta(1,nu,1); c.=-sqrt(2/pi)*nu/(nu-.5)}
   if (distr=="scn"|distr=="cn") {ui=ifelse(runif(1)<nu[1],nu[2],1);
                     c.=-sqrt(2/pi)*(1+nu[1]*(nu[2]^(-.5)-1))}
   p= ncol(x);q1=ncol(z)
@@ -304,7 +406,7 @@ gerar_ind_smsnACF = function(jvec,x,z,sigma2,Dsqrti,beta1,lambda,distr,nu,ind,ti
 #     lines(lagPlus-.5,ICsup,lty=2,col=4,type="s")
 #   }
 # }
-plot.ACF <-  function(x,...) {
+plot.acfresid <-  function(x,...) {
   if (ncol(x)<=3) {
     ggplot(data = x,aes_string(x = "lag",y="ACF"))+
       theme_minimal()+geom_hline(aes(yintercept = 0))+
@@ -326,10 +428,11 @@ plot.ACF <-  function(x,...) {
 }
 
 #plot obj
-plot.SMSN <- function(x,alpha=.3,...) {
-  qplot(fitted(x),residuals(x),alpha=I(alpha),...=...) +theme_minimal() +
-    geom_hline(yintercept = 0,linetype="dashed") +
-    ylab("conditional standardized residuals") + xlab("fitted values")
+plot.SMSN <- function(x,type="response",level="conditional",alpha=.3,...) {
+  resid <- residuals(x,type=type,level=level)
+  qplot(fitted(x),resid,alpha=I(alpha),...=...) +theme_minimal() +
+    geom_hline(yintercept = 0,linetype="dashed") + ylab(attr(resid,"label")) +
+    xlab("fitted values")
 }
 plot.SMN <- plot.SMSN
 
@@ -416,7 +519,7 @@ plot.mahalDist <- function(x,fitobject,type,level=.99,nlabels=3,...){
         geom_text(aes_string(label="ind"),data=subset(x,rank(x$md)>length(x$nj)-nlabels),
                   nudge_x=1.5,nudge_y = .5,size=3) +
         geom_hline(yintercept = mdquantile,col=4,linetype="dashed")
-      attr(plotout,"label") <- data.frame(nj= nj1,quantile=c(mdquantile))
+      attr(plotout,"info") <- data.frame(nj= nj1,quantile=c(mdquantile))
     } else {
       njvec <- sort(unique(x$nj))
       if (distr=="sn"|distr=="norm") mdquantile <- qchisq(level,njvec)

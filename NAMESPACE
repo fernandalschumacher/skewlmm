@@ -39,4 +39,4 @@ S3method(plot, SMN)
 S3method(residuals, SMN)
 #
 S3method(plot, mahalDist)
-S3method(plot, ACF)
+S3method(plot, acfresid)

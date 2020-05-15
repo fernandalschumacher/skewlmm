@@ -9,7 +9,8 @@
 
 The goal of skewlmm is to fit skew robust linear mixed models, using
 scale mixture of skew-normal linear mixed models with possible
-within-subject dependence structure, using an EM-type algorithm.
+within-subject dependence structure, using an EM-type algorithm. In
+addition, some tools for model adequacy evaluation are available.
 
 ## Installation
 
@@ -28,11 +29,18 @@ library(devtools)
 install_github("fernandalschumacher/skewlmm")
 ```
 
+Or you can install the released version of skewlmm from
+[CRAN](https://CRAN.R-project.org) with:
+
+``` r
+install.packages("skewlmm")
+```
+
 ## Example
 
 For more information about the model formulation and estimation, please
 see  
-Schumacher, F.L., Matos, L.A., and Lachos, V.H. (2020+) “Scale mixture
+Schumacher, F.L., Lachos, V.H., and Matos, L.A. (2020+) “Scale mixture
 of skew-normal linear mixed models with within-subject serial
 dependence”. Submitted. Preprint available at
 <https://arxiv.org/abs/2002.01040>.
@@ -43,30 +51,6 @@ This is a basic example which shows you how to fit a SMSN-LMM:
 library(skewlmm)
     dat1 <- as.data.frame(nlme::Orthodont)
     fm1 <- smsn.lmm(dat1,formFixed=distance ~ age,groupVar="Subject",quiet=T)
-    fm1
-#> Linear mixed models with distribution sn and dependency structure CI 
-#> Call:
-#> smsn.lmm(data = dat1, formFixed = distance ~ age, groupVar = "Subject", 
-#>     quiet = T)
-#> 
-#> Fixed:distance ~ age
-#> Random:~1
-#> <environment: 0x00000000122e22f0>
-#>   Estimated variance (D):
-#>             (Intercept)
-#> (Intercept)    6.599775
-#> 
-#> Estimated parameters:
-#>      (Intercept)    age sigma2 Dsqrt1 lambda1
-#>          16.7630 0.6602 2.0245 2.5690  1.1062
-#> s.e.      1.0067 0.0699 0.1914 1.1731  1.7696
-#> 
-#> Model selection criteria:
-#>    logLik     AIC     BIC
-#>  -221.658 453.316 466.726
-#> 
-#> Number of observations: 108 
-#> Number of groups: 27
     summary(fm1)
 #> Linear mixed models with distribution sn and dependency structure CI 
 #> Call:
@@ -75,7 +59,7 @@ library(skewlmm)
 #> 
 #> Distribution sn
 #> Random effects: ~1
-#> <environment: 0x00000000122e22f0>
+#> <environment: 0x0000000012502560>
 #>   Estimated variance (D):
 #>             (Intercept)
 #> (Intercept)    6.599775
@@ -99,36 +83,40 @@ library(skewlmm)
 #> 
 #> Number of observations: 108 
 #> Number of groups: 27
+    plot(fm1)
 ```
 
-To fit a SMN-LMM one can use the following:
+<img src="man/figures/README-unnamed-chunk-2-1.png" width="70%" style="display: block; margin: auto;" />
+
+Several methods are available for SMSN and SMN objects, such as: print,
+summary, plot, fitted, residuals, and predict.
+
+Some tools for goodness-of-fit assessment are also available, for
+example:
+
+``` r
+  acf1<- acfresid(fm1,calcCI=TRUE)
+  plot(acf1)
+```
+
+<img src="man/figures/README-unnamed-chunk-3-1.png" width="70%" style="display: block; margin: auto;" />
+
+``` r
+  plot(mahalDist(fm1),fm1,nlabels=2)
+```
+
+<img src="man/figures/README-unnamed-chunk-3-2.png" width="70%" style="display: block; margin: auto;" />
+
+``` r
+  healy.plot(fm1)
+```
+
+<img src="man/figures/README-unnamed-chunk-3-3.png" width="70%" style="display: block; margin: auto;" />
+
+Furthermore, to fit a SMN-LMM one can use the following:
 
 ``` r
     fm2 <- smn.lmm(dat1,formFixed=distance ~ age,groupVar="Subject",quiet=T)
-    fm2
-#> Linear mixed models with distribution norm and dependency structure CI 
-#> Call:
-#> smn.lmm(data = dat1, formFixed = distance ~ age, groupVar = "Subject", 
-#>     quiet = T)
-#> 
-#> Fixed:distance ~ age
-#> Random:~1
-#> <environment: 0x00000000181caff8>
-#>   Estimated variance (D):
-#>             (Intercept)
-#> (Intercept)    4.289971
-#> 
-#> Estimated parameters:
-#>      (Intercept)    age sigma2 Dsqrt1
-#>          16.7611 0.6602 2.0254 2.0712
-#> s.e.      0.9928 0.0698 0.1901 0.2714
-#> 
-#> Model selection criteria:
-#>    logLik    AIC     BIC
-#>  -221.695 451.39 462.118
-#> 
-#> Number of observations: 108 
-#> Number of groups: 27
     summary(fm2)
 #> Linear mixed models with distribution norm and dependency structure CI 
 #> Call:
@@ -137,7 +125,7 @@ To fit a SMN-LMM one can use the following:
 #> 
 #> Distribution norm
 #> Random effects: ~1
-#> <environment: 0x00000000181caff8>
+#> <environment: 0x000000001c19eb58>
 #>   Estimated variance (D):
 #>             (Intercept)
 #> (Intercept)    4.289971
@@ -166,6 +154,12 @@ one can use the following:
 
 ``` r
     lr.test(fm1,fm2)
+#> 
+#> Model selection criteria:
+#>       logLik     AIC     BIC
+#> fm1 -221.658 453.316 466.726
+#> fm2 -221.695 451.390 462.118
+#> 
 #>     Likelihood-ratio Test
 #> 
 #> chi-square statistics =  0.07388406 

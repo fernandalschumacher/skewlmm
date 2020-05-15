@@ -66,7 +66,7 @@ Specifically, the following components are returned:
 \references{
 Lachos, V. H., P. Ghosh, and R. B. Arellano-Valle (2010). Likelihood based inference for skew-normal independent linear mixed models. Statistica Sinica 20, 303-322.
 
-Schumacher, F.L., L.A. Matos, and V.H. Lachos (2020+). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Submitted.
+Schumacher, F.L., V.H. Lachos, and L.A. Matos (2020+). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Submitted.
 Preprint available at \url{https://arxiv.org/abs/2002.01040}.
 }
 \author{
@@ -75,7 +75,7 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 
 
 \seealso{
-\code{\link{print.SMSN}}, \code{\link{summary.SMSN}}, \code{\link{predict.SMSN}}
+\code{\link{print.SMSN}}, \code{\link{summary.SMSN}}, \code{\link{predict.SMSN}}, \code{\link{residuals.SMSN}}, \code{\link{plot.SMSN}}, \code{\link{smn.lmm}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
@@ -90,6 +90,13 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
   fm4 <- smsn.lmm(dat1,formFixed=distance ~ age+Sex,groupVar="Subject", depStruct="ARp",pAR=1)
   rbind(fm1$criteria,fm2$criteria,fm3$criteria,fm4$criteria)
   summary(fm3)
+
+  #some diagnostic tools
+  plot(fm1)
+  acf1<- acfresid(fm1,calcCI=TRUE,MCiter=100)
+  plot(acf1)
+  plot(mahalDist(fm1),fm1,nlabels=2)
+  healy.plot(fm1)
 }
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

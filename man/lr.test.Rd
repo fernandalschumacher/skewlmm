@@ -21,7 +21,7 @@ lr.test(obj1, obj2, level=0.05, quiet=FALSE)
   \item{df}{The degrees of freedom used on the test.}
 }
 \references{
-Schumacher, F.L., Matos, L.A., and Lachos, V.H. (2020+) "Scale mixture of skew-normal linear mixed models with within-subject serial dependence". Submitted.
+Schumacher, F.L., Lachos, V.H., and Matos, L.A. (2020+) "Scale mixture of skew-normal linear mixed models with within-subject serial dependence". Submitted.
 Preprint available at \url{https://arxiv.org/abs/2002.01040}.
 }
 \author{

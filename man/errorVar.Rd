@@ -1,7 +1,7 @@
 \name{errorVar}
 \alias{errorVar}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Return error scale matrix associated with \code{times}
+\title{Error scale matrix associated with \code{times}
 %%  ~~function to do ... ~~
 }
 \description{
@@ -24,7 +24,7 @@ errorVar(times, object = NULL, sigma2 = NULL, depStruct = NULL,
   Matrix of dimension \code{length(times)}.
 }
 \references{
-Schumacher, F.L., Matos, L.A., and Lachos, V.H. (2020+) "Scale mixture of skew-normal linear mixed models with within-subject serial dependence". Submitted.
+Schumacher, F.L., Lachos, V.H., and Matos, L.A. (2020+) "Scale mixture of skew-normal linear mixed models with within-subject serial dependence". Submitted.
 Preprint available at \url{https://arxiv.org/abs/2002.01040}.
 }
 \author{
@@ -33,7 +33,7 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 
 
 \seealso{
-\code{\link{smsn.lmm}}, \code{\link{summary.SMSN}}
+\code{\link{smsn.lmm}}, \code{\link{smn.lmm}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
@@ -47,4 +47,3 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
 \keyword{models}% use one of  RShowDoc("KEYWORDS")
-\keyword{robust}% __ONLY ONE__ keyword per line

@@ -1,11 +1,12 @@
 \name{healy.plot}
 \alias{healy.plot}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Creates a Healy-type plot from a smn.lmm or smsn.lmm object
+\title{Healy-type plot from a smn.lmm or smsn.lmm object
 %%  ~~function to do ... ~~
 }
 \description{
-xxx.
+It creates a Healy-type plot from a smn.lmm or smsn.lmm object, for goodness-of-fit assessment.
+
 }
 
 \usage{
@@ -15,8 +16,8 @@ healy.plot(object,dataPlus=NULL,dotsize=0.4,...)
 \arguments{
  \item{object}{An object inheriting from class \code{SMN} or \code{SMSN}, representing
    a fitted scale mixture of (skew) normal linear mixed model.}
-  \item{dataPlus}{xxx.}
-  \item{dotsize}{xxx.}
+  \item{dataPlus}{Optional. Expanded dataset that should be used instead the one used for fitting. This is necessary for unbalanced datasets, since Haley's plot requires all subject to have the same number of observations.}
+  \item{dotsize}{Optional. Dotsize used in ggplot.}
   \item{\dots}{Additional arguments.}
    }
 
@@ -24,10 +25,14 @@ healy.plot(object,dataPlus=NULL,dotsize=0.4,...)
   A ggplot object.
 }
 
+\details{It constructs a Healy-type plot (Healy, 1968) by plotting the nominal probability values \eqn{1/n,2/n,...,n/n} against the theoretical cumulative probabilities of the ordered observed Mahalanobis distances. If the fitted model is appropriate, the plot
+should resemble a straight line through the origin with unit slope.
+}
+
 \references{
 Healy, M. J. R. (1968). Multivariate normal plotting. Journal of the Royal Statistical Society: Series C (Applied Statistics), 17(2), 157-161.
 
-Schumacher, F.L., L.A. Matos, and V.H. Lachos (2020+). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Submitted.
+Schumacher, F.L., V.H. Lachos, and L.A. Matos (2020+). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Submitted.
 Preprint available at \url{https://arxiv.org/abs/2002.01040}.
 }
 \author{
@@ -45,4 +50,3 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
 \keyword{models}% use one of  RShowDoc("KEYWORDS")
-\keyword{robust}% __ONLY ONE__ keyword per line

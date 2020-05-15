@@ -5,25 +5,25 @@
 %%  ~~function to do ... ~~
 }
 \description{
-    xx. }
+    Returns the squared Mahalanobis distance from a fitted SMN-LMM or SMSN-LMM.}
 
 \usage{
 mahalDist(object,decomposed=FALSE,dataPlus=NULL)
 }
 
 \arguments{
- \item{object}{an object inheriting from class \code{SMN} or \code{SMSN}, representing
+ \item{object}{An object inheriting from class \code{SMN} or \code{SMSN}, representing
    a fitted scale mixture of (skew) normal linear mixed model.}
- \item{decomposed}{xxx.}
- \item{dataPlus}{xxx.}
+ \item{decomposed}{Logical. If \code{TRUE}, the Mahalanobis distance is decomposed in an error term and a random effect term. Default is \code{FALSE}.}
+ \item{dataPlus}{Optional. Expanded dataset that should be used instead the one used for fitting, useful for using Healy's plot with missing data.}
    }
 
 \value{
-  A vector, if \code{decomposed=FALSE}, or a data frame, is \code{decomposed=TRUE}.
+  A vector containing the Mahalanobis distance, if \code{decomposed=FALSE}, or a data frame containing the Mahalanobis distance and its decomposition in error term and random effect (b) term, if \code{decomposed=TRUE}.
 }
 
 \references{
-Schumacher, F.L., L.A. Matos, and V.H. Lachos (2020+). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Submitted.
+Schumacher, F.L., V.H. Lachos, and L.A. Matos (2020+). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Submitted.
 Preprint available at \url{https://arxiv.org/abs/2002.01040}.
 
 Zeller, C. B., Labra, F. V., Lachos, V. H. & Balakrishnan, N. (2010). Influence analyses of skew-normal/independent linear mixed models. Computational Statistics & Data Analysis, 54(5).
@@ -44,4 +44,3 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
 \keyword{models}% use one of  RShowDoc("KEYWORDS")
-\keyword{robust}% __ONLY ONE__ keyword per line

@@ -4,7 +4,7 @@
 \title{Prediction of future observations from an smn.lmm object
 }
 \description{
-  Predicted values are obtained through conditional expectation. For details, see Schumacher, Matos and Lachos (2020).
+  Predicted values are obtained through conditional expectation. For details, see Schumacher, Lachos, and Matos (2020).
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
 \usage{
@@ -25,7 +25,7 @@
 \references{
 Lachos, V. H., P. Ghosh, and R. B. Arellano-Valle (2010). Likelihood based inference for skew-normal independent linear mixed models. Statistica Sinica 20, 303-322.
 
-Schumacher, F.L., L.A. Matos, and V.H. Lachos (2020+). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Submitted.
+Schumacher, F.L., Lachos, V.H., and Matos, L.A. (2020+). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Submitted.
 Preprint available at \url{https://arxiv.org/abs/2002.01040}.
 }
 \author{
@@ -45,4 +45,3 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
 \keyword{models}% use one of  RShowDoc("KEYWORDS")
-\keyword{robust}% __ONLY ONE__ keyword per line
