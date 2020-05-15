@@ -211,10 +211,13 @@ summary.SMN <- function(object,confint.level=.95,...){
 }
 
 fitted.SMN <- function(object,...) object$fitted
-ranef.SMN <- function(object,...) object$random.effects
+#ranef.SMN <- function(object,...) object$random.effects
 
 #colocar if subj not in data
 predict.SMN <- function(object,newData,...){
+  if (missing(newData)) stop("newData must be a dataset containing the covariates, groupVar and timeVar (when used) from data that should be predicted")
+  if (!is.data.frame(newData)) stop("newData must be a data.frame object")
+  if (nrow(newData)==0) stop("newData can not be an empty dataset")
   dataFit <- object$data
   formFixed <- object$formula$formFixed
   formRandom <- object$formula$formRandom

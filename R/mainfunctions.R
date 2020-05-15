@@ -213,9 +213,12 @@ summary.SMSN <- function(object,confint.level=.95,...){
 }
 
 fitted.SMSN <- function(object,...) object$fitted
-ranef.SMSN <- function(object,...) object$random.effects
+ranef <- function(object) object$random.effects
 
 predict.SMSN <- function(object,newData,...){
+  if (missing(newData)) stop("newData must be a dataset containing the covariates, groupVar and timeVar (when used) from data that should be predicted")
+  if (!is.data.frame(newData)) stop("newData must be a data.frame object")
+  if (nrow(newData)==0) stop("newData can not be an empty dataset")
   dataFit <- object$data
   formFixed <- object$formula$formFixed
   formRandom <- object$formula$formRandom
