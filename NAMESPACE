@@ -14,7 +14,7 @@ importFrom("stats", "ARMAacf", "dgamma", "dnorm", "integrate",
                "model.matrix", "optim", "pacf", "pgamma", "pnorm", "pt",
                "qgamma", "qnorm", "rbeta", "rgamma", "rnorm", "runif",
                "toeplitz","pchisq","fitted", "pf", "qchisq", "qf", "quantile",
-               "residuals", "uniroot")
+               "residuals", "uniroot","formula", "var")
 importFrom("utils", "capture.output")
 importFrom("dplyr","n_distinct")
 importFrom("purrr","flatten_int","map")
@@ -22,6 +22,7 @@ importFrom("nlme","corARMA","lme","corCAR1","random.effects","ranef")
 importFrom("mvtnorm","dmvt","dmvnorm","rmvnorm")
 importFrom("numDeriv","jacobian")
 importFrom("moments","skewness")
+importFrom("rlist","list.cbind")
 #
 S3method(print, SMSN)
 S3method(fitted, SMSN)

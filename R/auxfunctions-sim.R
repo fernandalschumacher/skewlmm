@@ -201,7 +201,7 @@ EM.AR<- function(formFixed,formRandom,data,groupVar,pAR,timeVar,
     sum2 = Reduce("+",res_emj$sum2)
     sum3 = sum(unlist(res_emj$sum3))
     sum4 = Reduce("+",res_emj$sum4)
-    
+
     #if (calcbi) bi = t(bind_cols(res_emj$bi))#t(matrix(unlist(res_emj$bi),nrow=q1))
     beta1<-solve(sum1)%*%sum2
     sigmae<-as.numeric(sum3)/N
@@ -226,11 +226,10 @@ EM.AR<- function(formFixed,formRandom,data,groupVar,pAR,timeVar,
     criterio <- abs((llji-llj1)/llj1)
     if (showiter&!showerroriter) cat("Iteration ",count," of ",max.iter,"\r") #  criterium ",criterio," or ",criterio2,"\r")
     if (showerroriter) cat("Iteration ",count," of ",max.iter," - criterium =",criterio,"\r") #  criterium ",criterio," or ",criterio2,"\r")
-    if (count==max.iter) message("\n maximum number of iterations reachead")
   }
-
+  if (count==max.iter) message("\n maximum number of iterations reachead")
   cat("\n")
-  bi <- t(bind_cols(tapply(1:N,ind,calcbi_emjARs,y=y, x=x, z=z,time=time, beta1=beta1, D1=D1,
+  bi <- t(list.cbind(tapply(1:N,ind,calcbi_emjARs,y=y, x=x, z=z,time=time, beta1=beta1, D1=D1,
                            sigmae=sigmae,piAR=piAR, distr=distr,nu=nu,simplify = FALSE)))
   dd<-matrix.sqrt(D1)[upper.tri(D1, diag = T)]
   phiAR=estphit(piAR)
@@ -240,7 +239,7 @@ EM.AR<- function(formFixed,formRandom,data,groupVar,pAR,timeVar,
   else names(theta)<- c(colnames(x),"sigma2",paste0("phiAR",1:length(piAR)),paste0("Dsqrt",1:length(dd)),paste0("nu",1:length(nu)))
 
   obj.out <- list(theta=theta, iter = count,estimates=list(beta=as.numeric(beta1),sigma2=sigmae,
-                                                           phi=phiAR,dsqrt=dd),
+                                                           phi=phiAR,dsqrt=dd,D=D1),
                   uhat=unlist(res_emj$uj))
   if (distr != "sn") obj.out$estimates$nu = nu
   colnames(bi) <- colnames(z)
@@ -495,7 +494,7 @@ EM.sim<- function(formFixed,formRandom,data,groupVar,distr,beta1,sigmae,D1,nu,lb
     sum4 = Reduce("+",res_emj$sum4)
     uj = unlist(res_emj$uj,use.names = F)
     #if (calcbi) bi = t(bind_cols(res_emj$bi))#t(matrix(unlist(res_emj$bi),nrow=q1))
-    
+
     beta1<-solve(sum1)%*%sum2
     sigmae<-as.numeric(sum3)/N
     D1<-sum4/m
@@ -514,10 +513,10 @@ EM.sim<- function(formFixed,formRandom,data,groupVar,distr,beta1,sigmae,D1,nu,lb
     criterio <- abs((llji-llj1)/llj1)
     if (showiter&!showerroriter) cat("Iteration ",count," of ",max.iter,"\r") #  criterium ",criterio," or ",criterio2,"\r")
     if (showerroriter) cat("Iteration ",count," of ",max.iter," - criterium =",criterio,"\r") #  criterium ",criterio," or ",criterio2,"\r")
-    if (count==max.iter) message("\n maximum number of iterations reachead")
   }
+  if (count==max.iter) message("\n maximum number of iterations reachead")
   cat("\n")
-  bi <- t(bind_cols(tapply(1:N,ind,calcbi_emjs,y=y, x=x, z=z, beta1=beta1, D1=D1,
+  bi <- t(list.cbind(tapply(1:N,ind,calcbi_emjs,y=y, x=x, z=z, beta1=beta1, D1=D1,
                            sigmae=sigmae, distr=distr,nu=nu,simplify = FALSE)))
   dd<-matrix.sqrt(D1)[upper.tri(D1, diag = T)]
   theta = c(beta1,sigmae,dd,nu)
@@ -526,12 +525,12 @@ EM.sim<- function(formFixed,formRandom,data,groupVar,distr,beta1,sigmae,D1,nu,lb
   else names(theta)<- c(colnames(x),"sigma2",paste0("Dsqrt",1:length(dd)),paste0("nu",1:length(nu)))
 
   obj.out <- list(theta=theta, iter = count,estimates=list(beta=as.numeric(beta1),sigma2=sigmae,
-                                                           dsqrt=dd),
+                                                           dsqrt=dd,D=D1),
                   uhat=unlist(res_emj$uj))
   if (distr != "sn") obj.out$estimates$nu = nu
   colnames(bi) <- colnames(z)
   obj.out$random.effects<- bi
-  
+
   if (informa) {
     desvios<-try(Infmatrixs(y,x,z,ind,beta1,sigmae,D1,distr = distr,nu = nu),silent = T)
     if (class(desvios)=="try-error") {
@@ -805,13 +804,12 @@ EM.CS<- function(formFixed,formRandom,data,groupVar,
     criterio <- abs((llji-llj1)/llj1)
     if (showiter&!showerroriter) cat("Iteration ",count," of ",max.iter,"\r") #  criterium ",criterio," or ",criterio2,"\r")
     if (showerroriter) cat("Iteration ",count," of ",max.iter," - criterium =",criterio,"\r") #  criterium ",criterio," or ",criterio2,"\r")
-    if (count==max.iter) message("\n maximum number of iterations reachead")
   }
-
+  if (count==max.iter) message("\n maximum number of iterations reachead")
   cat("\n")
-  bi <- t(bind_cols(tapply(1:N,ind,calcbi_emjCSs,y=y, x=x, z=z, beta1=beta1, D1=D1,
+  bi <- t(list.cbind(tapply(1:N,ind,calcbi_emjCSs,y=y, x=x, z=z, beta1=beta1, D1=D1,
                            sigmae=sigmae,phiCS=phiCS, distr=distr,nu=nu,simplify = FALSE)))
-  
+
   dd<-matrix.sqrt(D1)[upper.tri(D1, diag = T)]
   theta = c(beta1,sigmae,phiCS,dd,nu)
   if (is.null(colnames(x))) colnames(x) <- paste0("beta",1:p-1)
@@ -819,12 +817,12 @@ EM.CS<- function(formFixed,formRandom,data,groupVar,
   else names(theta)<- c(colnames(x),"sigma2","phiCS",paste0("Dsqrt",1:length(dd)),paste0("nu",1:length(nu)))
 
   obj.out <- list(theta=theta, iter = count,estimates=list(beta=as.numeric(beta1),sigma2=sigmae,
-                                                           phi=phiCS,dsqrt=dd),
+                                                           phi=phiCS,dsqrt=dd,D=D1),
                   uhat=unlist(res_emj$uj))
   if (distr != "sn") obj.out$estimates$nu = nu
   colnames(bi) <- colnames(z)
   obj.out$random.effects<- bi
-  
+
 
   if (informa) {
     desvios<-try(InfmatrixCS(y,x,z,ind,beta1,sigmae,phiCS,D1,distr = distr,nu = nu),silent = T)
@@ -1125,11 +1123,10 @@ EM.DEC<- function(formFixed,formRandom,data,groupVar,timeVar,
     criterio <- abs((llji-llj1)/llj1)
     if (showiter&!showerroriter) cat("Iteration ",count," of ",max.iter,"\r") #  criterium ",criterio," or ",criterio2,"\r")
     if (showerroriter) cat("Iteration ",count," of ",max.iter," - criterium =",criterio,"\r") #  criterium ",criterio," or ",criterio2,"\r")
-    if (count==max.iter) message("\n maximum number of iterations reachead")
   }
-
+  if (count==max.iter) message("\n maximum number of iterations reachead")
   cat("\n")
-  bi <- t(bind_cols(tapply(1:N,ind,calcbi_emjDECs,y=y, x=x, z=z,time=time, beta1=beta1, D1=D1,
+  bi <- t(list.cbind(tapply(1:N,ind,calcbi_emjDECs,y=y, x=x, z=z,time=time, beta1=beta1, D1=D1,
                            sigmae=sigmae,phiDEC=phiDEC,thetaDEC=thetaDEC, distr=distr,nu=nu,simplify = FALSE)))
   dd<-matrix.sqrt(D1)[upper.tri(D1, diag = T)]
   theta = c(beta1,sigmae,phiDEC,thetaDEC,dd,nu)
@@ -1138,7 +1135,7 @@ EM.DEC<- function(formFixed,formRandom,data,groupVar,timeVar,
   else names(theta)<- c(colnames(x),"sigma2","phiDEC","thetaDEC",paste0("Dsqrt",1:length(dd)),paste0("nu",1:length(nu)))
 
   obj.out <- list(theta=theta, iter = count,estimates=list(beta=as.numeric(beta1),sigma2=sigmae,
-                                            phi=c(phiDEC,thetaDEC),dsqrt=dd),
+                                            phi=c(phiDEC,thetaDEC),dsqrt=dd,D=D1),
                   uhat=unlist(res_emj$uj))
   if (distr != "sn") obj.out$estimates$nu = nu
   colnames(bi) <- colnames(z)
@@ -1410,7 +1407,7 @@ EM.CAR1<- function(formFixed,formRandom,data,groupVar,timeVar,
     sum4 = Reduce("+",res_emj$sum4)
 
     #if (calcbi) bi = t(bind_cols(res_emj$bi))#t(matrix(unlist(res_emj$bi),nrow=q1))
-    
+
     beta1<-solve(sum1)%*%sum2
     sigmae<-as.numeric(sum3)/N
     D1<-sum4/m
@@ -1432,11 +1429,10 @@ EM.CAR1<- function(formFixed,formRandom,data,groupVar,timeVar,
     criterio <- abs((llji-llj1)/llj1)
     if (showiter&!showerroriter) cat("Iteration ",count," of ",max.iter,"\r") #  criterium ",criterio," or ",criterio2,"\r")
     if (showerroriter) cat("Iteration ",count," of ",max.iter," - criterium =",criterio,"\r") #  criterium ",criterio," or ",criterio2,"\r")
-    if (count==max.iter) message("\n maximum number of iterations reachead")
   }
-
+  if (count==max.iter) message("\n maximum number of iterations reachead")
   cat("\n")
-  bi <- t(bind_cols(tapply(1:N,ind,calcbi_emjDECs,y=y, x=x, z=z,time=time, beta1=beta1, D1=D1,
+  bi <- t(list.cbind(tapply(1:N,ind,calcbi_emjDECs,y=y, x=x, z=z,time=time, beta1=beta1, D1=D1,
                            sigmae=sigmae,phiDEC=phiDEC,thetaDEC=1, distr=distr,nu=nu,simplify = FALSE)))
   dd<-matrix.sqrt(D1)[upper.tri(D1, diag = T)]
   theta = c(beta1,sigmae,phiDEC,dd,nu)
@@ -1445,7 +1441,7 @@ EM.CAR1<- function(formFixed,formRandom,data,groupVar,timeVar,
   else names(theta)<- c(colnames(x),"sigma2","phiCAR1",paste0("Dsqrt",1:length(dd)),paste0("nu",1:length(nu)))
 
   obj.out <- list(theta=theta, iter = count,estimates=list(beta=as.numeric(beta1),sigma2=sigmae,
-                                                           phi=phiDEC,dsqrt=dd),
+                                                           phi=phiDEC,dsqrt=dd,D=D1),
                   uhat=unlist(res_emj$uj))
   if (distr != "sn") obj.out$estimates$nu = nu
   colnames(bi) <- colnames(z)

@@ -270,7 +270,7 @@ calcbi_emjAR <- function(jseq,y,x,z,time,beta1,Gammab, Deltab,sigmae,piAR,zeta,d
   if  (distr=="sn"){
     bi<-mediab+Lambda%*%zeta/as.numeric(sqrt(1+t(zeta)%*%Lambda%*%zeta))*as.numeric(dnorm(Ajj,0,1))/as.numeric(pnorm(Ajj,0,1))
   }
-  
+
   if (distr=="st"){
     dtj = gamma((nu+nj)/2)/gamma(nu/2)/pi^(nj/2)/sqrt(det(Psi))*nu^(-nj/2)*(dj/nu+1)^(-(nj+nu)/2)
     denST = 2*dtj*pt(sqrt(nu+nj)*Ajj/sqrt(dj+nu),nu+nj)
@@ -278,7 +278,7 @@ calcbi_emjAR <- function(jseq,y,x,z,time,beta1,Gammab, Deltab,sigmae,piAR,zeta,d
                           (denST*pi^.5*gamma((nu+nj)/2)*(nu+dj+Ajj^2)^((nu+nj-1)/2)))
     bi<-mediab+Lambda%*%zeta/as.numeric(sqrt(1+t(zeta)%*%Lambda%*%zeta))*esper2
   }
-  
+
   if (distr=="ss"){
     f2 <- function(u) u^(nu - 1)*((2*pi)^(-nj/2))*(u^(nj/2))*((det(Psi))^(-1/2))*exp(-0.5*u*t(y1-med)%*%solve(Psi)%*%(y1-med))*pnorm(u^(1/2)*Ajj)
     denSS <- 2*nu*integrate(Vectorize(f2),0,1)$value
@@ -286,7 +286,7 @@ calcbi_emjAR <- function(jseq,y,x,z,time,beta1,Gammab, Deltab,sigmae,piAR,zeta,d
       (denSS*(dj+Ajj^2)^(nu-.5+nj/2)*pi^(nj/2+.5)*det(Psi)^.5)
     bi<-mediab+Lambda%*%zeta*esper2/as.numeric(sqrt(1+t(zeta)%*%Lambda%*%zeta))
   }
-  
+
   if (distr=="scn"){
     fy<-as.numeric(2*(nu[1]*dmvnorm(y1,med,(Psi/nu[2]))*pnorm(nu[2]^(1/2)*Ajj,0,1)+
                         (1-nu[1])*dmvnorm(y1,med,Psi)*pnorm(Ajj,0,1)))
@@ -487,12 +487,11 @@ EM.SkewAR<- function(formFixed,formRandom,data,groupVar,pAR,timeVar,
     criterio <- abs((llji-llj1)/llj1)
     if (showiter&!showerroriter) cat("Iteration ",count," of ",max.iter,"\r") #  criterium ",criterio," or ",criterio2,"\r")
     if (showerroriter) cat("Iteration ",count," of ",max.iter," - criterium =",criterio,"\r") #  criterium ",criterio," or ",criterio2,"\r")
-    if (count==max.iter) message("\n maximum number of iterations reachead")
   }
-
+  if (count==max.iter) message("\n maximum number of iterations reachead")
   cat("\n")
   zeta<-matrix.sqrt(solve(D1))%*%lambda
-  bi = t(bind_cols(tapply(1:N,ind,calcbi_emjAR,y=y, x=x, z=z, time=time, beta1=beta1, Gammab=Gammab,
+  bi = t(list.cbind(tapply(1:N,ind,calcbi_emjAR,y=y, x=x, z=z, time=time, beta1=beta1, Gammab=Gammab,
                           Deltab=Deltab, sigmae=sigmae,piAR=piAR,zeta=zeta, distr=distr,nu=nu,simplify = FALSE)))
   dd<-matrix.sqrt(D1)[upper.tri(D1, diag = T)]
   phiAR=estphit(piAR)
@@ -502,13 +501,13 @@ EM.SkewAR<- function(formFixed,formRandom,data,groupVar,pAR,timeVar,
   else names(theta)<- c(colnames(x),"sigma2",paste0("phiAR",1:length(piAR)),paste0("Dsqrt",1:length(dd)),paste0("lambda",1:q1),paste0("nu",1:length(nu)))
 
   obj.out <- list(theta=theta, iter = count,estimates=list(beta=as.numeric(beta1),sigma2=sigmae,
-                            phi=phiAR,dsqrt=dd,lambda=as.numeric(lambda)),
+                            phi=phiAR,dsqrt=dd,D=D1,lambda=as.numeric(lambda)),
                   uhat=unlist(res_emj$uj)) ###
 
   if (distr != "sn") obj.out$estimates$nu = nu
   colnames(bi) <- colnames(z)
   obj.out$random.effects<- bi
-  
+
   if (informa) {
     desvios<-try(InfmatrixAR(y,x,z,time,ind,beta1,sigmae,phiAR,D1,lambda,distr = distr,nu = nu),silent = T)
     if (class(desvios)=="try-error") {
@@ -516,6 +515,8 @@ EM.SkewAR<- function(formFixed,formRandom,data,groupVar,pAR,timeVar,
       obj.out$std.error=NULL
     } else{
       desvios <- c(desvios,rep(NA,length(nu)))
+      q2<-q1*(q1+1)/2
+      desvios[(p+pAR+q2+2):(p+pAR+1+q2+q1)] <- rep(NA,q1)
       names(desvios) <- names(theta)
       obj.out$std.error=desvios
     }
@@ -745,7 +746,7 @@ calcbi_emj <- function(jseq,y,x,z,beta1,Gammab, Deltab,sigmae,zeta,distr,nu) {
   if  (distr=="sn"){
     bi<-mediab+Lambda%*%zeta/as.numeric(sqrt(1+t(zeta)%*%Lambda%*%zeta))*as.numeric(dnorm(Ajj,0,1))/as.numeric(pnorm(Ajj,0,1))
   }
-  
+
   if (distr=="st"){
     dtj = gamma((nu+nj)/2)/gamma(nu/2)/pi^(nj/2)/sqrt(det(Psi))*nu^(-nj/2)*(dj/nu+1)^(-(nj+nu)/2)
     denST = 2*dtj*pt(sqrt(nu+nj)*Ajj/sqrt(dj+nu),nu+nj)
@@ -753,7 +754,7 @@ calcbi_emj <- function(jseq,y,x,z,beta1,Gammab, Deltab,sigmae,zeta,distr,nu) {
                             (denST*pi^.5*gamma((nu+nj)/2)*(nu+dj+Ajj^2)^((nu+nj-1)/2)))
     bi<-mediab+Lambda%*%zeta/as.numeric(sqrt(1+t(zeta)%*%Lambda%*%zeta))*esper2
   }
-  
+
   if (distr=="ss"){
     f2 <- function(u) u^(nu - 1)*((2*pi)^(-nj/2))*(u^(nj/2))*((det(Psi))^(-1/2))*exp(-0.5*u*t(y1-med)%*%solve(Psi)%*%(y1-med))*pnorm(u^(1/2)*Ajj)
     denSS <- 2*nu*integrate(Vectorize(f2),0,1)$value
@@ -761,7 +762,7 @@ calcbi_emj <- function(jseq,y,x,z,beta1,Gammab, Deltab,sigmae,zeta,distr,nu) {
         (denSS*(dj+Ajj^2)^(nu-.5+nj/2)*pi^(nj/2+.5)*det(Psi)^.5)
     bi<-mediab+Lambda%*%zeta*esper2/as.numeric(sqrt(1+t(zeta)%*%Lambda%*%zeta))
   }
-  
+
   if (distr=="scn"){
     fy<-as.numeric(2*(nu[1]*dmvnorm(y1,med,(Psi/nu[2]))*pnorm(nu[2]^(1/2)*Ajj,0,1)+
                         (1-nu[1])*dmvnorm(y1,med,Psi)*pnorm(Ajj,0,1)))
@@ -884,7 +885,7 @@ EM.Skew<- function(formFixed,formRandom,data,groupVar,distr,beta1,sigmae,D1,lamb
     ut2j = unlist(res_emj$ut2j,use.names = F)
     uj = unlist(res_emj$uj,use.names = F)
     #if (calcbi) bi = t(bind_cols(res_emj$bi))#t(matrix(unlist(res_emj$bi),nrow=q1))
-    
+
     beta1<-solve(sum1)%*%sum2
     sigmae<-as.numeric(sum3)/N
     Gammab<-sum4/m
@@ -907,11 +908,11 @@ EM.Skew<- function(formFixed,formRandom,data,groupVar,distr,beta1,sigmae,D1,lamb
     criterio <- abs((llji-llj1)/llj1)
     if (showiter&!showerroriter) cat("Iteration ",count," of ",max.iter,"\r") #  criterium ",criterio," or ",criterio2,"\r")
     if (showerroriter) cat("Iteration ",count," of ",max.iter," - criterium =",criterio,"\r") #  criterium ",criterio," or ",criterio2,"\r")
-    if (count==max.iter) message("\n maximum number of iterations reachead")
   }
+  if (count==max.iter) message("\n maximum number of iterations reachead")
   cat("\n")
   zeta<-matrix.sqrt(solve(D1))%*%lambda
-  bi = t(bind_cols(tapply(1:N,ind,calcbi_emj,y=y, x=x, z=z, beta1=beta1, Gammab=Gammab,
+  bi = t(list.cbind(tapply(1:N,ind,calcbi_emj,y=y, x=x, z=z, beta1=beta1, Gammab=Gammab,
                           Deltab=Deltab, sigmae=sigmae,zeta=zeta, distr=distr,nu=nu,simplify = FALSE)))
   dd<-matrix.sqrt(D1)[upper.tri(D1, diag = T)]
   theta = c(beta1,sigmae,dd,lambda,nu)
@@ -920,12 +921,12 @@ EM.Skew<- function(formFixed,formRandom,data,groupVar,distr,beta1,sigmae,D1,lamb
   else names(theta)<- c(colnames(x),"sigma2",paste0("Dsqrt",1:length(dd)),paste0("lambda",1:q1),paste0("nu",1:length(nu)))
 
   obj.out <- list(theta=theta, iter = count,estimates=list(beta=as.numeric(beta1),sigma2=sigmae,
-                                      dsqrt=dd,lambda=as.numeric(lambda)),
+                                      dsqrt=dd,D=D1,lambda=as.numeric(lambda)),
                   uhat=unlist(res_emj$uj))
   if (distr != "sn") obj.out$estimates$nu = nu
   colnames(bi) <- colnames(z)
   obj.out$random.effects<- bi
-  
+
   if (informa) {
     desvios<-try(Infmatrix(y,x,z,ind,beta1,sigmae,D1,lambda,distr = distr,nu = nu),silent = T)
     if (class(desvios)=="try-error") {
@@ -933,6 +934,8 @@ EM.Skew<- function(formFixed,formRandom,data,groupVar,distr,beta1,sigmae,D1,lamb
       obj.out$std.error=NULL
     } else{
       desvios <- c(desvios,rep(NA,length(nu)))
+      q2<-q1*(q1+1)/2
+      desvios[(p+q2+2):(p+1+q2+q1)] <- rep(NA,q1)
       names(desvios) <- names(theta)
       obj.out$std.error=desvios
     }
@@ -1153,7 +1156,7 @@ calcbi_emjCS <- function(jseq,y,x,z,beta1,Gammab, Deltab,sigmae,phiCS,zeta,distr
   if  (distr=="sn"){
     bi<-mediab+Lambda%*%zeta/as.numeric(sqrt(1+t(zeta)%*%Lambda%*%zeta))*as.numeric(dnorm(Ajj,0,1))/as.numeric(pnorm(Ajj,0,1))
   }
-  
+
   if (distr=="st"){
     dtj = gamma((nu+nj)/2)/gamma(nu/2)/pi^(nj/2)/sqrt(det(Psi))*nu^(-nj/2)*(dj/nu+1)^(-(nj+nu)/2)
     denST = 2*dtj*pt(sqrt(nu+nj)*Ajj/sqrt(dj+nu),nu+nj)
@@ -1161,7 +1164,7 @@ calcbi_emjCS <- function(jseq,y,x,z,beta1,Gammab, Deltab,sigmae,phiCS,zeta,distr
                           (denST*pi^.5*gamma((nu+nj)/2)*(nu+dj+Ajj^2)^((nu+nj-1)/2)))
     bi<-mediab+Lambda%*%zeta/as.numeric(sqrt(1+t(zeta)%*%Lambda%*%zeta))*esper2
   }
-  
+
   if (distr=="ss"){
     f2 <- function(u) u^(nu - 1)*((2*pi)^(-nj/2))*(u^(nj/2))*((det(Psi))^(-1/2))*exp(-0.5*u*t(y1-med)%*%solve(Psi)%*%(y1-med))*pnorm(u^(1/2)*Ajj)
     denSS <- 2*nu*integrate(Vectorize(f2),0,1)$value
@@ -1169,7 +1172,7 @@ calcbi_emjCS <- function(jseq,y,x,z,beta1,Gammab, Deltab,sigmae,phiCS,zeta,distr
       (denSS*(dj+Ajj^2)^(nu-.5+nj/2)*pi^(nj/2+.5)*det(Psi)^.5)
     bi<-mediab+Lambda%*%zeta*esper2/as.numeric(sqrt(1+t(zeta)%*%Lambda%*%zeta))
   }
-  
+
   if (distr=="scn"){
     fy<-as.numeric(2*(nu[1]*dmvnorm(y1,med,(Psi/nu[2]))*pnorm(nu[2]^(1/2)*Ajj,0,1)+
                         (1-nu[1])*dmvnorm(y1,med,Psi)*pnorm(Ajj,0,1)))
@@ -1330,9 +1333,9 @@ EM.SkewCS<- function(formFixed,formRandom,data,groupVar,
     sum4 = Reduce("+",res_emj$sum4)
     sum5 = Reduce("+",res_emj$sum5)
     ut2j = unlist(res_emj$ut2j,use.names = F)
-    
+
     #if (calcbi) bi = t(bind_cols(res_emj$bi))#t(matrix(unlist(res_emj$bi),nrow=q1))
-    
+
     beta1<-solve(sum1)%*%sum2
     sigmae<-as.numeric(sum3)/N
     Gammab<-sum4/m
@@ -1359,12 +1362,11 @@ EM.SkewCS<- function(formFixed,formRandom,data,groupVar,
     criterio <- abs((llji-llj1)/llj1)
     if (showiter&!showerroriter) cat("Iteration ",count," of ",max.iter,"\r") #  criterium ",criterio," or ",criterio2,"\r")
     if (showerroriter) cat("Iteration ",count," of ",max.iter," - criterium =",criterio,"\r") #  criterium ",criterio," or ",criterio2,"\r")
-    if (count==max.iter) message("\n maximum number of iterations reachead")
   }
-
+  if (count==max.iter) message("\n maximum number of iterations reachead")
   cat("\n")
   zeta<-matrix.sqrt(solve(D1))%*%lambda
-  bi = t(bind_cols(tapply(1:N,ind,calcbi_emjCS,y=y, x=x, z=z, beta1=beta1, Gammab=Gammab,
+  bi = t(list.cbind(tapply(1:N,ind,calcbi_emjCS,y=y, x=x, z=z, beta1=beta1, Gammab=Gammab,
                           Deltab=Deltab, sigmae=sigmae,phiCS=phiCS,zeta=zeta, distr=distr,nu=nu,simplify = FALSE)))
   dd<-matrix.sqrt(D1)[upper.tri(D1, diag = T)]
   theta = c(beta1,sigmae,phiCS,dd,lambda,nu)
@@ -1373,12 +1375,12 @@ EM.SkewCS<- function(formFixed,formRandom,data,groupVar,
   else names(theta)<- c(colnames(x),"sigma2","phiCS",paste0("Dsqrt",1:length(dd)),paste0("lambda",1:q1),paste0("nu",1:length(nu)))
 
   obj.out <- list(theta=theta, iter = count,estimates=list(beta=as.numeric(beta1),sigma2=sigmae,
-                                phi=phiCS,dsqrt=dd,lambda=as.numeric(lambda)),
+                                phi=phiCS,dsqrt=dd,D=D1,lambda=as.numeric(lambda)),
                   uhat=unlist(res_emj$uj))
   if (distr != "sn") obj.out$estimates$nu = nu
   colnames(bi) <- colnames(z)
   obj.out$random.effects<- bi
-  
+
   if (informa) {
     desvios<-try(InfmatrixCS(y,x,z,ind,beta1,sigmae,phiCS,D1,lambda,distr = distr,nu = nu),silent = T)
     if (class(desvios)=="try-error") {
@@ -1386,6 +1388,8 @@ EM.SkewCS<- function(formFixed,formRandom,data,groupVar,
       obj.out$std.error=NULL
     } else{
       desvios <- c(desvios,rep(NA,length(nu)))
+      q2<-q1*(q1+1)/2
+      desvios[(p+q2+3):(p+2+q2+q1)] <- rep(NA,q1)
       names(desvios) <- names(theta)
       obj.out$std.error=desvios
     }
@@ -1615,7 +1619,7 @@ calcbi_emjDEC <- function(jseq,y,x,z,time,beta1,Gammab, Deltab,sigmae,phiDEC,the
   if  (distr=="sn"){
     bi<-mediab+Lambda%*%zeta/as.numeric(sqrt(1+t(zeta)%*%Lambda%*%zeta))*as.numeric(dnorm(Ajj,0,1))/as.numeric(pnorm(Ajj,0,1))
   }
-  
+
   if (distr=="st"){
     dtj = gamma((nu+nj)/2)/gamma(nu/2)/pi^(nj/2)/sqrt(det(Psi))*nu^(-nj/2)*(dj/nu+1)^(-(nj+nu)/2)
     denST = 2*dtj*pt(sqrt(nu+nj)*Ajj/sqrt(dj+nu),nu+nj)
@@ -1623,7 +1627,7 @@ calcbi_emjDEC <- function(jseq,y,x,z,time,beta1,Gammab, Deltab,sigmae,phiDEC,the
                           (denST*pi^.5*gamma((nu+nj)/2)*(nu+dj+Ajj^2)^((nu+nj-1)/2)))
     bi<-mediab+Lambda%*%zeta/as.numeric(sqrt(1+t(zeta)%*%Lambda%*%zeta))*esper2
   }
-  
+
   if (distr=="ss"){
     f2 <- function(u) u^(nu - 1)*((2*pi)^(-nj/2))*(u^(nj/2))*((det(Psi))^(-1/2))*exp(-0.5*u*t(y1-med)%*%solve(Psi)%*%(y1-med))*pnorm(u^(1/2)*Ajj)
     denSS <- 2*nu*integrate(Vectorize(f2),0,1)$value
@@ -1631,7 +1635,7 @@ calcbi_emjDEC <- function(jseq,y,x,z,time,beta1,Gammab, Deltab,sigmae,phiDEC,the
       (denSS*(dj+Ajj^2)^(nu-.5+nj/2)*pi^(nj/2+.5)*det(Psi)^.5)
     bi<-mediab+Lambda%*%zeta*esper2/as.numeric(sqrt(1+t(zeta)%*%Lambda%*%zeta))
   }
-  
+
   if (distr=="scn"){
     fy<-as.numeric(2*(nu[1]*dmvnorm(y1,med,(Psi/nu[2]))*pnorm(nu[2]^(1/2)*Ajj,0,1)+
                         (1-nu[1])*dmvnorm(y1,med,Psi)*pnorm(Ajj,0,1)))
@@ -1846,12 +1850,11 @@ EM.SkewDEC<- function(formFixed,formRandom,data,groupVar,timeVar,
     criterio <- abs((llji-llj1)/llj1)
     if (showiter&!showerroriter) cat("Iteration ",count," of ",max.iter,"\r") #  criterium ",criterio," or ",criterio2,"\r")
     if (showerroriter) cat("Iteration ",count," of ",max.iter," - criterium =",criterio,"\r") #  criterium ",criterio," or ",criterio2,"\r")
-    if (count==max.iter) message("\n maximum number of iterations reachead")
   }
-
+  if (count==max.iter) message("\n maximum number of iterations reachead")
   cat("\n")
   zeta<-matrix.sqrt(solve(D1))%*%lambda
-  bi = t(bind_cols(tapply(1:N,ind,calcbi_emjDEC,y=y, x=x, z=z, time=time, beta1=beta1, Gammab=Gammab,
+  bi = t(list.cbind(tapply(1:N,ind,calcbi_emjDEC,y=y, x=x, z=z, time=time, beta1=beta1, Gammab=Gammab,
                           Deltab=Deltab, sigmae=sigmae,phiDEC=phiDEC,thetaDEC=thetaDEC,zeta=zeta, distr=distr,nu=nu,simplify = FALSE)))
   dd<-matrix.sqrt(D1)[upper.tri(D1, diag = T)]
   theta = c(beta1,sigmae,phiDEC,thetaDEC,dd,lambda,nu)
@@ -1860,7 +1863,7 @@ EM.SkewDEC<- function(formFixed,formRandom,data,groupVar,timeVar,
   else names(theta)<- c(colnames(x),"sigma2","phi1DEC","phi2DEC",paste0("Dsqrt",1:length(dd)),paste0("lambda",1:q1),paste0("nu",1:length(nu)))
 
   obj.out <- list(theta=theta, iter = count,estimates=list(beta=as.numeric(beta1),sigma2=sigmae,
-                  phi=c(phiDEC,thetaDEC),dsqrt=dd,lambda=as.numeric(lambda)),
+                  phi=c(phiDEC,thetaDEC),dsqrt=dd,D=D1,lambda=as.numeric(lambda)),
                   uhat=unlist(res_emj$uj))
   if (distr != "sn") obj.out$estimates$nu = nu
   colnames(bi) <- colnames(z)
@@ -1873,6 +1876,8 @@ EM.SkewDEC<- function(formFixed,formRandom,data,groupVar,timeVar,
       obj.out$std.error=NULL
     } else{
       desvios <- c(desvios,rep(NA,length(nu)))
+      q2<-q1*(q1+1)/2
+      desvios[(p+q2+4):(p+3+q2+q1)] <- rep(NA,q1)
       names(desvios) <- names(theta)
       obj.out$std.error=desvios
     }
@@ -2275,12 +2280,11 @@ EM.SkewCAR1<- function(formFixed,formRandom,data,groupVar,timeVar,
     criterio <- abs((llji-llj1)/llj1)
     if (showiter&!showerroriter) cat("Iteration ",count," of ",max.iter,"\r") #  criterium ",criterio," or ",criterio2,"\r")
     if (showerroriter) cat("Iteration ",count," of ",max.iter," - criterium =",criterio,"\r") #  criterium ",criterio," or ",criterio2,"\r")
-    if (count==max.iter) message("\n maximum number of iterations reachead")
   }
-
+  if (count==max.iter) message("\n maximum number of iterations reachead")
   cat("\n")
   zeta<-matrix.sqrt(solve(D1))%*%lambda
-  bi = t(bind_cols(tapply(1:N,ind,calcbi_emjDEC,y=y, x=x, z=z, time=time, beta1=beta1, Gammab=Gammab,
+  bi = t(list.cbind(tapply(1:N,ind,calcbi_emjDEC,y=y, x=x, z=z, time=time, beta1=beta1, Gammab=Gammab,
                           Deltab=Deltab, sigmae=sigmae,phiDEC=phiDEC,thetaDEC=1,zeta=zeta, distr=distr,nu=nu,simplify = FALSE)))
   dd<-matrix.sqrt(D1)[upper.tri(D1, diag = T)]
   theta = c(beta1,sigmae,phiDEC,dd,lambda,nu)
@@ -2289,12 +2293,12 @@ EM.SkewCAR1<- function(formFixed,formRandom,data,groupVar,timeVar,
   else names(theta)<- c(colnames(x),"sigma2","phiCAR1",paste0("Dsqrt",1:length(dd)),paste0("lambda",1:q1),paste0("nu",1:length(nu)))
 
   obj.out <- list(theta=theta, iter = count,estimates=list(beta=as.numeric(beta1),sigma2=sigmae,
-                            phi=phiDEC,dsqrt=dd,lambda=as.numeric(lambda)),
+                            phi=phiDEC,dsqrt=dd,D=D1,lambda=as.numeric(lambda)),
                   uhat=unlist(res_emj$uj))
   if (distr != "sn") obj.out$estimates$nu = nu
   colnames(bi) <- colnames(z)
   obj.out$random.effects<- bi
-  
+
   if (informa) {
     desvios<-try(InfmatrixCAR1(y,x,z,time,ind,beta1,sigmae,phiDEC,D1,lambda,distr = distr,nu = nu),silent = T)
     if (class(desvios)=="try-error") {
@@ -2302,6 +2306,8 @@ EM.SkewCAR1<- function(formFixed,formRandom,data,groupVar,timeVar,
       obj.out$std.error=NULL
     } else{
       desvios <- c(desvios,rep(NA,length(nu)))
+      q2<-q1*(q1+1)/2
+      desvios[(p+q2+3):(p+2+q2+q1)] <- rep(NA,q1)
       names(desvios) <- names(theta)
       obj.out$std.error=desvios
     }

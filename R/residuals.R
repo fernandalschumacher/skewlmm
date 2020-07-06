@@ -419,7 +419,7 @@ plot.acfresid <-  function(x,...) {
     ggplot(x,aes_string(x = "lag",y="ACF")) +
     #ggplot(x,aes(x = lag,y=ACF)) +
     geom_hline(aes(yintercept = 0)) +
-      coord_cartesian(xlim=0:max(x$lag))+
+      coord_cartesian(xlim=c(0,max(x$lag)))+
       geom_segment(mapping = aes_string(xend = "lag", yend = 0)) +
       geom_step(aes_string(x="lag",y="inf"),data=datIC,color=4,linetype="dashed",na.rm=TRUE)+
       geom_step(aes_string(x="lag",y="sup"),data=datIC,color=4,linetype="dashed",na.rm=TRUE)+

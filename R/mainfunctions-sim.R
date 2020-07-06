@@ -7,8 +7,8 @@ smn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "CI", time
   if (class(formFixed)!="formula") stop("formFixed must be a formula")
   if (class(formRandom)!="formula") stop("formRandom must be a formula")
   if (!is.list(initialValues)) stop("initialValues must be a list")
-  if (any(!(names(initialValues) %in% c("beta","sigma2","D","phi","nu")))) stop("initialValues must be a list with
-                                                                                         named elements beta, sigma2, D, phi and/or nu")
+  if (all(c("D","dsqrt") %in% names(initialValues))) initialValues$dsqrt<-NULL
+  if (any(!(names(initialValues) %in% c("beta","sigma2","D","lambda","phi","nu")))) warning("initialValues must be a list with named elements beta, sigma2, D, lambda, phi and/or nu, elements with other names are ignored")
   #
   if (!is.character(groupVar)) stop("groupVar must be a character containing the name of the grouping variable in data")
   if (!is.null(timeVar)&!is.character(timeVar)) stop("timeVar must be a character containing the name of the time variable in data")
@@ -24,6 +24,8 @@ smn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "CI", time
   z<-model.matrix(formRandom,data=data)
   ind <-data[,groupVar]
   data$ind <-data[,groupVar]
+  m<-n_distinct(ind)
+  if (m<=1) stop(paste(groupVar,"must have more than 1 level"))
   p<-ncol(x)
   q1<-ncol(z)
   if ((sum(is.na(x))+sum(is.na(z))+sum(is.na(y))+sum(is.na(ind)))>0) stop ("NAs not allowed")
@@ -38,9 +40,19 @@ smn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "CI", time
   if (depStruct=="ARp" & !is.null(timeVar)) if (min(data[,timeVar])!=1) warning("consider using a transformation such that timeVar starts at 1")
   if (!(depStruct %in% c("CI","ARp","CS","DEC","CAR1"))) stop("accepted depStruct: CI, ARp, CS, DEC or CAR1")
   #
-  if (is.null(initialValues$beta)|is.null(initialValues$sigma2)) {
-    lmefit = try(lme(formFixed,random=~1|ind,data=data),silent=TRUE)
-    if (class(lmefit)=="try-error") stop("error in calculating initial values")
+  if (is.null(initialValues$beta)|is.null(initialValues$sigma2)|is.null(initialValues$D)) {
+    lmefit = try(lme(formFixed,random=formula(paste('~',as.character(formRandom)[length(formRandom)],
+                                                    '|',"ind")),data=data),silent=T)
+    if (class(lmefit)=="try-error") {
+      lmefit = try(lme(formFixed,random=~1|ind,data=data),silent=TRUE)
+      if (class(lmefit)=="try-error") {
+        stop("error in calculating initial values")
+      } else {
+        D1init <- diag(q1)*as.numeric(var(random.effects(lmefit)))
+      }
+    } else {
+      D1init <- (var(random.effects(lmefit)))
+    }
   }
   if (!is.null(initialValues$beta)) {
     beta1 <- initialValues$beta
@@ -50,7 +62,7 @@ smn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "CI", time
   } else sigmae <- as.numeric(lmefit$sigma^2)
   if (!is.null(initialValues$D)) {
     D1 <- initialValues$D
-  } else D1 <- diag(q1)
+  } else D1 <- D1init
   #
   if (length(D1)==1 & !is.matrix(D1)) D1=as.matrix(D1)
   #
@@ -107,7 +119,7 @@ smn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "CI", time
   obj.out$depStruct = depStruct
   obj.out$distr=distr
   obj.out$N = N
-  obj.out$n = n_distinct(ind)
+  obj.out$n = m#n_distinct(ind)
   obj.out$groupVar = groupVar
   obj.out$timeVar = timeVar
   #
