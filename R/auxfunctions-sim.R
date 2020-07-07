@@ -229,8 +229,10 @@ EM.AR<- function(formFixed,formRandom,data,groupVar,pAR,timeVar,
   }
   if (count==max.iter) message("\n maximum number of iterations reachead")
   cat("\n")
-  bi <- t(list.cbind(tapply(1:N,ind,calcbi_emjARs,y=y, x=x, z=z,time=time, beta1=beta1, D1=D1,
-                           sigmae=sigmae,piAR=piAR, distr=distr,nu=nu,simplify = FALSE)))
+  bi <- matrix(unlist(tapply(1:N,ind,calcbi_emjARs,y=y, x=x, z=z,time=time, beta1=beta1, D1=D1,
+                             sigmae=sigmae,piAR=piAR, distr=distr,nu=nu,simplify = FALSE)),ncol=q1,byrow = T)
+  # bi <- t(list.cbind(tapply(1:N,ind,calcbi_emjARs,y=y, x=x, z=z,time=time, beta1=beta1, D1=D1,
+  #                          sigmae=sigmae,piAR=piAR, distr=distr,nu=nu,simplify = FALSE)))
   dd<-matrix.sqrt(D1)[upper.tri(D1, diag = T)]
   phiAR=estphit(piAR)
   theta = c(beta1,sigmae,phiAR,dd,nu)
@@ -516,8 +518,10 @@ EM.sim<- function(formFixed,formRandom,data,groupVar,distr,beta1,sigmae,D1,nu,lb
   }
   if (count==max.iter) message("\n maximum number of iterations reachead")
   cat("\n")
-  bi <- t(list.cbind(tapply(1:N,ind,calcbi_emjs,y=y, x=x, z=z, beta1=beta1, D1=D1,
-                           sigmae=sigmae, distr=distr,nu=nu,simplify = FALSE)))
+  bi <- matrix(unlist(tapply(1:N,ind,calcbi_emjs,y=y, x=x, z=z, beta1=beta1, D1=D1,
+                     sigmae=sigmae, distr=distr,nu=nu,simplify = FALSE)),ncol=q1,byrow = T)
+  #t(list.cbind(tapply(1:N,ind,calcbi_emjs,y=y, x=x, z=z, beta1=beta1, D1=D1,
+  #                         sigmae=sigmae, distr=distr,nu=nu,simplify = FALSE)))
   dd<-matrix.sqrt(D1)[upper.tri(D1, diag = T)]
   theta = c(beta1,sigmae,dd,nu)
   if (is.null(colnames(x))) colnames(x) <- paste0("beta",1:p-1)
@@ -807,8 +811,11 @@ EM.CS<- function(formFixed,formRandom,data,groupVar,
   }
   if (count==max.iter) message("\n maximum number of iterations reachead")
   cat("\n")
-  bi <- t(list.cbind(tapply(1:N,ind,calcbi_emjCSs,y=y, x=x, z=z, beta1=beta1, D1=D1,
-                           sigmae=sigmae,phiCS=phiCS, distr=distr,nu=nu,simplify = FALSE)))
+  bi <- matrix(unlist(tapply(1:N,ind,calcbi_emjCSs,y=y, x=x, z=z, beta1=beta1, D1=D1,
+                       sigmae=sigmae,phiCS=phiCS, distr=distr,nu=nu,simplify = FALSE)),ncol=q1,byrow = T)
+
+  #t(list.cbind(tapply(1:N,ind,calcbi_emjCSs,y=y, x=x, z=z, beta1=beta1, D1=D1,
+  #                       sigmae=sigmae,phiCS=phiCS, distr=distr,nu=nu,simplify = FALSE)))
 
   dd<-matrix.sqrt(D1)[upper.tri(D1, diag = T)]
   theta = c(beta1,sigmae,phiCS,dd,nu)
@@ -1126,8 +1133,10 @@ EM.DEC<- function(formFixed,formRandom,data,groupVar,timeVar,
   }
   if (count==max.iter) message("\n maximum number of iterations reachead")
   cat("\n")
-  bi <- t(list.cbind(tapply(1:N,ind,calcbi_emjDECs,y=y, x=x, z=z,time=time, beta1=beta1, D1=D1,
-                           sigmae=sigmae,phiDEC=phiDEC,thetaDEC=thetaDEC, distr=distr,nu=nu,simplify = FALSE)))
+  bi <- matrix(unlist(tapply(1:N,ind,calcbi_emjDECs,y=y, x=x, z=z,time=time, beta1=beta1, D1=D1,
+                         sigmae=sigmae,phiDEC=phiDEC,thetaDEC=thetaDEC, distr=distr,nu=nu,simplify = FALSE)),ncol=q1,byrow = T)
+  #bi <- t(list.cbind(tapply(1:N,ind,calcbi_emjDECs,y=y, x=x, z=z,time=time, beta1=beta1, D1=D1,
+  #                         sigmae=sigmae,phiDEC=phiDEC,thetaDEC=thetaDEC, distr=distr,nu=nu,simplify = FALSE)))
   dd<-matrix.sqrt(D1)[upper.tri(D1, diag = T)]
   theta = c(beta1,sigmae,phiDEC,thetaDEC,dd,nu)
   if (is.null(colnames(x))) colnames(x) <- paste0("beta",1:p-1)
@@ -1432,8 +1441,10 @@ EM.CAR1<- function(formFixed,formRandom,data,groupVar,timeVar,
   }
   if (count==max.iter) message("\n maximum number of iterations reachead")
   cat("\n")
-  bi <- t(list.cbind(tapply(1:N,ind,calcbi_emjDECs,y=y, x=x, z=z,time=time, beta1=beta1, D1=D1,
-                           sigmae=sigmae,phiDEC=phiDEC,thetaDEC=1, distr=distr,nu=nu,simplify = FALSE)))
+  bi <- matrix(unlist(tapply(1:N,ind,calcbi_emjDECs,y=y, x=x, z=z,time=time, beta1=beta1, D1=D1,
+                             sigmae=sigmae,phiDEC=phiDEC,thetaDEC=1, distr=distr,nu=nu,simplify = FALSE)),ncol=q1,byrow = T)
+  # bi <- t(list.cbind(tapply(1:N,ind,calcbi_emjDECs,y=y, x=x, z=z,time=time, beta1=beta1, D1=D1,
+  #                          sigmae=sigmae,phiDEC=phiDEC,thetaDEC=1, distr=distr,nu=nu,simplify = FALSE)))
   dd<-matrix.sqrt(D1)[upper.tri(D1, diag = T)]
   theta = c(beta1,sigmae,phiDEC,dd,nu)
   if (is.null(colnames(x))) colnames(x) <- paste0("beta",1:p-1)

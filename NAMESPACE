@@ -22,7 +22,6 @@ importFrom("nlme","corARMA","lme","corCAR1","random.effects","ranef")
 importFrom("mvtnorm","dmvt","dmvnorm","rmvnorm")
 importFrom("numDeriv","jacobian")
 importFrom("moments","skewness")
-importFrom("rlist","list.cbind")
 #
 S3method(print, SMSN)
 S3method(fitted, SMSN)

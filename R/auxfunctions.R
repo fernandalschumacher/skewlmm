@@ -491,8 +491,10 @@ EM.SkewAR<- function(formFixed,formRandom,data,groupVar,pAR,timeVar,
   if (count==max.iter) message("\n maximum number of iterations reachead")
   cat("\n")
   zeta<-matrix.sqrt(solve(D1))%*%lambda
-  bi = t(list.cbind(tapply(1:N,ind,calcbi_emjAR,y=y, x=x, z=z, time=time, beta1=beta1, Gammab=Gammab,
-                          Deltab=Deltab, sigmae=sigmae,piAR=piAR,zeta=zeta, distr=distr,nu=nu,simplify = FALSE)))
+  bi <- matrix(unlist(tapply(1:N,ind,calcbi_emjAR,y=y, x=x, z=z, time=time, beta1=beta1, Gammab=Gammab,
+                             Deltab=Deltab, sigmae=sigmae,piAR=piAR,zeta=zeta, distr=distr,nu=nu,simplify = FALSE)),ncol=q1,byrow = T)
+  # bi = t(list.cbind(tapply(1:N,ind,calcbi_emjAR,y=y, x=x, z=z, time=time, beta1=beta1, Gammab=Gammab,
+  #                         Deltab=Deltab, sigmae=sigmae,piAR=piAR,zeta=zeta, distr=distr,nu=nu,simplify = FALSE)))
   dd<-matrix.sqrt(D1)[upper.tri(D1, diag = T)]
   phiAR=estphit(piAR)
   theta = c(beta1,sigmae,phiAR,dd,lambda,nu)
@@ -912,8 +914,10 @@ EM.Skew<- function(formFixed,formRandom,data,groupVar,distr,beta1,sigmae,D1,lamb
   if (count==max.iter) message("\n maximum number of iterations reachead")
   cat("\n")
   zeta<-matrix.sqrt(solve(D1))%*%lambda
-  bi = t(list.cbind(tapply(1:N,ind,calcbi_emj,y=y, x=x, z=z, beta1=beta1, Gammab=Gammab,
-                          Deltab=Deltab, sigmae=sigmae,zeta=zeta, distr=distr,nu=nu,simplify = FALSE)))
+  bi <- matrix(unlist(tapply(1:N,ind,calcbi_emj,y=y, x=x, z=z, beta1=beta1, Gammab=Gammab,
+                             Deltab=Deltab, sigmae=sigmae,zeta=zeta, distr=distr,nu=nu,simplify = FALSE)),ncol=q1,byrow = T)
+  # bi = t(list.cbind(tapply(1:N,ind,calcbi_emj,y=y, x=x, z=z, beta1=beta1, Gammab=Gammab,
+  #                         Deltab=Deltab, sigmae=sigmae,zeta=zeta, distr=distr,nu=nu,simplify = FALSE)))
   dd<-matrix.sqrt(D1)[upper.tri(D1, diag = T)]
   theta = c(beta1,sigmae,dd,lambda,nu)
   if (is.null(colnames(x))) colnames(x) <- paste0("beta",1:p-1)
@@ -1366,8 +1370,10 @@ EM.SkewCS<- function(formFixed,formRandom,data,groupVar,
   if (count==max.iter) message("\n maximum number of iterations reachead")
   cat("\n")
   zeta<-matrix.sqrt(solve(D1))%*%lambda
-  bi = t(list.cbind(tapply(1:N,ind,calcbi_emjCS,y=y, x=x, z=z, beta1=beta1, Gammab=Gammab,
-                          Deltab=Deltab, sigmae=sigmae,phiCS=phiCS,zeta=zeta, distr=distr,nu=nu,simplify = FALSE)))
+  bi <- matrix(unlist(tapply(1:N,ind,calcbi_emjCS,y=y, x=x, z=z, beta1=beta1, Gammab=Gammab,
+                             Deltab=Deltab, sigmae=sigmae,phiCS=phiCS,zeta=zeta, distr=distr,nu=nu,simplify = FALSE)),ncol=q1,byrow = T)
+  # bi = t(list.cbind(tapply(1:N,ind,calcbi_emjCS,y=y, x=x, z=z, beta1=beta1, Gammab=Gammab,
+  #                         Deltab=Deltab, sigmae=sigmae,phiCS=phiCS,zeta=zeta, distr=distr,nu=nu,simplify = FALSE)))
   dd<-matrix.sqrt(D1)[upper.tri(D1, diag = T)]
   theta = c(beta1,sigmae,phiCS,dd,lambda,nu)
   if (is.null(colnames(x))) colnames(x) <- paste0("beta",1:p-1)
@@ -1854,8 +1860,10 @@ EM.SkewDEC<- function(formFixed,formRandom,data,groupVar,timeVar,
   if (count==max.iter) message("\n maximum number of iterations reachead")
   cat("\n")
   zeta<-matrix.sqrt(solve(D1))%*%lambda
-  bi = t(list.cbind(tapply(1:N,ind,calcbi_emjDEC,y=y, x=x, z=z, time=time, beta1=beta1, Gammab=Gammab,
-                          Deltab=Deltab, sigmae=sigmae,phiDEC=phiDEC,thetaDEC=thetaDEC,zeta=zeta, distr=distr,nu=nu,simplify = FALSE)))
+  bi <- matrix(unlist(tapply(1:N,ind,calcbi_emjDEC,y=y, x=x, z=z, time=time, beta1=beta1, Gammab=Gammab,
+                             Deltab=Deltab, sigmae=sigmae,phiDEC=phiDEC,thetaDEC=thetaDEC,zeta=zeta, distr=distr,nu=nu,simplify = FALSE)),ncol=q1,byrow = T)
+  # bi = t(list.cbind(tapply(1:N,ind,calcbi_emjDEC,y=y, x=x, z=z, time=time, beta1=beta1, Gammab=Gammab,
+  #                         Deltab=Deltab, sigmae=sigmae,phiDEC=phiDEC,thetaDEC=thetaDEC,zeta=zeta, distr=distr,nu=nu,simplify = FALSE)))
   dd<-matrix.sqrt(D1)[upper.tri(D1, diag = T)]
   theta = c(beta1,sigmae,phiDEC,thetaDEC,dd,lambda,nu)
   if (is.null(colnames(x))) colnames(x) <- paste0("beta",1:p-1)
@@ -2284,8 +2292,10 @@ EM.SkewCAR1<- function(formFixed,formRandom,data,groupVar,timeVar,
   if (count==max.iter) message("\n maximum number of iterations reachead")
   cat("\n")
   zeta<-matrix.sqrt(solve(D1))%*%lambda
-  bi = t(list.cbind(tapply(1:N,ind,calcbi_emjDEC,y=y, x=x, z=z, time=time, beta1=beta1, Gammab=Gammab,
-                          Deltab=Deltab, sigmae=sigmae,phiDEC=phiDEC,thetaDEC=1,zeta=zeta, distr=distr,nu=nu,simplify = FALSE)))
+  bi <- matrix(unlist(tapply(1:N,ind,calcbi_emjDEC,y=y, x=x, z=z, time=time, beta1=beta1, Gammab=Gammab,
+                             Deltab=Deltab, sigmae=sigmae,phiDEC=phiDEC,thetaDEC=1,zeta=zeta, distr=distr,nu=nu,simplify = FALSE)),ncol=q1,byrow = T)
+  # bi = t(list.cbind(tapply(1:N,ind,calcbi_emjDEC,y=y, x=x, z=z, time=time, beta1=beta1, Gammab=Gammab,
+  #                         Deltab=Deltab, sigmae=sigmae,phiDEC=phiDEC,thetaDEC=1,zeta=zeta, distr=distr,nu=nu,simplify = FALSE)))
   dd<-matrix.sqrt(D1)[upper.tri(D1, diag = T)]
   theta = c(beta1,sigmae,phiDEC,dd,lambda,nu)
   if (is.null(colnames(x))) colnames(x) <- paste0("beta",1:p-1)

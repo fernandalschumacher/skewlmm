@@ -22,7 +22,7 @@ smsn.lmm(data, formFixed, groupVar, formRandom = ~1, depStruct = "CI",
   \item{formRandom}{A one-sided linear formula object describing the random effects part of the model, with the covariates, separated by \code{+} operators, on the right of a \code{~} operator. By default, a model with random intercept is considered.}
   \item{depStruct}{A character indicating which dependence structure should be used. \code{"CI"} for condicional independence, \code{"ARp"} for AR(p) -- p is \code{length(phi)}--, \code{"CS"} for compound symmetry, \code{"DEC"} for DEC, and \code{"CAR1"} for  continuous-time AR(1).}
   \item{timeVar}{A character containing the name of the variable which represents the time in \code{data}. Meaningless if \code{depStruct="CI"} or \code{depStruct="CS"}. For other structures, if \code{is.null(timeVar)} the observations are considered equally spaced and ordered. If \code{depStruct="ARp"}, timeVar must the an index, preferably starting at 1.}
-  \item{distr}{A character indicating which distribution should be used. \code{"sn"} for skew-normal, \code{"st"} for skew-t, \code{"ss"} for skew-slash, and \code{"scn"} for skew-contaminated normal.}
+  \item{distr}{A character indicating which distribution should be used. \code{"sn"} for skew-normal, \code{"st"} for skew-t, \code{"ssl"} for skew-slash, and \code{"scn"} for skew-contaminated normal.}
   \item{pAR}{If \code{depStruct="ARp"}, pAR indicates the order of the autoregressive process that should be used. Otherwise, it is meaningless.}
   \item{luDEC}{Optional. Upper limit for estimating the "damping" parameter for DEC covariance. If \code{luDEC<=1}, only attenuation of the exponential decay can be obtained.}
   \item{tol}{Tolerance for the convergence criterion. Default=\code{1e-6}.}
@@ -86,7 +86,7 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 \donttest{#fitting for several distributions / dependence structures
   fm1 <- smsn.lmm(dat1,formFixed=distance ~ age+Sex,groupVar="Subject")
   fm2 <- smsn.lmm(dat1,formFixed=distance ~ age+Sex,groupVar="Subject", distr="st")
-  fm3 <- smsn.lmm(dat1,formFixed=distance ~ age+Sex,groupVar="Subject", distr="ss")
+  fm3 <- smsn.lmm(dat1,formFixed=distance ~ age+Sex,groupVar="Subject", distr="ssl")
   fm4 <- smsn.lmm(dat1,formFixed=distance ~ age+Sex,groupVar="Subject", depStruct="ARp",pAR=1)
   rbind(fm1$criteria,fm2$criteria,fm3$criteria,fm4$criteria)
   summary(fm3)
