@@ -412,8 +412,9 @@ plot.acfresid <-  function(x,...) {
       theme_minimal()+geom_hline(aes(yintercept = 0))+
       geom_segment(mapping = aes(xend = lag, yend = 0))+ ylim(c(-1,1))
   } else {
+    lagmax <- max(x$lag)
     datIC <- rbind(x[,c(1,4,5)],
-                   c(5,min(x[4],na.rm=T),max(x[5],na.rm=T)))
+                   c(lagmax+1,min(x$`IC.2.5%`,na.rm=T),max(x$`IC.97.5%`,na.rm=T)))
     datIC$lag <- datIC$lag-.5
     names(datIC) <- c("lag","inf","sup")
     ggplot(x,aes_string(x = "lag",y="ACF")) +
