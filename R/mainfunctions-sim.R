@@ -197,8 +197,8 @@ summary.SMN <- function(object,confint.level=.95,...){
     tab = (cbind(object$estimates$beta,object$std.error[1:p],
                  ICtab))
     rownames(tab) = names(object$theta[1:p])
-    colnames(tab) = c("Value","Std.error",paste0("IC ",confint.level*100,"% lower"),
-                      paste0("IC ",confint.level*100,"% upper"))
+    colnames(tab) = c("Value","Std.error",paste0("CI ",confint.level*100,"% lower"),
+                      paste0("CI ",confint.level*100,"% upper"))
   } else {
     tab = (rbind(object$estimates$beta))
     colnames(tab) = names(object$theta[1:p])

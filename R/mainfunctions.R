@@ -198,8 +198,8 @@ summary.SMSN <- function(object,confint.level=.95,...){
     tab = (cbind(object$estimates$beta,object$std.error[1:p],
                       ICtab))
     rownames(tab) = names(object$theta[1:p])
-    colnames(tab) = c("Value","Std.error",paste0("IC ",confint.level*100,"% lower"),
-                      paste0("IC ",confint.level*100,"% upper"))
+    colnames(tab) = c("Value","Std.error",paste0("CI ",confint.level*100,"% lower"),
+                      paste0("CI ",confint.level*100,"% upper"))
   }
   else {
     tab = rbind(object$estimates$beta)
@@ -335,7 +335,7 @@ lr.test <- function(obj1,obj2,level=0.05,quiet=FALSE) {
   if (npar1<npar2) {objB <- obj2;objS<-obj1} else {objB <- obj1;objS<-obj2}
   if (!all(names(objS$theta)%in%names(objB$theta))) stop("obj1 and obj2 should contain nested models")
   if ((objB$loglik-objS$loglik)<=0) {
-  stop("loglik from model with more parameters is not bigger than the one
+  stop("logLik from model with more parameters is not bigger than the one
   with less parameters. This probably indicates problems on convergence,
   try changing the initial values and/or maximum number of iteration")
   }
