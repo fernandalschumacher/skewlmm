@@ -331,14 +331,21 @@ lr.test <- function(obj1,obj2,level=0.05,quiet=FALSE) {
     print(criteria)
     cat("\n")
   }
-  if (npar1==npar2) stop("obj1 and obj2 do not contain nested models with different number of parameters")
+  if (npar1==npar2) {
+    warning("obj1 and obj2 do not contain nested models with different number of parameters")
+    return(invisible(NULL))
+  }
   if (npar1<npar2) {objB <- obj2;objS<-obj1} else {objB <- obj1;objS<-obj2}
   if (objB$depStruct=='DEC') {
     names(objB$theta)[substr(names(objB$theta), 1, 3)=='phi'] = 'phi1'
     names(objB$theta)[substr(names(objB$theta), 1, 5)=='theta'] = 'phi2'
   }
   if (objS$depStruct =="ARp" | objS$depStruct =="CAR1") names(objS$theta)[substr(names(objS$theta), 1, 3)=='phi'] = paste0('phi',1:length(objS$estimates$phi))
-  if (!all(names(objS$theta)%in%names(objB$theta))) stop("obj1 and obj2 do not contain nested models")
+  if (objB$depStruct =="ARp") names(objB$theta)[substr(names(objB$theta), 1, 3)=='phi'] = paste0('phi',1:length(objB$estimates$phi))
+  if (!all(names(objS$theta)%in%names(objB$theta))) {
+    warning("obj1 and obj2 do not contain nested models")
+    return(invisible(NULL))
+  }
   if ((objB$loglik-objS$loglik)<=0) {
   stop("logLik from model with more parameters is not bigger than the one
   with less parameters. This probably indicates problems on convergence,
