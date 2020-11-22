@@ -333,9 +333,12 @@ predictf.AR<- function(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,di
     xpred[dataPred$ind==indj,] <- matrix(xPlus1[seqPred,],ncol=ncol(xPlus1))
     timepred[dataPred$ind==indj] <- dataPredj$time
   }
+  xpred = as.data.frame(xpred)
   colnames(xpred) = colnames(xPlus1)
-  if (all(xpred[,1]==1)) xpred=xpred[,-1]
-  data.frame(groupVar=dataPred$ind,time=timepred,xpred,ypred)
+  if (all(xpred[,1]==1)) xpred=xpred[-1]
+  if (is.null(timeVar)) dfout = data.frame(groupVar=dataPred$ind,xpred,ypred)
+  else dfout = data.frame(groupVar=dataPred$ind,time=timepred,xpred,ypred)
+  dfout
 }
 
 ################################################################
@@ -608,8 +611,9 @@ predictf.sim<- function(formFixed,formRandom,dataFit,dataPred,groupVar,distr,the
     ypred[dataPred$ind==indj] <- ypredj
     xpred[dataPred$ind==indj,] <- matrix(xPlus1[seqPred,],ncol=ncol(xPlus1))
   }
+  xpred = as.data.frame(xpred)
   colnames(xpred) = colnames(xPlus1)
-  if (all(xpred[,1]==1)) xpred=xpred[,-1]
+  if (all(xpred[,1]==1)) xpred=xpred[-1]
   data.frame(groupVar=dataPred$ind,xpred,ypred)
 }
 #
@@ -907,8 +911,9 @@ predictf.CS<- function(formFixed,formRandom,dataFit,dataPred,groupVar,distr,thet
     ypred[dataPred$ind==indj] <- ypredj
     xpred[dataPred$ind==indj,] <- matrix(xPlus1[seqPred,],ncol=ncol(xPlus1))
   }
+  xpred = as.data.frame(xpred)
   colnames(xpred) = colnames(xPlus1)
-  if (all(xpred[,1]==1)) xpred=xpred[,-1]
+  if (all(xpred[,1]==1)) xpred=xpred[-1]
   data.frame(groupVar=dataPred$ind,xpred,ypred)
 }
 #
@@ -1238,9 +1243,12 @@ predictf.DEC<- function(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,d
     xpred[dataPred$ind==indj,] <- matrix(xPlus1[seqPred,],ncol=ncol(xPlus1))
     timepred[dataPred$ind==indj] <- dataPredj$time
   }
+  xpred = as.data.frame(xpred)
   colnames(xpred) = colnames(xPlus1)
-  if (all(xpred[,1]==1)) xpred=xpred[,-1]
-  data.frame(groupVar=dataPred$ind,time=timepred,xpred,ypred)
+  if (all(xpred[,1]==1)) xpred=xpred[-1]
+  if (is.null(timeVar)) dfout = data.frame(groupVar=dataPred$ind,xpred,ypred)
+  else dfout = data.frame(groupVar=dataPred$ind,time=timepred,xpred,ypred)
+  dfout
 }
 #
 # ################################################################
@@ -1544,9 +1552,12 @@ predictf.CAR1<- function(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,
     xpred[dataPred$ind==indj,] <- matrix(xPlus1[seqPred,],ncol=ncol(xPlus1))
     timepred[dataPred$ind==indj] <- dataPredj$time
   }
+  xpred = as.data.frame(xpred)
   colnames(xpred) = colnames(xPlus1)
-  if (all(xpred[,1]==1)) xpred=xpred[,-1]
-  data.frame(groupVar=dataPred$ind,time=timepred,xpred,ypred)
+  if (all(xpred[,1]==1)) xpred=xpred[-1]
+  if (is.null(timeVar)) dfout = data.frame(groupVar=dataPred$ind,xpred,ypred)
+  else dfout = data.frame(groupVar=dataPred$ind,time=timepred,xpred,ypred)
+  dfout
 }
 ####
 #inf mat (using first derivative and codes from the asymmetric case)

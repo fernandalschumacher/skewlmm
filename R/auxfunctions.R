@@ -630,9 +630,12 @@ predictf.skewAR<- function(formFixed,formRandom,dataFit,dataPred,groupVar,timeVa
     xpred[dataPred$ind==indj,] <- matrix(xPlus1[seqPred,],ncol=ncol(xPlus1))
     timepred[dataPred$ind==indj] <- dataPredj$time
   }
+  xpred = as.data.frame(xpred)
   colnames(xpred) = colnames(xPlus1)
-  if (all(xpred[,1]==1)) xpred=xpred[,-1]
-  data.frame(groupVar=dataPred$ind,time=timepred,xpred,ypred)
+  if (all(xpred[,1]==1)) xpred=xpred[-1]
+  if (is.null(timeVar)) dfout = data.frame(groupVar=dataPred$ind,xpred,ypred)
+  else dfout = data.frame(groupVar=dataPred$ind,time=timepred,xpred,ypred)
+  dfout
 }
 
 ################################################################
@@ -1038,8 +1041,9 @@ predictf.skew<- function(formFixed,formRandom,dataFit,dataPred,groupVar,distr,th
     ypred[dataPred$ind==indj] <- ypredj
     xpred[dataPred$ind==indj,] <- matrix(xPlus1[seqPred,],ncol=ncol(xPlus1))
   }
+  xpred = as.data.frame(xpred)
   colnames(xpred) = colnames(xPlus1)
-  if (all(xpred[,1]==1)) xpred=xpred[,-1]
+  if (all(xpred[,1]==1)) xpred=xpred[-1]
   data.frame(groupVar=dataPred$ind,xpred,ypred)
 }
 
@@ -1497,8 +1501,9 @@ predictf.skewCS<- function(formFixed,formRandom,dataFit,dataPred,groupVar,distr,
     ypred[dataPred$ind==indj] <- ypredj
     xpred[dataPred$ind==indj,] <- matrix(xPlus1[seqPred,],ncol=ncol(xPlus1))
   }
+  xpred = as.data.frame(xpred)
   colnames(xpred) = colnames(xPlus1)
-  if (all(xpred[,1]==1)) xpred=xpred[,-1]
+  if (all(xpred[,1]==1)) xpred=xpred[-1]
   data.frame(groupVar=dataPred$ind,xpred,ypred)
 }
 
@@ -1999,9 +2004,12 @@ predictf.skewDEC<- function(formFixed,formRandom,dataFit,dataPred,groupVar,timeV
     xpred[dataPred$ind==indj,] <- matrix(xPlus1[seqPred,],ncol=ncol(xPlus1))
     timepred[dataPred$ind==indj] <- dataPredj$time
   }
+  xpred = as.data.frame(xpred)
   colnames(xpred) = colnames(xPlus1)
-  if (all(xpred[,1]==1)) xpred=xpred[,-1]
-  data.frame(groupVar=dataPred$ind,time=timepred,xpred,ypred)
+  if (all(xpred[,1]==1)) xpred=xpred[-1]
+  if (is.null(timeVar)) dfout = data.frame(groupVar=dataPred$ind,xpred,ypred)
+  else dfout = data.frame(groupVar=dataPred$ind,time=timepred,xpred,ypred)
+  dfout
 }
 
 
@@ -2429,9 +2437,12 @@ predictf.skewCAR1<- function(formFixed,formRandom,dataFit,dataPred,groupVar,time
     xpred[dataPred$ind==indj,] <- matrix(xPlus1[seqPred,],ncol=ncol(xPlus1))
     timepred[dataPred$ind==indj] <- dataPredj$time
   }
+  xpred = as.data.frame(xpred)
   colnames(xpred) = colnames(xPlus1)
-  if (all(xpred[,1]==1)) xpred=xpred[,-1]
-  data.frame(groupVar=dataPred$ind,time=timepred,xpred,ypred)
+  if (all(xpred[,1]==1)) xpred=xpred[-1]
+  if (is.null(timeVar)) dfout = data.frame(groupVar=dataPred$ind,xpred,ypred)
+  else dfout = data.frame(groupVar=dataPred$ind,time=timepred,xpred,ypred)
+  dfout
 }
 
 #Information matrix for SMSN-LMM and SMSN-LMM-AR(p) with E(bi)=0
