@@ -14,9 +14,11 @@ smsn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "CI", tim
   if (!is.null(timeVar)&!is.character(timeVar)) stop("timeVar must be a character containing the name of the time variable in data")
   if (length(formFixed)!=3) stop("formFixed must be a two-sided linear formula object")
   if (!is.data.frame(data)) stop("data must be a data.frame")
+  if (length(class(data))>1) data=as.data.frame(data)
   vars_used<-unique(c(all.vars(formFixed),all.vars(formRandom),groupVar,timeVar))
   vars_miss <- which(!(vars_used %in% names(data)))
   if (length(vars_miss)>0) stop(paste(vars_used[vars_miss],"not found in data"))
+  data = data[,vars_used]
   #
   if (!is.factor(data[,groupVar])) data[,groupVar]<-as.factor(data[,groupVar])
   x <- model.matrix(formFixed,data=data)
@@ -24,7 +26,7 @@ smsn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "CI", tim
   z<-model.matrix(formRandom,data=data)
   ind <-data[,groupVar]
   data$ind <-data[,groupVar]
-  m<-n_distinct(ind)
+  m<-nlevels(ind)#n_distinct(ind)
   if (m<=1) stop(paste(groupVar,"must have more than 1 level"))
   p<-ncol(x)
   q1<-ncol(z)
