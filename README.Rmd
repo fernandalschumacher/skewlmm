@@ -33,8 +33,7 @@ The goal of skewlmm is to fit skew robust linear mixed models, using scale mixtu
 You can install skewlmm from GitHub with:
 
 ```r
-library(devtools)
-install_github("fernandalschumacher/skewlmm")
+devtools::install_github("fernandalschumacher/skewlmm")
 ```
 Or you can install the released version of skewlmm from [CRAN](https://CRAN.R-project.org) with:
 ```r
@@ -50,31 +49,31 @@ This is a basic example which shows you how to fit a SMSN-LMM:
 
 ```{r out.width = '70%', fig.align = "center"}
 library(skewlmm)
-    dat1 <- as.data.frame(nlme::Orthodont)
-    fm1 <- smsn.lmm(dat1,formFixed=distance ~ age,groupVar="Subject",quiet=T)
-    summary(fm1)
-    plot(fm1)
+dat1 <- as.data.frame(nlme::Orthodont)
+fm1 <- smsn.lmm(dat1,formFixed=distance ~ age,groupVar="Subject",quiet=T)
+summary(fm1)
+plot(fm1)
 ```
 
 Several methods are available for SMSN and SMN objects, such as: print, summary, plot, fitted, residuals, and predict.
 
 Some tools for goodness-of-fit assessment are also available, for example:
 ```{r out.width = '70%', fig.align = "center"}
-  acf1<- acfresid(fm1,calcCI=TRUE)
-  plot(acf1)
-  plot(mahalDist(fm1),fm1,nlabels=2)
-  healy.plot(fm1)
+acf1<- acfresid(fm1,calcCI=TRUE)
+plot(acf1)
+plot(mahalDist(fm1),fm1,nlabels=2)
+healy.plot(fm1)
 ```
 
 Furthermore, to fit a SMN-LMM one can use the following:
 ```{r}
-    fm2 <- smn.lmm(dat1,formFixed=distance ~ age,groupVar="Subject",quiet=T)
-    summary(fm2)
+fm2 <- smn.lmm(dat1,formFixed=distance ~ age,groupVar="Subject",quiet=T)
+summary(fm2)
 ```
 
 Now, for performing a LRT for testing if the skewness parameter is 0, one can use the following:
 ```{r}
-    lr.test(fm1,fm2)
+lr.test(fm1,fm2)
 ```
 
 For more examples, see help(smsn.lmm) and help(smn.lmm).
