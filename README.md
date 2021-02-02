@@ -5,6 +5,8 @@
 
 <!-- badges: start -->
 
+[![Travis build
+status](https://travis-ci.com/fernandalschumacher/skewlmm.svg?branch=master)](https://travis-ci.com/fernandalschumacher/skewlmm)
 <!-- badges: end -->
 
 The goal of skewlmm is to fit skew robust linear mixed models, using
@@ -58,7 +60,7 @@ summary(fm1)
 #> 
 #> Distribution sn
 #> Random effects: ~1
-#> <environment: 0x0000000018b2af30>
+#> <environment: 0x0000000018a6c210>
 #>   Estimated variance (D):
 #>             (Intercept)
 #> (Intercept)    6.601759
@@ -124,7 +126,7 @@ summary(fm2)
 #> 
 #> Distribution norm
 #> Random effects: ~1
-#> <environment: 0x0000000018e5eb30>
+#> <environment: 0x0000000018cbee48>
 #>   Estimated variance (D):
 #>             (Intercept)
 #> (Intercept)    4.290089
