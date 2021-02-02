@@ -17,11 +17,14 @@ knitr::opts_chunk$set(
 
 # skewlmm
 
-<!-- badges: start -->
 [![Travis build status](https://travis-ci.com/fernandalschumacher/skewlmm.svg?branch=master)](https://travis-ci.com/fernandalschumacher/skewlmm)
-<!-- badges: end -->
+[![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/skewlmm)](https://cran.r-project.org/package=skewlmm)
+
 
 The goal of skewlmm is to fit skew robust linear mixed models, using scale mixture of skew-normal linear mixed models with possible within-subject dependence structure, using an EM-type algorithm. In addition, some tools for model adequacy evaluation are available.
+
+For more information about the model formulation and estimation, please see
+Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale mixture of skew‐normal linear mixed models with within‐subject serial dependence. *Statistics in Medicine*. DOI: [10.1002/sim.8870](https://doi.org/10.1002/sim.8870).
 
 ## Installation
 
@@ -43,12 +46,9 @@ install.packages("skewlmm")
 
 ## Example
 
-For more information about the model formulation and estimation, please see  
-Schumacher, F.L., Lachos, V.H., and Matos, L.A. (2020+) "Scale mixture of skew-normal linear mixed models with within-subject serial dependence". Submitted. Preprint available at https://arxiv.org/abs/2002.01040.
-
 This is a basic example which shows you how to fit a SMSN-LMM:
 
-```{r out.width = '70%', fig.align = "center"}
+```{r example1, out.width = '70%', fig.align = "center"}
 library(skewlmm)
 dat1 <- as.data.frame(nlme::Orthodont)
 fm1 <- smsn.lmm(dat1,formFixed=distance ~ age,groupVar="Subject",quiet=T)
@@ -59,7 +59,7 @@ plot(fm1)
 Several methods are available for SMSN and SMN objects, such as: print, summary, plot, fitted, residuals, and predict.
 
 Some tools for goodness-of-fit assessment are also available, for example:
-```{r out.width = '70%', fig.align = "center"}
+```{r example2, out.width = '70%', fig.align = "center"}
 acf1<- acfresid(fm1,calcCI=TRUE)
 plot(acf1)
 plot(mahalDist(fm1),fm1,nlabels=2)
@@ -67,13 +67,13 @@ healy.plot(fm1)
 ```
 
 Furthermore, to fit a SMN-LMM one can use the following:
-```{r}
+```{r example3}
 fm2 <- smn.lmm(dat1,formFixed=distance ~ age,groupVar="Subject",quiet=T)
 summary(fm2)
 ```
 
 Now, for performing a LRT for testing if the skewness parameter is 0, one can use the following:
-```{r}
+```{r example4}
 lr.test(fm1,fm2)
 ```
 

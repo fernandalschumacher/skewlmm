@@ -3,16 +3,20 @@
 
 # skewlmm
 
-<!-- badges: start -->
-
 [![Travis build
 status](https://travis-ci.com/fernandalschumacher/skewlmm.svg?branch=master)](https://travis-ci.com/fernandalschumacher/skewlmm)
-<!-- badges: end -->
+[![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version/skewlmm)](https://cran.r-project.org/package=skewlmm)
 
 The goal of skewlmm is to fit skew robust linear mixed models, using
 scale mixture of skew-normal linear mixed models with possible
 within-subject dependence structure, using an EM-type algorithm. In
 addition, some tools for model adequacy evaluation are available.
+
+For more information about the model formulation and estimation, please
+see Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale
+mixture of skew‐normal linear mixed models with within‐subject serial
+dependence. *Statistics in Medicine*. DOI:
+[10.1002/sim.8870](https://doi.org/10.1002/sim.8870).
 
 ## Installation
 
@@ -39,13 +43,6 @@ install.packages("skewlmm")
 
 ## Example
 
-For more information about the model formulation and estimation, please
-see  
-Schumacher, F.L., Lachos, V.H., and Matos, L.A. (2020+) “Scale mixture
-of skew-normal linear mixed models with within-subject serial
-dependence”. Submitted. Preprint available at
-<https://arxiv.org/abs/2002.01040>.
-
 This is a basic example which shows you how to fit a SMSN-LMM:
 
 ``` r
@@ -60,7 +57,7 @@ summary(fm1)
 #> 
 #> Distribution sn
 #> Random effects: ~1
-#> <environment: 0x0000000018a6c210>
+#> <environment: 0x0000000018a55390>
 #>   Estimated variance (D):
 #>             (Intercept)
 #> (Intercept)    6.601759
@@ -87,7 +84,7 @@ summary(fm1)
 plot(fm1)
 ```
 
-<img src="man/figures/README-unnamed-chunk-2-1.png" width="70%" style="display: block; margin: auto;" />
+<img src="man/figures/README-example1-1.png" width="70%" style="display: block; margin: auto;" />
 
 Several methods are available for SMSN and SMN objects, such as: print,
 summary, plot, fitted, residuals, and predict.
@@ -100,19 +97,19 @@ acf1<- acfresid(fm1,calcCI=TRUE)
 plot(acf1)
 ```
 
-<img src="man/figures/README-unnamed-chunk-3-1.png" width="70%" style="display: block; margin: auto;" />
+<img src="man/figures/README-example2-1.png" width="70%" style="display: block; margin: auto;" />
 
 ``` r
 plot(mahalDist(fm1),fm1,nlabels=2)
 ```
 
-<img src="man/figures/README-unnamed-chunk-3-2.png" width="70%" style="display: block; margin: auto;" />
+<img src="man/figures/README-example2-2.png" width="70%" style="display: block; margin: auto;" />
 
 ``` r
 healy.plot(fm1)
 ```
 
-<img src="man/figures/README-unnamed-chunk-3-3.png" width="70%" style="display: block; margin: auto;" />
+<img src="man/figures/README-example2-3.png" width="70%" style="display: block; margin: auto;" />
 
 Furthermore, to fit a SMN-LMM one can use the following:
 
@@ -126,7 +123,7 @@ summary(fm2)
 #> 
 #> Distribution norm
 #> Random effects: ~1
-#> <environment: 0x0000000018cbee48>
+#> <environment: 0x0000000018db2818>
 #>   Estimated variance (D):
 #>             (Intercept)
 #> (Intercept)    4.290089
