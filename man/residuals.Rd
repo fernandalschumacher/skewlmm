@@ -28,11 +28,6 @@
 \details{
 Modified residuals are useful when the variance is not finite, such as when \eqn{\nu \le 2} for t or ST distributions, or when \eqn{\nu \le 1} for SL or SSL distributions.
 }
-
-\references{
-Schumacher, F.L., V.H. Lachos, and L.A. Matos (2020+). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Submitted.
-Preprint available at \url{https://arxiv.org/abs/2002.01040}.
-}
 \author{
 Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 }
@@ -42,10 +37,9 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 \code{\link{smn.lmm}}, \code{\link{smsn.lmm}}, \code{\link{acfresid}},
 \code{\link{mahalDist}}, \code{\link{healy.plot}}
 }
-\examples{
-  fm1 <- smn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar="Subject")
-  residuals(fm1)
-  plot(fm1)
+\examples{fm1 <- smn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar="Subject")
+residuals(fm1)
+plot(fm1)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

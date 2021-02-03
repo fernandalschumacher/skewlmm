@@ -23,8 +23,7 @@ mahalDist(object,decomposed=FALSE,dataPlus=NULL)
 }
 
 \references{
-Schumacher, F.L., V.H. Lachos, and L.A. Matos (2020+). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Submitted.
-Preprint available at \url{https://arxiv.org/abs/2002.01040}.
+Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Statistics in Medicine. \url{https://doi.org/10.1002/sim.8870}.
 
 Zeller, C. B., Labra, F. V., Lachos, V. H. & Balakrishnan, N. (2010). Influence analyses of skew-normal/independent linear mixed models. Computational Statistics & Data Analysis, 54(5).
 }
@@ -37,9 +36,9 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 \code{\link{smn.lmm}}, \code{\link{smsn.lmm}}, \code{\link{plot.mahalDist}}
 }
 \examples{
-  fm1 <- smn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar="Subject")
-  mahalDist(fm1)
-  plot(mahalDist(fm1),fm1)
+fm1 <- smn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar="Subject")
+mahalDist(fm1)
+plot(mahalDist(fm1),fm1)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

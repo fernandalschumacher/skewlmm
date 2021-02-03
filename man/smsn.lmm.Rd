@@ -8,11 +8,13 @@ It fits a scale mixture of skew-normal linear mixed model with possible within-s
 It provides estimates and standard errors of parameters.
 }
 \usage{
-smsn.lmm(data, formFixed, groupVar, formRandom = ~1, depStruct = "CI",
+smsn.lmm(data, formFixed, groupVar, formRandom = ~1, depStruct = "UNC",
     timeVar = NULL, distr = "sn", pAR = 1, luDEC = 10,
     tol = 1e-06, max.iter = 200, calc.se = TRUE, lb = NULL,
     lu = NULL, initialValues = list(beta = NULL, sigma2 = NULL,
-      D = NULL, lambda = NULL, phi = NULL, nu = NULL), quiet = FALSE, showCriterium=FALSE)
+                                    D = NULL, lambda = NULL,
+                                    phi = NULL, nu = NULL),
+    quiet = FALSE, showCriterium=FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -20,8 +22,8 @@ smsn.lmm(data, formFixed, groupVar, formRandom = ~1, depStruct = "CI",
   \item{formFixed}{A two-sided linear formula object describing the fixed effects part of the model, with the response on the left of a \code{~} operator and the covariates, separated by \code{+} operators, on the right.}
   \item{groupVar}{A character containing the name of the variable which represents the subjects or groups in \code{data}.}
   \item{formRandom}{A one-sided linear formula object describing the random effects part of the model, with the covariates, separated by \code{+} operators, on the right of a \code{~} operator. By default, a model with random intercept is considered.}
-  \item{depStruct}{A character indicating which dependence structure should be used. \code{"CI"} for condicional independence, \code{"ARp"} for AR(p) -- p is \code{length(phi)}--, \code{"CS"} for compound symmetry, \code{"DEC"} for DEC, and \code{"CAR1"} for  continuous-time AR(1).}
-  \item{timeVar}{A character containing the name of the variable which represents the time in \code{data}. Meaningless if \code{depStruct="CI"} or \code{depStruct="CS"}. For other structures, if \code{is.null(timeVar)} the observations are considered equally spaced and ordered. If \code{depStruct="ARp"}, timeVar must the an index, preferably starting at 1.}
+  \item{depStruct}{A character indicating which dependence structure should be used. \code{"UNC"} for conditionally uncorrelated (\code{"CI"} is also accepted), \code{"ARp"} for AR(p) -- p is \code{length(phi)}--, \code{"CS"} for compound symmetry, \code{"DEC"} for DEC, and \code{"CAR1"} for  continuous-time AR(1).}
+  \item{timeVar}{A character containing the name of the variable which represents the time in \code{data}. Meaningless if \code{depStruct="UNC"} or \code{depStruct="CS"}. For other structures, if \code{is.null(timeVar)} the observations are considered equally spaced and ordered. If \code{depStruct="ARp"}, timeVar must the an index, preferably starting at 1.}
   \item{distr}{A character indicating which distribution should be used. \code{"sn"} for skew-normal, \code{"st"} for skew-t, \code{"ssl"} for skew-slash, and \code{"scn"} for skew-contaminated normal.}
   \item{pAR}{If \code{depStruct="ARp"}, pAR indicates the order of the autoregressive process that should be used. Otherwise, it is meaningless.}
   \item{luDEC}{Optional. Upper limit for estimating the "damping" parameter for DEC covariance. If \code{luDEC<=1}, only attenuation of the exponential decay can be obtained.}
@@ -66,8 +68,7 @@ Specifically, the following components are returned:
 \references{
 Lachos, V. H., P. Ghosh, and R. B. Arellano-Valle (2010). Likelihood based inference for skew-normal independent linear mixed models. Statistica Sinica 20, 303-322.
 
-Schumacher, F.L., V.H. Lachos, and L.A. Matos (2020+). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Submitted.
-Preprint available at \url{https://arxiv.org/abs/2002.01040}.
+Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Statistics in Medicine. \url{https://doi.org/10.1002/sim.8870}.
 }
 \author{
 Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
@@ -80,23 +81,23 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 }
 \examples{
 #simple example
-  dat1 <- as.data.frame(nlme::Orthodont)
-  fm1 <- smsn.lmm(dat1,formFixed=distance ~ age,groupVar="Subject",max.iter = 30)
-  fm1
+dat1 <- as.data.frame(nlme::Orthodont)
+fm1 <- smsn.lmm(dat1,formFixed=distance ~ age,groupVar="Subject",max.iter = 30)
+fm1
 \donttest{#fitting for several distributions / dependence structures
-  fm1 <- smsn.lmm(dat1,formFixed=distance ~ age+Sex,groupVar="Subject")
-  fm2 <- smsn.lmm(dat1,formFixed=distance ~ age+Sex,groupVar="Subject", distr="st")
-  fm3 <- smsn.lmm(dat1,formFixed=distance ~ age+Sex,groupVar="Subject", distr="ssl")
-  fm4 <- smsn.lmm(dat1,formFixed=distance ~ age+Sex,groupVar="Subject", depStruct="ARp",pAR=1)
-  rbind(fm1$criteria,fm2$criteria,fm3$criteria,fm4$criteria)
-  summary(fm3)
+fm1 <- smsn.lmm(dat1,formFixed=distance ~ age+Sex,groupVar="Subject")
+fm2 <- smsn.lmm(dat1,formFixed=distance ~ age+Sex,groupVar="Subject", distr="st")
+fm3 <- smsn.lmm(dat1,formFixed=distance ~ age+Sex,groupVar="Subject", distr="ssl")
+fm4 <- smsn.lmm(dat1,formFixed=distance ~ age+Sex,groupVar="Subject", depStruct="ARp",pAR=1)
+rbind(fm1$criteria,fm2$criteria,fm3$criteria,fm4$criteria)
+summary(fm3)
 
-  #some diagnostic tools
-  plot(fm1)
-  acf1<- acfresid(fm1,calcCI=TRUE,MCiter=100)
-  plot(acf1)
-  plot(mahalDist(fm1),fm1,nlabels=2)
-  healy.plot(fm1)
+#some diagnostic tools
+plot(fm1)
+acf1<- acfresid(fm1,calcCI=TRUE,MCiter=100)
+plot(acf1)
+plot(mahalDist(fm1),fm1,nlabels=2)
+healy.plot(fm1)
 }
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

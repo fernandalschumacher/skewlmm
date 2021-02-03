@@ -22,11 +22,6 @@
   A data frame with covariates, groupVar and ypred, where ypred contains the predicted values from the response variable.
 }
 
-\references{
-Lachos, V. H., P. Ghosh, and R. B. Arellano-Valle (2010). Likelihood based inference for skew-normal independent linear mixed models. Statistica Sinica 20, 303-322.
-
-Schumacher, F.L., Lachos, V.H., and Matos, L.A. (2020+). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Submitted.
-}
 \author{
 Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 }
@@ -37,9 +32,9 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{\donttest{
-    dat1 <- nlme::Orthodont
-    fm1 <- smsn.lmm(distance ~ age + Sex, data = subset(dat1,age<14), groupVar="Subject")
-    predict(fm1,subset(dat1,age==14))}
+dat1 <- nlme::Orthodont
+fm1 <- smsn.lmm(distance ~ age + Sex, data = subset(dat1,age<14), groupVar="Subject")
+predict(fm1,subset(dat1,age==14))}
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

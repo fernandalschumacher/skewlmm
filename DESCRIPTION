@@ -10,7 +10,7 @@ Authors@R: c(person("Fernanda L.", "Schumacher", role = c("aut", "cre"),
               person("Victor H.", "Lachos", role = "aut",
                      comment = c(ORCID = "0000-0002-7239-2459")))
 Maintainer: Fernanda L. Schumacher <fernandalschumacher@gmail.com>
-Description: It fits scale mixture of skew-normal linear mixed models using an expectation–maximization (EM) type algorithm, including some possibilities for modeling the within-subject dependence. Details can be found in Schumacher, Lachos and Matos (2020) <arXiv:2002.01040>.
+Description: It fits scale mixture of skew-normal linear mixed models using an expectation–maximization (EM) type algorithm, including some possibilities for modeling the within-subject dependence. Details can be found in Schumacher, Lachos and Matos (2021) <doi:10.1002/sim.8870>.
 License: MIT + file LICENSE
 Depends: R (>= 3.4.0)
 Encoding: UTF-8

@@ -31,8 +31,7 @@ A data frame with columns lag, ACF, and n.used representing, respectively, the l
 \references{
 Pinheiro, J. C. & Bates, D. M. (2000). Mixed-Effects Models in S and S-PLUS. Springer, New York, NY.
 
-Schumacher, F.L., V.H. Lachos, and L.A. Matos (2020+). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Submitted.
-Preprint available at \url{https://arxiv.org/abs/2002.01040}.
+Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Statistics in Medicine. \url{https://doi.org/10.1002/sim.8870}.
 }
 \author{
 Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
@@ -43,13 +42,13 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 \code{\link{smn.lmm}}, \code{\link{smsn.lmm}}, \code{\link{plot.acfresid}}
 }
 \examples{
-  fm1 <- smn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar="Subject")
-  acf1<- acfresid(fm1)
-  acf1
-  plot(acf1)
+fm1 <- smn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar="Subject")
+acf1<- acfresid(fm1)
+acf1
+plot(acf1)
 
-  \donttest{acfCI<- acfresid(fm1,calcCI=TRUE)
-  plot(acfCI)
+\donttest{acfCI<- acfresid(fm1,calcCI=TRUE)
+plot(acfCI)
   }
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

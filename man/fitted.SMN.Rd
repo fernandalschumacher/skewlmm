@@ -24,12 +24,6 @@
   Vector of fitted values with length equal to \code{nrow(data)}.
 }
 
-\references{
-Lachos, V. H., P. Ghosh, and R. B. Arellano-Valle (2010). Likelihood based inference for skew-normal independent linear mixed models. Statistica Sinica 20, 303-322.
-
-Schumacher, F.L., V.H. Lachos, and L.A. Matos (2020+). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Submitted.
-Preprint available at \url{https://arxiv.org/abs/2002.01040}.
-}
 \author{
 Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 }
@@ -39,8 +33,8 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 \code{\link{smn.lmm}}, \code{\link{predict.SMN}}
 }
 \examples{
-  fm1 <- smn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar="Subject")
-  fitted(fm1)
+fm1 <- smn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar="Subject")
+fitted(fm1)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

@@ -21,8 +21,7 @@ lr.test(obj1, obj2, level=0.05, quiet=FALSE)
   \item{df}{The degrees of freedom used on the test.}
 }
 \references{
-Schumacher, F.L., Lachos, V.H., and Matos, L.A. (2020+) "Scale mixture of skew-normal linear mixed models with within-subject serial dependence". Submitted.
-Preprint available at \url{https://arxiv.org/abs/2002.01040}.
+Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Statistics in Medicine. \url{https://doi.org/10.1002/sim.8870}.
 }
 \author{
 Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
@@ -34,9 +33,9 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-  fm1<- smn.lmm(nlme::Orthodont,formFixed=distance ~ age+Sex,groupVar="Subject")
-  fm2<- smsn.lmm(nlme::Orthodont,formFixed=distance ~ age+Sex,groupVar="Subject",tol=.0001)
-  lr.test(fm1,fm2)
+fm1<- smn.lmm(nlme::Orthodont,formFixed=distance ~ age+Sex,groupVar="Subject")
+fm2<- smsn.lmm(nlme::Orthodont,formFixed=distance ~ age+Sex,groupVar="Subject",tol=.0001)
+lr.test(fm1,fm2)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

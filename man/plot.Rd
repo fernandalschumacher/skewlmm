@@ -27,10 +27,6 @@ Fitted values versus residuals plot.
   A ggplot object.
 }
 
-\references{
-Schumacher, F.L., V.H. Lachos, and L.A. Matos (2020+). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Submitted.
-Preprint available at \url{https://arxiv.org/abs/2002.01040}.
-}
 \author{
 Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 }
@@ -41,11 +37,11 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 \code{\link{fitted.SMSN}},\code{\link{residuals.SMN}}, \code{\link{residuals.SMSN}}
 }
 \examples{
-  fm1 <- smn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar="Subject")
-  plot(fm1)
+fm1 <- smn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar="Subject")
+plot(fm1)
 
-  \donttest{library(ggplot2)
-  plot(fm1) + ggtitle("N-LMM for orthodont data")
+\donttest{library(ggplot2)
+plot(fm1) + ggtitle("N-LMM for orthodont data")
   }
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

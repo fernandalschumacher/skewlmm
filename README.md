@@ -22,12 +22,6 @@ dependence. *Statistics in Medicine*. DOI:
 
 <!-- You can install the released version of lmmsmsn from [CRAN](https://CRAN.R-project.org) with: -->
 
-<!-- ``` r -->
-
-<!-- install.packages("lmmsmsn") -->
-
-<!-- ``` -->
-
 You can install skewlmm from GitHub with:
 
 ``` r
@@ -57,7 +51,7 @@ summary(fm1)
 #> 
 #> Distribution sn
 #> Random effects: ~1
-#> <environment: 0x0000000018a55390>
+#> <environment: 0x0000000018a35838>
 #>   Estimated variance (D):
 #>             (Intercept)
 #> (Intercept)    6.601759
@@ -123,7 +117,7 @@ summary(fm2)
 #> 
 #> Distribution norm
 #> Random effects: ~1
-#> <environment: 0x0000000018db2818>
+#> <environment: 0x0000000018d9a1d0>
 #>   Estimated variance (D):
 #>             (Intercept)
 #> (Intercept)    4.290089

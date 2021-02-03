@@ -27,10 +27,6 @@ Plot method for objects of class "mahalDist". For the total Mahalanobis distance
   A ggplot object, plotting the index versus the Mahalanobis distance, if all subject have the same number of observations; or plotting the number of observations per subject versus the Mahalanobis, otherwise.
 }
 
-\references{
-Schumacher, F.L., V.H. Lachos, and L.A. Matos (2020+). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Submitted.
-Preprint available at \url{https://arxiv.org/abs/2002.01040}.
-}
 \author{
 Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 }
@@ -40,12 +36,12 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 \code{\link{ggplot}}, \code{\link{mahalDist}}, \code{\link{smn.lmm}}, \code{\link{smsn.lmm}}
 }
 \examples{
-  fm1 <- smn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar="Subject")
-  plot(mahalDist(fm1),fm1,nlabels=2)
+fm1 <- smn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar="Subject")
+plot(mahalDist(fm1),fm1,nlabels=2)
 
-  #the estimated quantile is stored at the attribute "info" of the plot object
-  plotMD <- plot(mahalDist(fm1),fm1)
-  attr(plotMD, "info")
+#the estimated quantile is stored at the attribute "info" of the plot object
+plotMD <- plot(mahalDist(fm1),fm1)
+attr(plotMD, "info")
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

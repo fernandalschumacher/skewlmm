@@ -30,9 +30,6 @@ Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale mixture of skew
 
 <!-- You can install the released version of lmmsmsn from [CRAN](https://CRAN.R-project.org) with: -->
 
-<!-- ``` r -->
-<!-- install.packages("lmmsmsn") -->
-<!-- ``` -->
 
 You can install skewlmm from GitHub with:
 
