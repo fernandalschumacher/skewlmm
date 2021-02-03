@@ -17,7 +17,7 @@ errorVar(times, object = NULL, sigma2 = NULL, depStruct = NULL,
   \item{times}{A vector containing the times for which the matrix should be calculated.}
   \item{object}{A smn.lmm or smsn.lmm object for which the variance should be extracted.}
   \item{sigma2}{Common variance parameter, such that \eqn{\Sigma = sigma2*R}. Only evaluated if object \code{is.null(object)}.}
-  \item{depStruct}{Dependence structure. \code{"CI"} for condicional independence, \code{"ARp"} for AR(p) -- p is \code{length(phi)}--, \code{"CS"} for compound symmetry, \code{"DEC"} for DEC, and \code{"CAR1"} for  continuous-time AR(1). Only evaluated if object \code{is.null(object)}.}
+  \item{depStruct}{Dependence structure. \code{"UNC"} for conditionally uncorrelated (\code{"CI"} is also accepted), \code{"ARp"} for AR(p) -- p is \code{length(phi)}--, \code{"CS"} for compound symmetry, \code{"DEC"} for DEC, and \code{"CAR1"} for  continuous-time AR(1). Only evaluated if object \code{is.null(object)}.}
   \item{phi}{Parameter vector indexing the dependence structure. Only evaluated if object \code{is.null(object)}.}
 }
 \value{

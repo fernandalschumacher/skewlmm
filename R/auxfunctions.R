@@ -119,10 +119,12 @@ Dmatrix <- function(dd) {
 # gerando smsn para um individuo usando rep hierarquica
 gerar_ind_smsn = function(ni,Sig,Di,beta,lambda,distr="sn",nu=NULL) {
   if (distr=="sn") {ui=1; c.=-sqrt(2/pi)}
-  if (distr=="st") {ui=rgamma(1,nu/2,nu/2); c.=-sqrt(nu/pi)*gamma((nu-1)/2)/gamma(nu/2)}
-  if (distr=="ss") {ui=rbeta(1,nu,1); c.=-sqrt(2/pi)*nu/(nu-.5)}
-  if (distr=="scn") {ui=ifelse(runif(1)<nu[1],nu[2],1);
-  c.=-sqrt(2/pi)*(1+nu[1]*(nu[2]^(-.5)-1))}
+  if (distr=="st") {ui=rgamma(1,nu/2,nu/2)
+                    c.=-sqrt(nu/pi)*gamma((nu-1)/2)/gamma(nu/2)}
+  if (distr=="ss") {ui=rbeta(1,nu,1)
+                    c.=-sqrt(2/pi)*nu/(nu-.5)}
+  if (distr=="scn") {ui=ifelse(runif(1)<nu[1],nu[2],1)
+                    c.=-sqrt(2/pi)*(1+nu[1]*(nu[2]^(-.5)-1))}
   delta = lambda/as.numeric(sqrt(1+t(lambda)%*%(lambda)))
   Delta = matrix.sqrt(Di)%*%delta
   Gammab = Di - Delta%*%t(Delta)
@@ -227,7 +229,7 @@ logveroAR = function(y,x,z,time,ind,beta1,sigmae,phiAR,D1,lambda,distr,nu){ #ind
 }
 logveroARpi = function(y,x,z,time,ind,beta1,sigmae,piAR,D1,lambda,distr,nu){ #ind = indicadora de individuo
 
-  delta<-lambda/as.numeric(sqrt(1+t(lambda)%*%lambda));
+  delta<-lambda/as.numeric(sqrt(1+t(lambda)%*%lambda))
   Deltab<-matrix.sqrt(D1)%*%delta
   Gammab<-D1-Deltab%*%t(Deltab)
   phiAR <- estphit(piAR)
@@ -304,7 +306,8 @@ emjAR = function(jseq, y, x, z,time, beta1, Gammab, Deltab, sigmae,piAR,distr,nu
   #
   y1=y[jseq]
   t1=time[jseq]
-  p= ncol(x);q1=ncol(z)
+  p= ncol(x)
+  q1=ncol(z)
   x1=matrix(x[jseq,  ],ncol=p)
   z1=matrix(z[jseq,  ],ncol=q1)
   med<-x1%*%beta1 + c.*z1%*%Deltab
@@ -546,10 +549,14 @@ predictf.skewAR<- function(formFixed,formRandom,dataFit,dataPred,groupVar,timeVa
   phiAR <- as.numeric(theta[(p+2):(p+pAR+1)])
   dd <- theta[(p+pAR+2):(p+pAR+1+q2)]
   lambda <- matrix(theta[(p+pAR+q2+2):(p+pAR+1+q2+q1)],ncol=1)
-  if (distr=="sn") {nu<- NULL; c. = -sqrt(2/pi)}
-  if (distr=="st") {nu<- theta[p+pAR+q2+q1+2]; c.=-sqrt(nu/pi)*gamma((nu-1)/2)/gamma(nu/2)}
-  if (distr=="ss") {nu<- theta[p+pAR+q2+q1+2]; c.=-sqrt(2/pi)*nu/(nu-.5)}
-  if (distr=="scn") {nu<- theta[(p+pAR+q2+q1+2):(p+pAR+q2+q1+3)]; c.=-sqrt(2/pi)*(1+nu[1]*(nu[2]^(-.5)-1))}
+  if (distr=="sn") {nu<- NULL
+                    c. = -sqrt(2/pi)}
+  if (distr=="st") {nu<- theta[p+pAR+q2+q1+2]
+                    c.=-sqrt(nu/pi)*gamma((nu-1)/2)/gamma(nu/2)}
+  if (distr=="ss") {nu<- theta[p+pAR+q2+q1+2]
+                    c.=-sqrt(2/pi)*nu/(nu-.5)}
+  if (distr=="scn") {nu<- theta[(p+pAR+q2+q1+2):(p+pAR+q2+q1+3)]
+                    c.=-sqrt(2/pi)*(1+nu[1]*(nu[2]^(-.5)-1))}
   if ((p+pAR+1+q2+q1+length(nu))!=length(theta)) stop("theta misspecified")
   D1sqrt <- Dmatrix(dd)
   D1 <- D1sqrt%*%D1sqrt
@@ -644,7 +651,8 @@ predictf.skewAR<- function(formFixed,formRandom,dataFit,dataPred,groupVar,timeVa
 ljnormal <-function(j,y,x,z,beta1,Gammab,Deltab,sigmae){
   c. = -sqrt(2/pi)
   y1=y[j]
-  p= ncol(x);q1=ncol(z)
+  p= ncol(x)
+  q1=ncol(z)
   x1=matrix(x[j,  ],ncol=p)
   z1=matrix(z[j ,  ],ncol=q1)
   med<-x1%*%beta1+ c.*z1%*%Deltab
@@ -659,7 +667,8 @@ ljnormal <-function(j,y,x,z,beta1,Gammab,Deltab,sigmae){
 ljt <-function(j,nu,y,x,z,beta1,Gammab,Deltab,sigmae){
   c.=-sqrt(nu/pi)*gamma((nu-1)/2)/gamma(nu/2)
   y1=y[j]
-  p= ncol(x);q1=ncol(z)
+  p= ncol(x)
+  q1=ncol(z)
   x1=matrix(x[j,  ],ncol=p)
   z1=matrix(z[j ,  ],ncol=q1)
   med<-x1%*%beta1+ c.*z1%*%Deltab
@@ -676,7 +685,8 @@ ljt <-function(j,nu,y,x,z,beta1,Gammab,Deltab,sigmae){
 ljs <-function(j,nu,y,x,z,beta1,Gammab,Deltab,sigmae){
   c.=-sqrt(2/pi)*nu/(nu-.5)
   y1=y[j]
-  p= ncol(x);q1=ncol(z)
+  p= ncol(x)
+  q1=ncol(z)
   x1=matrix(x[j,  ],ncol=p)
   z1=matrix(z[j ,  ],ncol=q1)
   med<-x1%*%beta1+ c.*z1%*%Deltab
@@ -694,7 +704,8 @@ ljs <-function(j,nu,y,x,z,beta1,Gammab,Deltab,sigmae){
 ljcn <-function(j,nu,y,x,z,beta1,Gammab,Deltab,sigmae){
   c.=-sqrt(2/pi)*(1+nu[1]*(nu[2]^(-.5)-1))
   y1=y[j]
-  p= ncol(x);q1=ncol(z)
+  p= ncol(x)
+  q1=ncol(z)
   x1=matrix(x[j,  ],ncol=p)
   z1=matrix(z[j ,  ],ncol=q1)
   med<-x1%*%beta1+ c.*z1%*%Deltab
@@ -712,7 +723,7 @@ logvero = function(y,x,z,ind,beta1,sigmae,D1,lambda,distr,nu){ #ind = indicadora
   p<-dim(x)[2]
   q1<-dim(z)[2]
 
-  delta<-lambda/as.numeric(sqrt(1+t(lambda)%*%lambda));
+  delta<-lambda/as.numeric(sqrt(1+t(lambda)%*%lambda))
   Deltab<-matrix.sqrt(D1)%*%delta
   Gammab<-D1-Deltab%*%t(Deltab)
 
@@ -733,7 +744,8 @@ calcbi_emj <- function(jseq,y,x,z,beta1,Gammab, Deltab,sigmae,zeta,distr,nu) {
   if (distr=="scn") c.=-sqrt(2/pi)*(1+nu[1]*(nu[2]^(-.5)-1))
   #
   y1=y[jseq]
-  p= ncol(x);q1=ncol(z)
+  p= ncol(x)
+  q1=ncol(z)
   x1=matrix(x[jseq,  ],ncol=p)
   z1=matrix(z[jseq,  ],ncol=q1)
   med<-x1%*%beta1+ c.*z1%*%Deltab
@@ -785,7 +797,8 @@ emj = function(jseq, y, x, z, beta1, Gammab, Deltab, sigmae,distr,nu) {
   if (distr=="scn") c.=-sqrt(2/pi)*(1+nu[1]*(nu[2]^(-.5)-1))
   #
   y1=y[jseq]
-  p= ncol(x);q1=ncol(z)
+  p= ncol(x)
+  q1=ncol(z)
   x1=matrix(x[jseq,  ],ncol=p)
   z1=matrix(z[jseq,  ],ncol=q1)
   med<-x1%*%beta1+ c.*z1%*%Deltab
@@ -968,10 +981,14 @@ predictf.skew<- function(formFixed,formRandom,dataFit,dataPred,groupVar,distr,th
   sigmae <- as.numeric(theta[p+1])
   dd <- theta[(p+2):(p+1+q2)]
   lambda <- matrix(theta[(p+q2+2):(p+1+q2+q1)],ncol=1)
-  if (distr=="sn") {nu<- NULL; c. = -sqrt(2/pi)}
-  if (distr=="st") {nu<- theta[p+q2+q1+2]; c.=-sqrt(nu/pi)*gamma((nu-1)/2)/gamma(nu/2)}
-  if (distr=="ss") {nu<- theta[p+q2+q1+2]; c.=-sqrt(2/pi)*nu/(nu-.5)}
-  if (distr=="scn") {nu<- theta[(p+q2+q1+2):(p+q2+q1+3)]; c.=-sqrt(2/pi)*(1+nu[1]*(nu[2]^(-.5)-1))}
+  if (distr=="sn") {nu<- NULL
+                    c. = -sqrt(2/pi)}
+  if (distr=="st") {nu<- theta[p+q2+q1+2]
+                    c.=-sqrt(nu/pi)*gamma((nu-1)/2)/gamma(nu/2)}
+  if (distr=="ss") {nu<- theta[p+q2+q1+2]
+                    c.=-sqrt(2/pi)*nu/(nu-.5)}
+  if (distr=="scn") {nu<- theta[(p+q2+q1+2):(p+q2+q1+3)]
+                    c.=-sqrt(2/pi)*(1+nu[1]*(nu[2]^(-.5)-1))}
   if ((p+1+q2+q1+length(nu))!=length(theta)) stop("theta misspecified")
   D1sqrt <- Dmatrix(dd)
   D1 <- D1sqrt%*%D1sqrt
@@ -1053,7 +1070,8 @@ predictf.skew<- function(formFixed,formRandom,dataFit,dataPred,groupVar,distr,th
 ljnormalCS <-function(j,y,x,z,beta1,Gammab,Deltab,sigmae,phiCS){
   c. = -sqrt(2/pi)
   y1=y[j]
-  p= ncol(x);q1=ncol(z)
+  p= ncol(x)
+  q1=ncol(z)
   x1=matrix(x[j,  ],ncol=p)
   z1=matrix(z[j ,  ],ncol=q1)
   med<-x1%*%beta1 + c.*z1%*%Deltab
@@ -1069,7 +1087,8 @@ ljnormalCS <-function(j,y,x,z,beta1,Gammab,Deltab,sigmae,phiCS){
 ljtCS <-function(j,nu,y,x,z,beta1,Gammab,Deltab,sigmae,phiCS){
   c.=-sqrt(nu/pi)*gamma((nu-1)/2)/gamma(nu/2)
   y1=y[j]
-  p= ncol(x);q1=ncol(z)
+  p= ncol(x)
+  q1=ncol(z)
   x1=matrix(x[j,  ],ncol=p)
   z1=matrix(z[j ,  ],ncol=q1)
   med<-x1%*%beta1 + c.*z1%*%Deltab
@@ -1087,7 +1106,8 @@ ljtCS <-function(j,nu,y,x,z,beta1,Gammab,Deltab,sigmae,phiCS){
 ljsCS <-function(j,nu,y,x,z,beta1,Gammab,Deltab,sigmae,phiCS){
   c.=-sqrt(2/pi)*nu/(nu-.5)
   y1=y[j]
-  p= ncol(x);q1=ncol(z)
+  p= ncol(x)
+  q1=ncol(z)
   x1=matrix(x[j,  ],ncol=p)
   z1=matrix(z[j ,  ],ncol=q1)
   med<-x1%*%beta1 + c.*z1%*%Deltab
@@ -1106,7 +1126,8 @@ ljsCS <-function(j,nu,y,x,z,beta1,Gammab,Deltab,sigmae,phiCS){
 ljcnCS <-function(j,nu,y,x,z,beta1,Gammab,Deltab,sigmae,phiCS){
   c.=-sqrt(2/pi)*(1+nu[1]*(nu[2]^(-.5)-1))
   y1=y[j]
-  p= ncol(x);q1=ncol(z)
+  p= ncol(x)
+  q1=ncol(z)
   x1=matrix(x[j,  ],ncol=p)
   z1=matrix(z[j ,  ],ncol=q1)
   med<-x1%*%beta1+ c.*z1%*%Deltab
@@ -1122,7 +1143,7 @@ ljcnCS <-function(j,nu,y,x,z,beta1,Gammab,Deltab,sigmae,phiCS){
 
 logveroCS = function(y,x,z,ind,beta1,sigmae,phiCS,D1,lambda,distr,nu){ #ind = indicadora de individuo
 
-  delta<-lambda/as.numeric(sqrt(1+t(lambda)%*%lambda));
+  delta<-lambda/as.numeric(sqrt(1+t(lambda)%*%lambda))
   Deltab<-matrix.sqrt(D1)%*%delta
   Gammab<-D1-Deltab%*%t(Deltab)
   N <-length(ind)
@@ -1145,7 +1166,8 @@ calcbi_emjCS <- function(jseq,y,x,z,beta1,Gammab, Deltab,sigmae,phiCS,zeta,distr
   #
   y1=y[jseq]
   #t1=time[jseq]
-  p= ncol(x);q1=ncol(z)
+  p= ncol(x)
+  q1=ncol(z)
   x1=matrix(x[jseq,  ],ncol=p)
   z1=matrix(z[jseq,  ],ncol=q1)
   med<-x1%*%beta1+ c.*z1%*%Deltab
@@ -1197,7 +1219,8 @@ emjCS = function(jseq, y, x, z, beta1, Gammab, Deltab, sigmae,phiCS,distr,nu) {
   if (distr=="scn") c.=-sqrt(2/pi)*(1+nu[1]*(nu[2]^(-.5)-1))
   #
   y1=y[jseq]
-  p= ncol(x);q1=ncol(z)
+  p= ncol(x)
+  q1=ncol(z)
   x1=matrix(x[jseq,  ],ncol=p)
   z1=matrix(z[jseq,  ],ncol=q1)
   med<-x1%*%beta1 + c.*z1%*%Deltab
@@ -1427,10 +1450,14 @@ predictf.skewCS<- function(formFixed,formRandom,dataFit,dataPred,groupVar,distr,
   phiCS <- as.numeric(theta[(p+2)])
   dd <- theta[(p+3):(p+2+q2)]
   lambda <- matrix(theta[(p+q2+3):(p+2+q2+q1)],ncol=1)
-  if (distr=="sn") {nu<- NULL; c. = -sqrt(2/pi)}
-  if (distr=="st") {nu<- theta[p+q2+q1+3]; c.=-sqrt(nu/pi)*gamma((nu-1)/2)/gamma(nu/2)}
-  if (distr=="ss") {nu<- theta[p+q2+q1+3]; c.=-sqrt(2/pi)*nu/(nu-.5)}
-  if (distr=="scn") {nu<- theta[(p+q2+q1+3):(p+q2+q1+4)]; c.=-sqrt(2/pi)*(1+nu[1]*(nu[2]^(-.5)-1))}
+  if (distr=="sn") {nu<- NULL
+                    c. = -sqrt(2/pi)}
+  if (distr=="st") {nu<- theta[p+q2+q1+3]
+                    c.=-sqrt(nu/pi)*gamma((nu-1)/2)/gamma(nu/2)}
+  if (distr=="ss") {nu<- theta[p+q2+q1+3]
+                    c.=-sqrt(2/pi)*nu/(nu-.5)}
+  if (distr=="scn") {nu<- theta[(p+q2+q1+3):(p+q2+q1+4)]
+                    c.=-sqrt(2/pi)*(1+nu[1]*(nu[2]^(-.5)-1))}
   if ((p+2+q2+q1+length(nu))!=length(theta)) stop("theta misspecified")
   D1sqrt <- Dmatrix(dd)
   D1 <- D1sqrt%*%D1sqrt
@@ -1515,7 +1542,8 @@ ljnormalDEC <-function(j,y,x,z,time,beta1,Gammab,Deltab,sigmae,phiDEC,thetaDEC){
   c. = -sqrt(2/pi)
   y1=y[j]
   t1= time[j]
-  p= ncol(x);q1=ncol(z)
+  p= ncol(x)
+  q1=ncol(z)
   x1=matrix(x[j,  ],ncol=p)
   z1=matrix(z[j ,  ],ncol=q1)
   med<-x1%*%beta1 + c.*z1%*%Deltab
@@ -1532,7 +1560,8 @@ ljtDEC <-function(j,nu,y,x,z,time,beta1,Gammab,Deltab,sigmae,phiDEC,thetaDEC){
   c.=-sqrt(nu/pi)*gamma((nu-1)/2)/gamma(nu/2)
   y1=y[j]
   t1= time[j]
-  p= ncol(x);q1=ncol(z)
+  p= ncol(x)
+  q1=ncol(z)
   x1=matrix(x[j,  ],ncol=p)
   z1=matrix(z[j ,  ],ncol=q1)
   med<-x1%*%beta1 + c.*z1%*%Deltab
@@ -1551,7 +1580,8 @@ ljsDEC <-function(j,nu,y,x,z,time,beta1,Gammab,Deltab,sigmae,phiDEC,thetaDEC){
   c.=-sqrt(2/pi)*nu/(nu-.5)
   y1=y[j]
   t1= time[j]
-  p= ncol(x);q1=ncol(z)
+  p= ncol(x)
+  q1=ncol(z)
   x1=matrix(x[j,  ],ncol=p)
   z1=matrix(z[j ,  ],ncol=q1)
   med<-x1%*%beta1 + c.*z1%*%Deltab
@@ -1571,7 +1601,8 @@ ljcnDEC <-function(j,nu,y,x,z,time,beta1,Gammab,Deltab,sigmae,phiDEC,thetaDEC){
   c.=-sqrt(2/pi)*(1+nu[1]*(nu[2]^(-.5)-1))
   y1=y[j]
   t1= time[j]
-  p= ncol(x);q1=ncol(z)
+  p= ncol(x)
+  q1=ncol(z)
   x1=matrix(x[j,  ],ncol=p)
   z1=matrix(z[j ,  ],ncol=q1)
   med<-x1%*%beta1+ c.*z1%*%Deltab
@@ -1587,7 +1618,7 @@ ljcnDEC <-function(j,nu,y,x,z,time,beta1,Gammab,Deltab,sigmae,phiDEC,thetaDEC){
 
 logveroDEC = function(y,x,z,time,ind,beta1,sigmae,phiDEC,thetaDEC,D1,lambda,distr,nu){ #ind = indicadora de individuo
 
-  delta<-lambda/as.numeric(sqrt(1+t(lambda)%*%lambda));
+  delta<-lambda/as.numeric(sqrt(1+t(lambda)%*%lambda))
   Deltab<-matrix.sqrt(D1)%*%delta
   Gammab<-D1-Deltab%*%t(Deltab)
   N <-length(ind)
@@ -1611,7 +1642,8 @@ calcbi_emjDEC <- function(jseq,y,x,z,time,beta1,Gammab, Deltab,sigmae,phiDEC,the
   #
   y1=y[jseq]
   t1=time[jseq]
-  p= ncol(x);q1=ncol(z)
+  p= ncol(x)
+  q1=ncol(z)
   x1=matrix(x[jseq,  ],ncol=p)
   z1=matrix(z[jseq,  ],ncol=q1)
   med<-x1%*%beta1+ c.*z1%*%Deltab
@@ -1664,7 +1696,8 @@ emjDEC = function(jseq, y, x, z,time, beta1, Gammab, Deltab, sigmae,phiDEC,theta
   #
   y1=y[jseq]
   t1=time[jseq]
-  p= ncol(x);q1=ncol(z)
+  p= ncol(x)
+  q1=ncol(z)
   x1=matrix(x[jseq,  ],ncol=p)
   z1=matrix(z[jseq,  ],ncol=q1)
   med<-x1%*%beta1 + c.*z1%*%Deltab
@@ -1737,7 +1770,8 @@ emjDEC = function(jseq, y, x, z,time, beta1, Gammab, Deltab, sigmae,phiDEC,theta
 #função para maximizar
 lcDEC <- function(parDEC,beta1,sigmae,y,x,z,time,ind,u,ub,ub2) {
   #print(parDEC)
-  phiDEC <- parDEC[1];thetaDEC<-parDEC[2]#2.128601
+  phiDEC <- parDEC[1]
+  thetaDEC<-parDEC[2]#2.128601
   m<-n_distinct(ind)
   N<-length(ind)
   indlevels <- levels(ind)
@@ -1846,7 +1880,8 @@ EM.SkewDEC<- function(formFixed,formRandom,data,groupVar,timeVar,
     parDEC<- optim(c(phiDEC,thetaDEC),lcDEC,gr = NULL,method = "L-BFGS-B", lower =rep(0.0001,2),
                    upper = c(.9999,luDEC),control = list(fnscale=-1),beta1=beta1,sigmae=sigmae,
                    y=y,x=x,z=z,time=time,ind=ind,u=res_emj$uj,ub=res_emj$ubj,ub2=res_emj$ub2j)$par
-    phiDEC<-parDEC[1]; thetaDEC<-parDEC[2]
+    phiDEC<-parDEC[1]
+    thetaDEC<-parDEC[2]
     #
     logvero1<-function(nu){logveroDEC(y, x, z,time, ind, beta1, sigmae,phiDEC,thetaDEC, D1, lambda, distr, nu)}
 
@@ -1920,10 +1955,14 @@ predictf.skewDEC<- function(formFixed,formRandom,dataFit,dataPred,groupVar,timeV
   thetaDEC <- as.numeric(theta[(p+3)])
   dd <- theta[(p+4):(p+3+q2)]
   lambda <- matrix(theta[(p+q2+4):(p+3+q2+q1)],ncol=1)
-  if (distr=="sn") {nu<- NULL; c. = -sqrt(2/pi)}
-  if (distr=="st") {nu<- theta[p+q2+q1+4]; c.=-sqrt(nu/pi)*gamma((nu-1)/2)/gamma(nu/2)}
-  if (distr=="ss") {nu<- theta[p+q2+q1+4]; c.=-sqrt(2/pi)*nu/(nu-.5)}
-  if (distr=="scn") {nu<- theta[(p+q2+q1+4):(p+q2+q1+5)]; c.=-sqrt(2/pi)*(1+nu[1]*(nu[2]^(-.5)-1))}
+  if (distr=="sn") {nu<- NULL
+                    c. = -sqrt(2/pi)}
+  if (distr=="st") {nu<- theta[p+q2+q1+4]
+                    c.=-sqrt(nu/pi)*gamma((nu-1)/2)/gamma(nu/2)}
+  if (distr=="ss") {nu<- theta[p+q2+q1+4]
+                    c.=-sqrt(2/pi)*nu/(nu-.5)}
+  if (distr=="scn") {nu<- theta[(p+q2+q1+4):(p+q2+q1+5)]
+                    c.=-sqrt(2/pi)*(1+nu[1]*(nu[2]^(-.5)-1))}
   if ((p+3+q2+q1+length(nu))!=length(theta)) stop("theta misspecified")
   D1sqrt <- Dmatrix(dd)
   D1 <- D1sqrt%*%D1sqrt
@@ -2020,7 +2059,8 @@ ljnormalCAR1 <-function(j,y,x,z,time,beta1,Gammab,Deltab,sigmae,phiDEC){
   c. = -sqrt(2/pi)
   y1=y[j]
   t1= time[j]
-  p= ncol(x);q1=ncol(z)
+  p= ncol(x)
+  q1=ncol(z)
   x1=matrix(x[j,  ],ncol=p)
   z1=matrix(z[j ,  ],ncol=q1)
   med<-x1%*%beta1 + c.*z1%*%Deltab
@@ -2037,7 +2077,8 @@ ljtCAR1 <-function(j,nu,y,x,z,time,beta1,Gammab,Deltab,sigmae,phiDEC){
   c.=-sqrt(nu/pi)*gamma((nu-1)/2)/gamma(nu/2)
   y1=y[j]
   t1= time[j]
-  p= ncol(x);q1=ncol(z)
+  p= ncol(x)
+  q1=ncol(z)
   x1=matrix(x[j,  ],ncol=p)
   z1=matrix(z[j ,  ],ncol=q1)
   med<-x1%*%beta1 + c.*z1%*%Deltab
@@ -2056,7 +2097,8 @@ ljsCAR1 <-function(j,nu,y,x,z,time,beta1,Gammab,Deltab,sigmae,phiDEC){
   c.=-sqrt(2/pi)*nu/(nu-.5)
   y1=y[j]
   t1= time[j]
-  p= ncol(x);q1=ncol(z)
+  p= ncol(x)
+  q1=ncol(z)
   x1=matrix(x[j,  ],ncol=p)
   z1=matrix(z[j ,  ],ncol=q1)
   med<-x1%*%beta1 + c.*z1%*%Deltab
@@ -2076,7 +2118,8 @@ ljcnCAR1 <-function(j,nu,y,x,z,time,beta1,Gammab,Deltab,sigmae,phiDEC){
   c.=-sqrt(2/pi)*(1+nu[1]*(nu[2]^(-.5)-1))
   y1=y[j]
   t1= time[j]
-  p= ncol(x);q1=ncol(z)
+  p= ncol(x)
+  q1=ncol(z)
   x1=matrix(x[j,  ],ncol=p)
   z1=matrix(z[j ,  ],ncol=q1)
   med<-x1%*%beta1+ c.*z1%*%Deltab
@@ -2092,7 +2135,7 @@ ljcnCAR1 <-function(j,nu,y,x,z,time,beta1,Gammab,Deltab,sigmae,phiDEC){
 
 logveroCAR1 = function(y,x,z,time,ind,beta1,sigmae,phiDEC,D1,lambda,distr,nu){ #ind = indicadora de individuo
 
-  delta<-lambda/as.numeric(sqrt(1+t(lambda)%*%lambda));
+  delta<-lambda/as.numeric(sqrt(1+t(lambda)%*%lambda))
   Deltab<-matrix.sqrt(D1)%*%delta
   Gammab<-D1-Deltab%*%t(Deltab)
   N <-length(ind)
@@ -2115,7 +2158,8 @@ emjCAR1 = function(jseq, y, x, z,time, beta1, Gammab, Deltab, sigmae,phiDEC,dist
   #
   y1=y[jseq]
   t1=time[jseq]
-  p= ncol(x);q1=ncol(z)
+  p= ncol(x)
+  q1=ncol(z)
   x1=matrix(x[jseq,  ],ncol=p)
   z1=matrix(z[jseq,  ],ncol=q1)
   med<-x1%*%beta1 + c.*z1%*%Deltab
@@ -2353,10 +2397,14 @@ predictf.skewCAR1<- function(formFixed,formRandom,dataFit,dataPred,groupVar,time
   phiDEC <- as.numeric(theta[(p+2)])
   dd <- theta[(p+3):(p+2+q2)]
   lambda <- matrix(theta[(p+q2+3):(p+2+q2+q1)],ncol=1)
-  if (distr=="sn") {nu<- NULL; c. = -sqrt(2/pi)}
-  if (distr=="st") {nu<- theta[p+q2+q1+3]; c.=-sqrt(nu/pi)*gamma((nu-1)/2)/gamma(nu/2)}
-  if (distr=="ss") {nu<- theta[p+q2+q1+3]; c.=-sqrt(2/pi)*nu/(nu-.5)}
-  if (distr=="scn") {nu<- theta[(p+q2+q1+3):(p+q2+q1+4)]; c.=-sqrt(2/pi)*(1+nu[1]*(nu[2]^(-.5)-1))}
+  if (distr=="sn") {nu<- NULL
+                    c. = -sqrt(2/pi)}
+  if (distr=="st") {nu<- theta[p+q2+q1+3]
+                    c.=-sqrt(nu/pi)*gamma((nu-1)/2)/gamma(nu/2)}
+  if (distr=="ss") {nu<- theta[p+q2+q1+3]
+                    c.=-sqrt(2/pi)*nu/(nu-.5)}
+  if (distr=="scn") {nu<- theta[(p+q2+q1+3):(p+q2+q1+4)]
+                    c.=-sqrt(2/pi)*(1+nu[1]*(nu[2]^(-.5)-1))}
   if ((p+2+q2+q1+length(nu))!=length(theta)) stop("theta misspecified")
   D1sqrt <- Dmatrix(dd)
   D1 <- D1sqrt%*%D1sqrt
@@ -2492,7 +2540,8 @@ scorei <- function(jseq,y,x,z,beta1,sigmae,D1,lambda,distr,nu) {
   if (distr=="ss") c.=-sqrt(2/pi)*nu/(nu-.5)
   if (distr=="scn") c.=-sqrt(2/pi)*(1+nu[1]*(nu[2]^(-.5)-1))
   y1=y[jseq]
-  p= ncol(x);q1=ncol(z)
+  p= ncol(x)
+  q1=ncol(z)
   q2 = q1*(q1+1)/2
   x1=matrix(x[jseq,  ],ncol=p)
   z1=matrix(z[jseq,  ],ncol=q1)

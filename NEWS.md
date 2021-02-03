@@ -3,7 +3,7 @@
 
 * A bug in the `acfresid()` plot was fixed.
 * `lr.test()` now allows testing DEC versus AR1 or CAR1.
-* `smn.lmm()` and `smnn.lmm()` were ajusted to work when `data` is a tibble.
+* `smn.lmm()` and `smnn.lmm()` were adjusted to work when `data` is a tibble.
 * The abbreviation for the conditionally uncorrelated model was changed to "UNC" to match the notation in the theoretical paper, but "CI" is still accepted.
 
 ## skewlmm 0.2.2 _(2020-07-08)_

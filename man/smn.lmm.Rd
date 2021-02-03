@@ -57,7 +57,7 @@ Specifically, the following components are returned:
   \item{criteria}{A list with AIC and BIC criterion.}
   \item{data}{The data frame used on \code{smn.lmm} call.}
   \item{forumla}{A list containing the formulas used on \code{smn.lmm} call.}
-  \item{depStruct}{A character indicating which depedence structure was used.}
+  \item{depStruct}{A character indicating which dependence structure was used.}
   \item{distr}{A character indicating which distribution was used.}
   \item{N}{The number of observations used.}
   \item{n}{The number of individuals/groups used.}
