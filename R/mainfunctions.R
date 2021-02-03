@@ -1,5 +1,5 @@
 #main functions from skewlmm package - SMSN-LMM
-smsn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "CI", timeVar=NULL,
+smsn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "UNC", timeVar=NULL,
                      distr="sn",pAR=1,luDEC=10,
                      tol=1e-6,max.iter=200,calc.se=TRUE,lb=NULL,lu=NULL,
                      initialValues =list(beta=NULL,sigma2=NULL,D=NULL,lambda=NULL,phi=NULL,nu=NULL),
@@ -41,7 +41,8 @@ smsn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "CI", tim
   #
   if (depStruct=="ARp" & !is.null(timeVar) & ((sum(!is.wholenumber(data[,timeVar]))>0)|(sum(data[,timeVar]<=0)>0))) stop("timeVar must contain positive integer numbers when using ARp dependency")
   if (depStruct=="ARp" & !is.null(timeVar)) if (min(data[,timeVar])!=1) warning("consider using a transformation such that timeVar starts at 1")
-  if (!(depStruct %in% c("CI","ARp","CS","DEC","CAR1"))) stop("accepted depStruct: CI, ARp, CS, DEC or CAR1")
+  if (depStruct=="CI") depStruct = "UNC"
+  if (!(depStruct %in% c("UNC","ARp","CS","DEC","CAR1"))) stop("accepted depStruct: UNC, ARp, CS, DEC or CAR1")
   #
   if (is.null(initialValues$beta)|is.null(initialValues$sigma2)|is.null(initialValues$lambda)|is.null(initialValues$D)) {
     lmefit = try(lme(formFixed,random=formula(paste('~',as.character(formRandom)[length(formRandom)],
@@ -96,7 +97,7 @@ smsn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "CI", tim
   if (distr=="ss"&length(nu)!=1) stop ("wrong dimension of nu")
   if (distr=="scn"&length(nu)!=2) stop ("wrong dimension of nu")
   ###
-  if (depStruct=="CI") obj.out <- EM.Skew(formFixed,formRandom,data,groupVar,distr,beta1,sigmae,D1,
+  if (depStruct=="UNC") obj.out <- EM.Skew(formFixed,formRandom,data,groupVar,distr,beta1,sigmae,D1,
                                           lambda,nu,lb,lu,precisao=tol,informa=calc.se,max.iter=max.iter,showiter=!quiet,showerroriter = (!quiet)&showCriterium)
   if (depStruct=="ARp") obj.out <- EM.SkewAR(formFixed,formRandom,data,groupVar,pAR,timeVar,
                                              distr,beta1,sigmae,phiAR,D1,lambda,nu,lb,lu,
@@ -212,7 +213,7 @@ summary.SMSN <- function(object,confint.level=.95,...){
   cat("\nDependency structure:", object$depStruct)
   cat("\n  Estimate(s):\n")
   covParam <- c(object$estimates$sigma2, object$estimates$phi)
-  if (object$depStruct=="CI") names(covParam) <- "sigma2"
+  if (object$depStruct=="UNC") names(covParam) <- "sigma2"
   else names(covParam) <- c("sigma2",paste0("phi",1:(length(covParam)-1)))
   print(covParam)
   cat("\nSkewness parameter estimate:", object$estimates$lambda)
@@ -251,7 +252,7 @@ predict.SMSN <- function(object,newData,...){
   #
   if (object$distr=="ssl") object$distr<-"ss"
   #
-  if (depStruct=="CI") obj.out <- predictf.skew(formFixed,formRandom,dataFit,dataPred,groupVar,distr=object$distr,theta=object$theta)
+  if (depStruct=="UNC") obj.out <- predictf.skew(formFixed,formRandom,dataFit,dataPred,groupVar,distr=object$distr,theta=object$theta)
   if (depStruct=="ARp") obj.out <- predictf.skewAR(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,distr=object$distr,
                                                   pAR=length(object$estimates$phi),theta=object$theta)
   if (depStruct=="CS") obj.out <-predictf.skewCS(formFixed,formRandom,dataFit,dataPred,groupVar,distr=object$distr,theta=object$theta)
@@ -265,14 +266,15 @@ errorVar<- function(times,object=NULL,sigma2=NULL,depStruct=NULL,phi=NULL) {
   if (is.null(object)&is.null(depStruct)) stop("object or depStruct must be provided")
   if (is.null(object)&is.null(sigma2)) stop("object or sigma2 must be provided")
   if (is.null(depStruct)) depStruct<-object$depStruct
-  if (depStruct!="CI" & is.null(object)&is.null(phi)) stop("object or phi must be provided")
-  if (!(depStruct %in% c("CI","ARp","CS","DEC","CAR1"))) stop("accepted depStruct: CI, ARp, CS, DEC or CAR1")
+  if (depStruct=="CI") depStruct = "UNC"
+  if (depStruct!="UNC" & is.null(object)&is.null(phi)) stop("object or phi must be provided")
+  if (!(depStruct %in% c("UNC","ARp","CS","DEC","CAR1"))) stop("accepted depStruct: UNC, ARp, CS, DEC or CAR1")
   if (is.null(sigma2)) sigma2<-object$estimates$sigma2
-  if (is.null(phi)&depStruct!="CI") phi<-object$estimates$phi
+  if (is.null(phi)&depStruct!="UNC") phi<-object$estimates$phi
   if (depStruct=="ARp" & (any(!is.wholenumber(times))|any(times<=0))) stop("times must contain positive integer numbers when using ARp dependency")
   if (depStruct=="ARp" & any(tphitopi(phi)< -1|tphitopi(phi)>1)) stop("AR(p) non stationary, choose other phi")
   #
-  if (depStruct=="CI") var.out<- sigma2*diag(length(times))
+  if (depStruct=="UNC") var.out<- sigma2*diag(length(times))
   if (depStruct=="ARp") var.out<- sigma2*CovARp(phi,times)
   if (depStruct=="CS") var.out<- sigma2*CovCS(phi,length(times))
   if (depStruct=="DEC") var.out<- sigma2*CovDEC(phi[1],phi[2],times)
@@ -280,7 +282,7 @@ errorVar<- function(times,object=NULL,sigma2=NULL,depStruct=NULL,phi=NULL) {
   var.out
 }
 
-rsmsn.lmm <- function(time1,x1,z1,sigma2,D1,beta,lambda,depStruct="CI",phi=NULL,distr="sn",nu=NULL) {
+rsmsn.lmm <- function(time1,x1,z1,sigma2,D1,beta,lambda,depStruct="UNC",phi=NULL,distr="sn",nu=NULL) {
   if (length(D1)==1 & !is.matrix(D1)) D1=as.matrix(D1)
   q1 = nrow(D1)
   p = length(beta)
