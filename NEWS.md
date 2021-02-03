@@ -1,5 +1,5 @@
 
-## skewlmm 0.2.3 _(2021-02-02)_
+## skewlmm 0.2.3 _(2021-02-03)_
 
 * A bug in the `acfresid()` plot was fixed.
 * `lr.test()` now allows testing DEC versus AR1 or CAR1.

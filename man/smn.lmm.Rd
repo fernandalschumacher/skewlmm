@@ -39,7 +39,7 @@ smn.lmm(data, formFixed, groupVar, formRandom = ~1, depStruct = "UNC",
 \details{
 It fits the model \eqn{Y_i = X_i \beta + Z_i b_i + \epsilon_i}, for \eqn{i=1,\dots,n}, where \eqn{Y_i} is a vector with \eqn{n_i} observed continuous responses, \eqn{b_i ~ SMN(0, D; H)} and \eqn{\epsilon_i ~ SMN(0, \Sigma_i; H)}, indexed by the same mixing distribution.
 
-For details see Schumacher, Matos & Lachos (2020+).
+For details see Schumacher, Lachos & Matos (2021).
 }
 \value{
 An object of class "SMN" representing the SMN-LMM fit. Generic functions such as print and summary have methods to show the results of the fit. The functions fitted and ranef can be used to extract some of its components.
@@ -68,7 +68,7 @@ Specifically, the following components are returned:
 \references{
 Lachos, V. H., P. Ghosh, and R. B. Arellano-Valle (2010). Likelihood based inference for skew-normal independent linear mixed models. Statistica Sinica 20, 303-322.
 
-Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Statistics in Medicine. \url{https://doi.org/10.1002/sim.8870}.
+Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Statistics in Medicine. \doi{10.1002/sim.8870}.
 }
 \author{
 Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos

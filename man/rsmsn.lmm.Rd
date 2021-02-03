@@ -37,7 +37,7 @@ rsmsn.lmm(time1, x1, z1, sigma2, D1, beta, lambda, depStruct = "UNC",
 \references{
 Lachos, V. H., P. Ghosh, and R. B. Arellano-Valle (2010). Likelihood based inference for skew-normal independent linear mixed models. Statistica Sinica 20, 303-322.
 
-Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Statistics in Medicine. \url{https://doi.org/10.1002/sim.8870}.
+Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Statistics in Medicine. \doi{10.1002/sim.8870}.
 }
 \author{
 Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos

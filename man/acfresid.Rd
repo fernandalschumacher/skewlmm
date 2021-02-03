@@ -31,7 +31,7 @@ A data frame with columns lag, ACF, and n.used representing, respectively, the l
 \references{
 Pinheiro, J. C. & Bates, D. M. (2000). Mixed-Effects Models in S and S-PLUS. Springer, New York, NY.
 
-Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Statistics in Medicine. \url{https://doi.org/10.1002/sim.8870}.
+Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Statistics in Medicine. \doi{10.1002/sim.8870}.
 }
 \author{
 Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
