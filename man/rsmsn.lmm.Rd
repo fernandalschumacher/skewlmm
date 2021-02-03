@@ -61,7 +61,8 @@ library(purrr)
 library(ggplot2)
 nj1<-5
 m<-50
-gendatList<- map(rep(nj1,m), function(nj) rsmsn.lmm(1:nj,cbind(1,1:nj),rep(1,nj),sigma2=.25,D1=.5*diag(1),beta = c(1,2),lambda = 2,depStruct = "ARp",phi=.5))
+gendatList<- map(rep(nj1,m), function(nj) rsmsn.lmm(1:nj,cbind(1,1:nj),rep(1,nj),
+  sigma2=.25,D1=.5*diag(1),beta = c(1,2),lambda = 2,depStruct = "ARp",phi=.5))
 gendat<- bind_rows(gendatList,.id="ind")
 ggplot(gendat,aes(x=x,y=y,group=ind)) + geom_line() +
   stat_summary(aes(group = 1),geom = "line", fun.y = mean, col="blue",size=2)

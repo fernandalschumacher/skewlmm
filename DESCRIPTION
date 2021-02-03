@@ -18,3 +18,4 @@ LazyData: true
 Imports: dplyr, ggplot2, moments, mvtnorm, nlme, numDeriv, purrr
 URL: https://github.com/fernandalschumacher/skewlmm
 BugReports: https://github.com/fernandalschumacher/skewlmm/issues
+RoxygenNote: 7.1.1
