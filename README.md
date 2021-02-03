@@ -4,7 +4,7 @@
 # skewlmm
 
 [![Travis build
-status](https://travis-ci.com/fernandalschumacher/skewlmm.svg?branch=master)](https://travis-ci.com/fernandalschumacher/skewlmm)
+status](https://travis-ci.org/fernandalschumacher/skewlmm.svg?branch=master)](https://travis-ci.org/fernandalschumacher/skewlmm)
 [![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version/skewlmm)](https://cran.r-project.org/package=skewlmm)
 
 The goal of skewlmm is to fit skew robust linear mixed models, using
@@ -44,14 +44,14 @@ library(skewlmm)
 dat1 <- as.data.frame(nlme::Orthodont)
 fm1 <- smsn.lmm(dat1,formFixed=distance ~ age,groupVar="Subject",quiet=T)
 summary(fm1)
-#> Linear mixed models with distribution sn and dependency structure CI 
+#> Linear mixed models with distribution sn and dependency structure UNC 
 #> Call:
 #> smsn.lmm(data = dat1, formFixed = distance ~ age, groupVar = "Subject", 
 #>     quiet = T)
 #> 
 #> Distribution sn
 #> Random effects: ~1
-#> <environment: 0x0000000018a35838>
+#> <environment: 0x0000000018b0ff00>
 #>   Estimated variance (D):
 #>             (Intercept)
 #> (Intercept)    6.601759
@@ -62,7 +62,7 @@ summary(fm1)
 #> (Intercept) 16.7637709 1.00673611   14.7906044   18.7369375
 #> age          0.6601852 0.06987086    0.5232408    0.7971295
 #> 
-#> Dependency structure: CI
+#> Dependency structure: UNC
 #>   Estimate(s):
 #>  sigma2 
 #> 2.02447 
@@ -110,14 +110,14 @@ Furthermore, to fit a SMN-LMM one can use the following:
 ``` r
 fm2 <- smn.lmm(dat1,formFixed=distance ~ age,groupVar="Subject",quiet=T)
 summary(fm2)
-#> Linear mixed models with distribution norm and dependency structure CI 
+#> Linear mixed models with distribution norm and dependency structure UNC 
 #> Call:
 #> smn.lmm(data = dat1, formFixed = distance ~ age, groupVar = "Subject", 
 #>     quiet = T)
 #> 
 #> Distribution norm
 #> Random effects: ~1
-#> <environment: 0x0000000018d9a1d0>
+#> <environment: 0x00000000198107f8>
 #>   Estimated variance (D):
 #>             (Intercept)
 #> (Intercept)    4.290089
@@ -128,7 +128,7 @@ summary(fm2)
 #> (Intercept) 16.7611111 0.99271984   14.8154160   18.7068063
 #> age          0.6601852 0.06979594    0.5233877    0.7969827
 #> 
-#> Dependency structure: CI
+#> Dependency structure: UNC
 #>   Estimate(s):
 #>   sigma2 
 #> 2.025112 

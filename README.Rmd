@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 
 # skewlmm
 
-[![Travis build status](https://travis-ci.com/fernandalschumacher/skewlmm.svg?branch=master)](https://travis-ci.com/fernandalschumacher/skewlmm)
+[![Travis build status](https://travis-ci.org/fernandalschumacher/skewlmm.svg?branch=master)](https://travis-ci.org/fernandalschumacher/skewlmm)
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/skewlmm)](https://cran.r-project.org/package=skewlmm)
 
 
