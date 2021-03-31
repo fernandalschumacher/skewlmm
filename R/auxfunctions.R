@@ -1333,7 +1333,7 @@ EM.SkewCS<- function(formFixed,formRandom,data,groupVar,
   p<-ncol(x)
   q1<-ncol(z)
   #
-  if (!is.null(phiCS) & length(phiCS!=1)) stop ("initial value from phi must have length 1 or be NULL")
+  if (!is.null(phiCS) && length(phiCS)!=1) stop ("initial value from phi must have length 1 or be NULL")
   if (!is.null(phiCS)) if (phiCS<=0 | phiCS>=1) stop("0<initialValue$phi<1 needed")
 
   delta<-lambda/as.numeric(sqrt(1+t(lambda)%*%lambda))
