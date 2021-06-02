@@ -195,9 +195,11 @@ acfresid <- function(object,maxLag,resLevel="marginal",resType="normalized",
     distr <- object$distr
     #
     acfMC <- matrix(nrow=MCiter,ncol=maxLag)
-    Dfit <- Dmatrix(object$estimates$dsqrt)
-    Dfit2 <- Dfit%*%Dfit
-    sigma2<-object$estimates$sigma2
+    #Dfit <- Dmatrix(object$estimates$dsqrt)
+    Dfit2 <- object$estimates$D #Dfit%*%Dfit
+    Dfit <- matrix.sqrt(Dfit2)
+    #sigma2<-object$estimates$sigma2
+    sigma2<-as.numeric(errorVar(1,object))
     lambda <- object$estimates$lambda
     if (is.null(lambda)) lambda<- rep(0,nrow(Dfit))
     beta<- object$estimates$beta
@@ -241,54 +243,54 @@ acfresid <- function(object,maxLag,resLevel="marginal",resType="normalized",
       MCacfIC<-apply(acfMC,2,function(x) quantile(x,probs = c((1-IClevel)/2,(1+IClevel)/2)))
       out <- cbind(out,IC = rbind(rep(NA,2),t(MCacfIC)))
     } else { #normalized residual
-        if (distr=="st"|distr=="t") if (nu<=2) stop("normalized residual not defined for nu<=2")
-        if (distr=="ssl"|distr=="sl") if (nu<=1) stop("normalized residual not defined for nu<=1")
-        if (distr=="sn"|distr=="norm") {c.=-sqrt(2/pi);k2=1}
-        if (distr=="st"|distr=="t") {c.=-sqrt(nu/pi)*
-          gamma((nu-1)/2)/gamma(nu/2);
-        k2=nu/(nu-2)}
-        if (distr=="ssl"|distr=="sl") {c.=-sqrt(2/pi)*nu/(nu-.5);
-        k2=nu/(nu-1)}
-        if (distr=="scn"|distr=="cn") {c.=-sqrt(2/pi)*(1+nu[1]*
-                                                         (nu[2]^(-.5)-1));
-        k2=1+nu[1]*(nu[2]^(-1)-1)}
-        if (inherits(object,"SMN")) {
-            c.=0
+      if (distr=="st"|distr=="t") if (nu<=2) stop("normalized residual not defined for nu<=2")
+      if (distr=="ssl"|distr=="sl") if (nu<=1) stop("normalized residual not defined for nu<=1")
+      if (distr=="sn"|distr=="norm") {c.=-sqrt(2/pi);k2=1}
+      if (distr=="st"|distr=="t") {c.=-sqrt(nu/pi)*
+        gamma((nu-1)/2)/gamma(nu/2);
+      k2=nu/(nu-2)}
+      if (distr=="ssl"|distr=="sl") {c.=-sqrt(2/pi)*nu/(nu-.5);
+      k2=nu/(nu-1)}
+      if (distr=="scn"|distr=="cn") {c.=-sqrt(2/pi)*(1+nu[1]*
+                                                       (nu[2]^(-.5)-1));
+      k2=1+nu[1]*(nu[2]^(-1)-1)}
+      if (inherits(object,"SMN")) {
+        c.=0
+      }
+      delta = lambda/as.numeric(sqrt(1+t(lambda)%*%(lambda)))
+      Delta = Dfit%*%delta
+      for (sample in 1:MCiter) {
+        dadosi = tapply(1:N,ind,gerar_ind_smsnACF,x=x,z=z,sigma2=sigma2,Dsqrti=Dfit,
+                        beta1=beta,lambda=lambda,distr=distr,nu=nu,ind=ind,time=time) %>% bind_rows()
+        #calculating residuals
+        resMC<- numeric(N)
+        for (i in seq_along(ind_levels)) {
+          seqi <- dadosi$ind==ind_levels[i]#;print(sum(seqi))
+          xfiti <- matrix(x[seqi,],ncol=p)
+          zfiti <- matrix(z[seqi,],ncol=q1)
+          Sigmaest <- sigma2*diag(sum(seqi))#errorVar(timei,object)
+          vary <- Sigmaest+ (zfiti)%*%Dfit2%*%t(zfiti)
+          sigFitinv <- matrix.sqrt(solve(k2*vary - c.^2*zfiti%*%Delta%*%t(zfiti%*%Delta)))
+          #sigFitinv <- matrix.sqrt(solve(vary))
+          resMC[seqi]<- sigFitinv%*%(dadosi$y[seqi]- xfiti%*%beta)
         }
-        delta = lambda/as.numeric(sqrt(1+t(lambda)%*%(lambda)))
-        Delta = Dfit%*%delta
-        for (sample in 1:MCiter) {
-          dadosi = tapply(1:N,ind,gerar_ind_smsnACF,x=x,z=z,sigma2=sigma2,Dsqrti=Dfit,
-                          beta1=beta,lambda=lambda,distr=distr,nu=nu,ind=ind,time=time) %>% bind_rows()
-          #calculating residuals
-          resMC<- numeric(N)
-          for (i in seq_along(ind_levels)) {
-            seqi <- dadosi$ind==ind_levels[i]#;print(sum(seqi))
-            xfiti <- matrix(x[seqi,],ncol=p)
-            zfiti <- matrix(z[seqi,],ncol=q1)
-            Sigmaest <- sigma2*diag(sum(seqi))#errorVar(timei,object)
-            vary <- Sigmaest+ (zfiti)%*%Dfit2%*%t(zfiti)
-            sigFitinv <- matrix.sqrt(solve(k2*vary - c.^2*zfiti%*%Delta%*%t(zfiti%*%Delta)))
-            #sigFitinv <- matrix.sqrt(solve(vary))
-            resMC[seqi]<- sigFitinv%*%(dadosi$y[seqi]- xfiti%*%beta)
+        corindi <- nindi<-matrix(ncol=maxLag+1,nrow=length(ind_levels))
+        for (i in seq_along(ind_levels)) {
+          seqi <- dadosi$ind==ind_levels[i]
+          resim <-resMC[seqi]
+          timei <- dadosi$time[seqi]
+          resi <- rep(NA,diff(range(timei))+1)
+          resi[timei] <- resim
+          corindi[i,1] <- sum(resi^2,na.rm=T); nindi[i,1]<- sum(!is.na(resi))
+          kmaxi <- min(maxLag,diff(range(timei)))#nind[i,1]-1)
+          for (k in seq_len(kmaxi)) {
+            nindi[i,k+1]<- sum(!is.na(diff(resi,k)))
+            corindi[i,k+1] <- sum(resi[-seq_len(k)]*
+                                    resi[-seq.int(length(resi),by=-1,length.out = k)],na.rm=T)
           }
-          corindi <- nindi<-matrix(ncol=maxLag+1,nrow=length(ind_levels))
-          for (i in seq_along(ind_levels)) {
-            seqi <- dadosi$ind==ind_levels[i]
-            resim <-resMC[seqi]
-            timei <- dadosi$time[seqi]
-            resi <- rep(NA,diff(range(timei))+1)
-            resi[timei] <- resim
-            corindi[i,1] <- sum(resi^2,na.rm=T); nindi[i,1]<- sum(!is.na(resi))
-            kmaxi <- min(maxLag,diff(range(timei)))#nind[i,1]-1)
-            for (k in seq_len(kmaxi)) {
-              nindi[i,k+1]<- sum(!is.na(diff(resi,k)))
-              corindi[i,k+1] <- sum(resi[-seq_len(k)]*
-                                      resi[-seq.int(length(resi),by=-1,length.out = k)],na.rm=T)
-            }
-          } #
-          cormeani <- apply(corindi, 2, sum,na.rm=T)/apply(nindi, 2, sum,na.rm=T)
-          acfMC[sample,] <-cormeani[-1]/cormeani[1]
+        } #
+        cormeani <- apply(corindi, 2, sum,na.rm=T)/apply(nindi, 2, sum,na.rm=T)
+        acfMC[sample,] <-cormeani[-1]/cormeani[1]
       }
       MCacfIC<-apply(acfMC,2,function(x) quantile(x,probs = c((1-IClevel)/2,(1+IClevel)/2)))
       out <- cbind(out,IC = rbind(rep(NA,2),t(MCacfIC)))
@@ -338,7 +340,7 @@ mahalDist<- function(object,decomposed=FALSE,dataPlus=NULL){
                                        (object$estimates$nu[2]^(-.5)-1))}
   #
   mahaldist <- distbi<- distei<- numeric(length(ind_levels))
-  Dest <- Dmatrix(object$estimates$dsqrt)%*%Dmatrix(object$estimates$dsqrt)
+  Dest <- object$estimates$D
   delta = object$estimates$lambda/as.numeric(
     sqrt(1+t(object$estimates$lambda)%*%(object$estimates$lambda)))
   Delta = matrix.sqrt(Dest)%*%delta
@@ -370,6 +372,7 @@ mahalDist<- function(object,decomposed=FALSE,dataPlus=NULL){
     names(out) <- row.names(object$random.effects)
     class(out) <- c("mahalDist","numeric")
   }
+  attr(out,'call')<-match.call()
   out
 }
 ###
@@ -395,17 +398,6 @@ gerar_ind_smsnACF = function(jvec,x,z,sigma2,Dsqrti,beta1,lambda,distr,nu,ind,ti
   return(data.frame(y=Yi,ind=ind[jvec],time=time[jvec]))
 }
 
-#plot ACF
-# plot.ACF <- function(ACFobj,...) {
-#   plot(ACFobj$lag,ACFobj$ACF,type="h",...,xlab="lag",ylab="ACF");abline(h=0)
-#   if (ncol(ACFobj)>3) {
-#     lagPlus <- c(ACFobj$lag,max(ACFobj$lag)+1)
-#     ICinf <- c(ACFobj[,4],0)
-#     ICsup <- c(ACFobj[,5],0)
-#     lines(lagPlus-.5,ICinf,lty=2,col=4,type="s")
-#     lines(lagPlus-.5,ICsup,lty=2,col=4,type="s")
-#   }
-# }
 plot.acfresid <-  function(x,...) {
   if (ncol(x)<=3) {
     ggplot(data = x,aes_string(x = "lag",y="ACF"))+
@@ -439,7 +431,8 @@ plot.SMN <- plot.SMSN
 
 #plot mahalDist
 plot.mahalDist <- function(x,fitobject,type,level=.99,nlabels=3,...){
-  if(missing(fitobject)) stop("please provide fitobject used to compute the Mahalanobis distance")
+  if(missing(fitobject)) fitobject<-eval(str2lang(as.character(attr(x,'call')[2])))
+  #if(missing(fitobject)) stop("please provide fitobject used to compute the Mahalanobis distance")
   if(missing(type)) {
     type<-"total"
   } else if (!(type %in% c("total","error","b"))) stop("type must be one of the following: total,error,b")
@@ -471,26 +464,26 @@ plot.mahalDist <- function(x,fitobject,type,level=.99,nlabels=3,...){
       if (type=="error") {
         plotout<-ggplot(x,aes_string("index","md.error")) +
           geom_point(shape=1) + ylab("error distance")+
-          geom_text(aes_string(label="ind"),data=subset(x,rank(x$md.error)>length(x$nj)-nlabels),
-                    nudge_x=1.5,nudge_y = .5,size=3)
+          geom_text_repel(aes_string(label="ind"),data=subset(x,rank(x$md.error)>length(x$nj)-nlabels),
+                          nudge_x=1.5,nudge_y = .5,size=3)
       } else {
         plotout<-ggplot(x,aes_string("index","md.b")) +
           geom_point(shape=1) + ylab("R.E. distance")+
-          geom_text(aes_string(label="ind"),data=subset(x,rank(x$md.b)>length(x$nj)-nlabels),
-                    nudge_x=1.5,nudge_y = 0,size=3)
+          geom_text_repel(aes_string(label="ind"),data=subset(x,rank(x$md.b)>length(x$nj)-nlabels),
+                          nudge_x=1.5,nudge_y = 0,size=3)
       }
     } else {
       njvec <- sort(unique(x$nj))
       if (type=="error") {
         plotout<-ggplot(x,aes_string("nj","md.error")) +
-          geom_point(position = position_jitter(width = .3,height = 0,seed=111),
+          geom_point(position = position_jitter(width = .3,height = 0),
                      shape=1) + ylab("error distance")+xlab("number of observations")+
           geom_text(aes_string(label="ind"),data=subset(x,rank(x$md.error)>length(x$nj)-nlabels),
                     nudge_x=0,nudge_y = .5,size=3)+
           scale_x_continuous(breaks=njvec)
       } else {
         plotout<-ggplot(x,aes_string("nj","md.b")) +
-          geom_point(position = position_jitter(width = .3,height = 0,seed=111),
+          geom_point(position = position_jitter(width = .3,height = 0),
                      shape=1) + ylab("R.E. distance")+xlab("number of observations")+
           geom_text(aes_string(label="ind"),data=subset(x,rank(x$md.b)>length(x$nj)-nlabels),
                     nudge_x=0,nudge_y = .5,size=3)+
@@ -517,8 +510,8 @@ plot.mahalDist <- function(x,fitobject,type,level=.99,nlabels=3,...){
 
       plotout<-ggplot(x,aes_string("index","md")) +
         geom_point(shape=1) + ylab("Mahalanobis distance")+
-        geom_text(aes_string(label="ind"),data=subset(x,rank(x$md)>length(x$nj)-nlabels),
-                  nudge_x=1.5,nudge_y = .5,size=3) +
+        geom_text_repel(aes_string(label="ind"),data=subset(x,rank(x$md)>length(x$nj)-nlabels),
+                        nudge_x=1.5,nudge_y = .5,size=3) +
         geom_hline(yintercept = mdquantile,col=4,linetype="dashed")
       attr(plotout,"info") <- data.frame(nj= nj1,quantile=c(mdquantile))
     } else {
@@ -527,7 +520,7 @@ plot.mahalDist <- function(x,fitobject,type,level=.99,nlabels=3,...){
       if (distr=="st"|distr=="t") mdquantile <- njvec*qf(level,njvec,nu)
       if (distr=="ssl"|distr=="sl") {
         mdquantile <- unlist(lapply(as.list(njvec),function(nj1) uniroot(function(x) pMDsl(x,nu,nj1) -level,
-                                    c(1,qchisq(level,nj1)^2))$root))
+                                                                         c(1,qchisq(level,nj1)^2))$root))
       }
       if (distr=="scn"|distr=="cn") { #nu<-c(.25,.3)
         mdquantile <- unlist(lapply(as.list(njvec),function(nj1) uniroot(function(x) pMDcn(x,nu,nj1) -level,
@@ -536,7 +529,7 @@ plot.mahalDist <- function(x,fitobject,type,level=.99,nlabels=3,...){
       datline <- data.frame(nj= c(njvec,max(njvec)+1),quantile=c(mdquantile,max(mdquantile)))
       datline$nj2<-datline$nj-.5
       plotout<-ggplot(x,aes_string("nj","md")) +
-        geom_point(position = position_jitter(width = .25,height = 0,seed=111),
+        geom_point(position = position_jitter(width = .25,height = 0),
                    shape=1) + ylab("Mahalanobis distance")+ xlab("number of observations")+
         geom_text(aes_string(label="ind"),data=subset(x,rank(x$md)>length(x$nj)-nlabels),
                   nudge_x=0,nudge_y = 0,size=3) +
@@ -556,24 +549,57 @@ pMDcn <- function(x,nu,nj) {
 }
 
 # Healy's plot
-healy.plot <- function(object,dataPlus=NULL,dotsize=0.4,...) {
+gerar_smsn_healy = function(jvec,x,z,sigma2,Dsqrti,beta1,lambda,distr,nu,
+                            ind,time,depStruct,phi) {
+  if (distr=="sn"|distr=="norm") {ui=1; c.=-sqrt(2/pi)}
+  if (distr=="st"|distr=="t") {ui=rgamma(1,nu/2,nu/2); c.=-sqrt(nu/pi)*gamma((nu-1)/2)/gamma(nu/2)}
+  if (distr=="ssl"|distr=="sl") {ui=rbeta(1,nu,1); c.=-sqrt(2/pi)*nu/(nu-.5)}
+  if (distr=="scn"|distr=="cn") {ui=ifelse(runif(1)<nu[1],nu[2],1);
+  c.=-sqrt(2/pi)*(1+nu[1]*(nu[2]^(-.5)-1))}
+  p= ncol(x);q1=ncol(z)
+  x1=matrix(x[jvec,  ],ncol=p)
+  z1=matrix(z[jvec,  ],ncol=q1)
+  nj = nrow(x1)
+  Sig = errorVar(time[jvec],sigma2=sigma2,depStruct=depStruct,phi=phi)#sigma2*diag(nj)
+  delta = lambda/as.numeric(sqrt(1+t(lambda)%*%(lambda)))
+  Delta = Dsqrti%*%delta
+  Gammab = Dsqrti%*%Dsqrti - Delta%*%t(Delta)
+  Beta = matrix(beta1,ncol=1)
+  ti = c.+abs(rnorm(1,0,ui^-.5))
+  bi = t(rmvnorm(1,Delta*ti,sigma=ui^(-1)*Gammab))
+  Yi = t(rmvnorm(1,x1%*%Beta+z1%*%bi,sigma=ui^(-1)*Sig))
+  return(data.frame(y=Yi,ind=ind[jvec],time=time[jvec]))
+}
+
+healy.plot <- function(object,dataPlus=NULL,dotsize=0.4,calcCI = FALSE,
+                       IClevel, MCiter, seed,...) {
+  if (!missing(seed)) set.seed(seed)
   if(!inherits(object,c("SMSN","SMN"))) stop("object must inherit from class SMSN or SMN")
   if (!is.null(dataPlus)) {
     data <- dataPlus
   } else data <- object$data
   groupVar<-object$groupVar
   ind <-data[,groupVar]
+  data <- data[order(data[,object$groupVar]),]
   njvec <- tapply(ind,ind,length)
   nj1 <- as.numeric(njvec[1])
   if (!all(njvec==nj1)) stop("for this plot all subjects must have the same number of observations, you can predict the missing values and enter the full dataset using the dataPlus argument")
   #
   distr <- object$distr
   nu <- object$estimates$nu
-  depStructure <- object$depStruct
+  depStruct <- object$depStruct
   #
-  if (is.null(dataPlus)) {
-    mahaldist<- sort(mahalDist(object))
-  } else mahaldist<- sort(mahalDist(object,dataPlus = dataPlus))
+  if (calcCI) {
+    if (!missing(IClevel)) {
+      if (IClevel>=1|IClevel<=0) stop("0<IClevel<1 needed")
+    } else IClevel <- .95
+    if (!missing(MCiter)) {
+      if (!is.wholenumber(MCiter)) stop("MCiter must be an integer positive number")
+      if (MCiter<=0) stop("MCiter must be an integer positive number")
+    } else MCiter<- 300
+  }
+  #
+  mahaldist<- sort(mahalDist(object,dataPlus = data))
   #
   m <- length(mahaldist)
   empprob <- (1:m)/(m)
@@ -582,17 +608,70 @@ healy.plot <- function(object,dataPlus=NULL,dotsize=0.4,...) {
   if (distr=="st"|distr=="t") theoprob <- pf(mahaldist/nj1,nj1,nu)
   if (distr=="ssl"|distr=="sl") {
     theoprob <- pchisq(mahaldist,nj1) - 2^nu*gamma(nj1/2+nu)/(mahaldist^nu)/gamma(nj1/2)*
-                            pchisq(mahaldist,nj1+2*nu)
+      pchisq(mahaldist,nj1+2*nu)
   }
   if (distr=="scn"|distr=="cn") {
     theoprob <- nu[1]*pchisq(nu[2]*mahaldist,nj1) + (1-nu[1])*pchisq(mahaldist,nj1)
   }
   ####
   #print(cor(empprob,theoprob))
-  if (distr=='norm') distr<-"n"
-  distr <- toupper(distr)
-  if (depStructure=="ARp") depStructure <- paste0("AR(",length(object$estimates$phi),")")
-  qplot(empprob,theoprob,size=I(dotsize),...=...) + geom_abline(intercept=0,slope=1) +
-    ylab(NULL) + xlab(NULL) + theme_minimal() + ggtitle(paste0(depStructure,'-',distr,'-LMM')) +
+  distrp <- toupper(distr)
+  if (distrp=='NORM') distrp<-"N"
+  depStructp <- depStruct
+  if (depStruct=="ARp") depStructp <- paste0("AR(",length(object$estimates$phi),")")
+  p1<-qplot(empprob,theoprob,size=I(dotsize),...=...) + geom_abline(intercept=0,slope=1) +
+    ylab(NULL) + xlab(NULL) + theme_minimal() + ggtitle(paste0(depStructp,'-',distrp,'-LMM')) +
     theme(plot.title = element_text( face="italic", size=10))
+  #
+  if (calcCI){
+    timeVar <- object$timeVar
+    if (!is.null(timeVar)) {
+      time<-data[,timeVar]
+    } else{
+      time<- flatten_int(tapply(ind,ind,function(x.) seq_along(x.)))
+    }
+    x <- model.matrix(object$formula$formFixed,data=data)
+    z<-model.matrix(object$formula$formRandom,data=data)
+    p<-ncol(x)
+    q1<-ncol(z)
+    #
+    phi <- object$estimates$phi
+    Dfit2 <- object$estimates$D #Dfit%*%Dfit
+    Dfit <- matrix.sqrt(Dfit2)
+    sigma2<- object$estimates$sigma2
+    lambda <- object$estimates$lambda
+    if (is.null(lambda)) lambda<- rep(0,nrow(Dfit))
+    beta<- object$estimates$beta
+    N<- nrow(data)
+    ind_levels <- levels(ind)
+    vars <- unique(c(all.vars(object$formula$formFixed)[-1],
+                     all.vars(object$formula$formRandom),
+                     groupVar,timeVar))
+    mahalSim <- matrix(ncol=length(ind_levels),nrow=MCiter)
+    for (sample in 1:MCiter){
+      dadosi <- tapply(1:N,ind,gerar_smsn_healy,x=x,z=z,sigma2=sigma2,Dsqrti=Dfit,
+                       beta1=beta,lambda=lambda,distr=distr,nu=nu,ind=ind,time=time,
+                       depStruct=depStruct,phi=phi) %>% bind_rows()
+      names(dadosi)[1] <- all.vars(object$formula$formFixed)[1]
+      dadosi[,vars] <- data[,vars]
+      mahaldisti<-sort(mahalDist(object,dataPlus = dadosi))
+      #
+      if (distr=="sn"||distr=="norm") theoprobi <- pchisq(mahaldisti,nj1)
+      if (distr=="st"||distr=="t") theoprobi <- pf(mahaldisti/nj1,nj1,nu)
+      if (distr=="ssl"||distr=="sl") {
+        theoprobi <- pchisq(mahaldisti,nj1) - 2^nu*gamma(nj1/2+nu)/(mahaldisti^nu)/gamma(nj1/2)*
+          pchisq(mahaldisti,nj1+2*nu)
+      }
+      if (distr=="scn"||distr=="cn") {
+        theoprobi <- nu[1]*pchisq(nu[2]*mahaldisti,nj1) + (1-nu[1])*pchisq(mahaldisti,nj1)
+      }
+      mahalSim[sample,]<-theoprobi
+    }
+    MCmahalIC<-apply(mahalSim,2,function(x) quantile(x,probs = c((1-IClevel)/2,(1+IClevel)/2)))
+    MCmahalIC <-t(MCmahalIC) %>% as.data.frame()
+    colnames(MCmahalIC) <- c('inf','sup')
+    p1 <- p1+geom_line(aes(y=.data$inf),data = MCmahalIC,linetype=2,color=4)+
+      geom_line(aes(y=.data$sup),data = MCmahalIC,linetype=2,color=4)
+  }
+  p1
 }
