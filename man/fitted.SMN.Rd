@@ -10,6 +10,7 @@
   and the estimated contributions of the random effects to the fitted
   values at grouping levels. }
 
+
 \usage{
 \method{fitted}{SMN}(object, \dots)
 }

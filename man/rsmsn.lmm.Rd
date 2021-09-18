@@ -5,11 +5,11 @@
 %%  ~~function to do ... ~~
 }
 \description{
-It creates a simulated data set from SMSN-LMM (or from SMN-LMM, if \code{lambda=0}) with several possible dependence structures, for one subject.
+It creates a simulated data set from SMSN-LMM (or from SMN-LMM, if \code{lambda = 0}) with several possible dependence structures, for one subject.
 }
 \usage{
 rsmsn.lmm(time1, x1, z1, sigma2, D1, beta, lambda, depStruct = "UNC",
-    phi = NULL, distr = "sn", nu = NULL)
+          phi = NULL, distr = "sn", nu = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -37,7 +37,7 @@ rsmsn.lmm(time1, x1, z1, sigma2, D1, beta, lambda, depStruct = "UNC",
 \references{
 Lachos, V. H., P. Ghosh, and R. B. Arellano-Valle (2010). Likelihood based inference for skew-normal independent linear mixed models. Statistica Sinica 20, 303-322.
 
-Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Statistics in Medicine. \doi{10.1002/sim.8870}.
+Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Statistics in Medicine 40(7), 1790-1810.
 }
 \author{
 Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
@@ -51,23 +51,25 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 \examples{
 #generating a sample for 1 individual at 5 times
 nj1<-5
-rsmsn.lmm(1:nj1,cbind(1,1:nj1),rep(1,nj1),sigma2=.25,
-          D1=diag(1),beta = c(1,2),lambda = 2,depStruct = "ARp",phi=.5,
-          distr="st",nu=5)
+rsmsn.lmm(1:nj1, cbind(1, 1:nj1), rep(1, nj1), sigma2 = .25, D1 = diag(1),
+          beta = c(1, 2), lambda = 2, depStruct = "ARp",phi = .5,
+          distr = "st", nu = 5)
 
-#generating a sample for m=20 individuals at 5 times
+#generating a sample for m=20 individuals with 5 times
 library(dplyr)
 library(purrr)
 library(ggplot2)
-nj1<-5
-m<-50
-gendatList<- map(rep(nj1,m), function(nj) rsmsn.lmm(1:nj,cbind(1,1:nj),rep(1,nj),
-  sigma2=.25,D1=.5*diag(1),beta = c(1,2),lambda = 2,depStruct = "ARp",phi=.5))
-gendat<- bind_rows(gendatList,.id="ind")
-ggplot(gendat,aes(x=x,y=y,group=ind)) + geom_line() +
-  stat_summary(aes(group = 1),geom = "line", fun.y = mean, col="blue",size=2)
+nj1 <- 5
+m <- 25
+gendatList <- map(rep(nj1, m), function(nj) rsmsn.lmm(1:nj, cbind(1, 1:nj), rep(1, nj),
+                  sigma2 = .25, D1 = .5*diag(1), beta = c(1, 2), lambda = 2,
+                  depStruct = "ARp", phi = .5))
+gendat <- bind_rows(gendatList, .id = "ind")
+ggplot(gendat, aes(x = x, y = y, group = ind)) + geom_line() +
+  stat_summary(aes(group = 1), geom = "line", fun = mean, col = "blue", size = 2)
 #
-\donttest{fm1 <- smsn.lmm(y ~ x, data = gendat, groupVar="ind", depStruct="ARp", pAR=1)
+\donttest{fm1 <- smsn.lmm(y ~ x, data = gendat, groupVar = "ind", depStruct = "ARp",
+                pAR = 1)
 summary(fm1)
 }
 }

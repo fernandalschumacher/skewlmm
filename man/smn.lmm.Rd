@@ -4,16 +4,13 @@
 \title{ML estimation of scale mixture of normal linear mixed models
 }
 \description{
-It fits a scale mixture of normal linear mixed model with possible within-subject dependence structure, using an EM-type algorithm.
+It fits a scale mixture of normal linear mixed model with possible within-subject dependence structure, using an EM-type algorithm (via the DAAREM method, by default).
 It provides estimates and standard errors of parameters.
 }
 \usage{
 smn.lmm(data, formFixed, groupVar, formRandom = ~1, depStruct = "UNC",
-    timeVar = NULL, distr = "norm", pAR = 1, luDEC = 10,
-    tol = 1e-06, max.iter = 200, calc.se = TRUE, lb = NULL,
-    lu = NULL, initialValues = list(beta = NULL, sigma2 = NULL,
-                                    D = NULL, phi = NULL, nu = NULL),
-    quiet = FALSE, showCriterium=FALSE)
+        timeVar = NULL, distr = "norm", covRandom = "pdSymm",
+        pAR = 1, control = lmmControl())
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -24,20 +21,15 @@ smn.lmm(data, formFixed, groupVar, formRandom = ~1, depStruct = "UNC",
   \item{depStruct}{A character indicating which dependence structure should be used. \code{"UNC"} for conditionally uncorrelated (\code{"CI"} is also accepted), \code{"ARp"} for AR(p) -- p is \code{length(phi)}--, \code{"CS"} for compound symmetry, \code{"DEC"} for DEC, and \code{"CAR1"} for  continuous-time AR(1).}
   \item{timeVar}{A character containing the name of the variable which represents the time in \code{data}. Meaningless if \code{depStruct="UNC"} or \code{depStruct="CS"}. For other structures, if \code{is.null(timeVar)} the observations are considered equally spaced and ordered. If \code{depStruct="ARp"}, timeVar must the an index, preferably starting at 1.}
   \item{distr}{A character indicating which distribution should be used. \code{"norm"} for normal, \code{"t"} for t, \code{"sl"} for slash, and \code{"cn"} for contaminated normal.}
+    \item{covRandom}{A character indicating which structure should be used for the random
+effects scale matrix (either \code{"pdSymm"} (default), for a general positive-definite matrix, or \code{"pdDiag"}, for a diagonal matrix).}
   \item{pAR}{If \code{depStruct="ARp"}, pAR indicates the order of the autoregressive process that should be used. Otherwise, it is meaningless.}
-  \item{luDEC}{Optional. Upper limit for estimating the "damping" parameter for DEC covariance. If \code{luDEC<=1}, only attenuation of the exponential decay can be obtained.}
-  \item{tol}{Tolerance for the convergence criterion. Default=\code{1e-6}.}
-  \item{max.iter}{Maximum number of iterations for the EM algorithm. Default=\code{200}.}
-  \item{calc.se}{A logical value indicating if standard errors should be calculated.}
-  \item{lb}{Optional. Bottom limit for estimating \code{nu}.}
-  \item{lu}{Optional. Upper limit for estimating \code{nu}.}
-  \item{initialValues}{Optional. A named list containing initial parameter values, with at most the following elements: \code{beta}, \code{sigma2}, \code{D}, \code{phi}, \code{nu}.}
-  \item{quiet}{A logical value indicating if the iteration message should be suppressed. Useful when calling the function in R Markdown.}
-  \item{showCriterium}{A logical value indicating if the criterium should be shown at each iteration.}
-
+    \item{control}{An object resulting from the function \code{lmmControl()}, containing additional options for the estimation algorithm.}
 }
 \details{
 It fits the model \eqn{Y_i = X_i \beta + Z_i b_i + \epsilon_i}, for \eqn{i=1,\dots,n}, where \eqn{Y_i} is a vector with \eqn{n_i} observed continuous responses, \eqn{b_i ~ SMN(0, D; H)} and \eqn{\epsilon_i ~ SMN(0, \Sigma_i; H)}, indexed by the same mixing distribution.
+
+For efficiency, the DAAREM method is used for parameter estimation. In case of numerical errors, please try passing to  \code{\link{lmmControl}(algorithm = "DAAREM")} to the \code{control} argument.
 
 For details see Schumacher, Lachos & Matos (2021).
 }
@@ -48,6 +40,8 @@ Specifically, the following components are returned:
   \item{theta}{Named vector with parameter estimates.}
   \item{iter}{Number of iterations runned.}
   \item{estimates}{A named list containing parameter estimates.}
+  \item{uhat}{Estimated weights.}
+  \item{loglik.track}{Vector containing the log-likelihood value from each iteration of the estimation procedure.}
   \item{random.effects}{Estimated random effects.}
   \item{std.error}{A vector with standard errors.}
   \item{loglik}{Value of the log-likelihood at last iteration.}
@@ -58,17 +52,23 @@ Specifically, the following components are returned:
   \item{data}{The data frame used on \code{smn.lmm} call.}
   \item{forumla}{A list containing the formulas used on \code{smn.lmm} call.}
   \item{depStruct}{A character indicating which dependence structure was used.}
+  \item{covRandom}{A character indicating which structure was used for the random effects scale matrix.}
   \item{distr}{A character indicating which distribution was used.}
   \item{N}{The number of observations used.}
   \item{n}{The number of individuals/groups used.}
   \item{groupVar}{A character indicating the name of the grouping variable.}
+  \item{control}{The control list used in the function's call.}
   \item{timeVar}{A character indicating the name of the time variable, if any.}
   \item{fitted}{A vector of fitted values, if \code{calc.bi=TRUE}.}
 }
 \references{
+Henderson, N. C. and R. Varadhan (2019). Damped anderson acceleration with restarts
+and monotonicity control for accelerating EM and EM-like algorithms. Journal of
+Computational and Graphical Statistics 28(4), 834-846.
+
 Lachos, V. H., P. Ghosh, and R. B. Arellano-Valle (2010). Likelihood based inference for skew-normal independent linear mixed models. Statistica Sinica 20, 303-322.
 
-Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Statistics in Medicine. \doi{10.1002/sim.8870}.
+Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Statistics in Medicine 40(7), 1790-1810.
 }
 \author{
 Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
@@ -76,28 +76,33 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 
 
 \seealso{
-\code{\link{print.SMN}}, \code{\link{summary.SMN}}, \code{\link{predict.SMN}}, \code{\link{residuals.SMN}}, \code{\link{plot.SMN}}, \code{\link{smsn.lmm}}
+\code{\link{lmmControl}}, \code{\link{update}}, \code{\link{predict.SMN}}, \code{\link{residuals.SMN}}, \code{\link{plot.SMN}}, \code{\link{smsn.lmm}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
 #simple example
 dat1 <- as.data.frame(nlme::Orthodont)
-fm1 <- smn.lmm(dat1,formFixed=distance ~ age,groupVar="Subject",max.iter = 30)
+fm1 <- smn.lmm(dat1, formFixed = distance ~ age, groupVar = "Subject",
+                control = lmmControl(max.iter = 30))
 fm1
-\donttest{#fitting for several distributions / dependence structures
-fm1 <- smn.lmm(dat1,formFixed=distance ~ age+Sex,groupVar="Subject")
-fm2 <- smn.lmm(dat1,formFixed=distance ~ age+Sex,groupVar="Subject", distr="t")
-fm3 <- smn.lmm(dat1,formFixed=distance ~ age+Sex,groupVar="Subject", distr="sl")
-fm4 <- smn.lmm(dat1,formFixed=distance ~ age+Sex,groupVar="Subject", depStruct="ARp",pAR=1)
-rbind(fm1$criteria,fm2$criteria,fm3$criteria,fm4$criteria)
+\donttest{
+#fitting for several distributions / dependence structures
+fm1 <- smn.lmm(dat1, formFixed = distance ~ age+Sex, groupVar = "Subject")
+fm2 <- smn.lmm(dat1, formFixed = distance ~ age+Sex, groupVar = "Subject",
+                distr = "t")
+fm3 <- smn.lmm(dat1, formFixed = distance ~ age+Sex, groupVar = "Subject",
+                distr = "sl")
+fm4 <- smn.lmm(dat1, formFixed = distance ~ age+Sex, groupVar = "Subject",
+                depStruct = "ARp", pAR=1)
+criteria(list(fm1 = fm1, fm2 = fm2, fm3 = fm3, fm4 = fm4))
 summary(fm3)
 
 #some diagnostic tools
-plot(fm1)
-acf1<- acfresid(fm1,calcCI=TRUE,MCiter=100)
-plot(acf1)
-plot(mahalDist(fm1),fm1,nlabels=2)
-healy.plot(fm1)
+plot(fm3)
+acf3<- acfresid(fm3, calcCI = TRUE, MCiter = 100)
+plot(acf3)
+plot(mahalDist(fm3), nlabels = 2)
+healy.plot(fm3)
 }
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

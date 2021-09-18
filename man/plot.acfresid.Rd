@@ -32,7 +32,7 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 fm1 <- smn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar="Subject")
 plot(acfresid(fm1))
 
-\donttest{acfCI <- acfresid(fm1,calcCI=TRUE)
+\donttest{acfCI <- acfresid(fm1, calcCI = TRUE)
 plot(acfCI)
   }
 }

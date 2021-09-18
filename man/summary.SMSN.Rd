@@ -15,7 +15,7 @@
 \arguments{
   \item{object}{an object inheriting from class \code{SMSN}, representing
    a fitted scale mixture skew-normal linear mixed model.}
-  \item{confint.level}{Level of the approximate confidence intervals presented. Default=0.95.}
+  \item{confint.level}{Level of the approximate confidence intervals presented.}
   \item{\dots}{Additional arguments.}
    }
 
@@ -23,7 +23,7 @@
   \item{varRandom}{estimated variance matrix from random effects (\eqn{D}).}
   \item{varFixed}{parameter estimates of variance from random errors (\eqn{\Sigma}). For recovering the error variance matrix use \code{\link{errorVar}} function.}
   \item{tableFixed}{estimated fixed effects, their standard errors and approximated confidence intervals.}
-  \item{criteria}{Log-likelihood value from MLE, AIC and BIC criteria.}
+  \item{criteria}{Maximum log-likelihood value, AIC and BIC criteria.}
 }
 
 \author{
@@ -32,10 +32,12 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 
 
 \seealso{
-\code{\link{smsn.lmm}}, \code{\link{errorVar}}, \code{\link{plot.SMSN}}, \code{\link{residuals.SMSN}}
+\code{\link{boot_par}}, \code{\link{smsn.lmm}}, \code{\link{errorVar}}, \code{\link{plot.SMSN}}, \code{\link{residuals.SMSN}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{fm1 <- smsn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar="Subject",tol=.0001)
+\examples{
+fm1 <- smsn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar = "Subject",
+       control = lmmControl(tol=.0001))
 summary(fm1)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

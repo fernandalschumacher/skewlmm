@@ -1,17 +1,14 @@
 #main functions from skewlmm package - SMN-LMM
-smn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "UNC", timeVar=NULL,
-                    distr="norm",pAR=1,luDEC=10,
-                    tol=1e-6,max.iter=200,calc.se=TRUE,lb=NULL,lu=NULL,
-                    initialValues =list(beta=NULL,sigma2=NULL,D=NULL,phi=NULL,nu=NULL),
-                    quiet=FALSE,showCriterium=FALSE) {
+smn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "UNC",
+                    timeVar=NULL,distr="norm",covRandom='pdSymm',pAR=1,
+                    control = lmmControl()
+                    ) {
   if (class(formFixed)!="formula") stop("formFixed must be a formula")
   if (class(formRandom)!="formula") stop("formRandom must be a formula")
-  if (!is.list(initialValues)) stop("initialValues must be a list")
-  if (all(c("D","dsqrt") %in% names(initialValues))) initialValues$dsqrt<-NULL
-  if (any(!(names(initialValues) %in% c("beta","sigma2","D","lambda","phi","nu")))) warning("initialValues must be a list with named elements beta, sigma2, D, lambda, phi and/or nu, elements with other names are ignored")
+  if (!inherits(control,"lmmControl")) stop("control must be a list generated with lmmControl()")
   #
   if (!is.character(groupVar)) stop("groupVar must be a character containing the name of the grouping variable in data")
-  if (!is.null(timeVar)&!is.character(timeVar)) stop("timeVar must be a character containing the name of the time variable in data")
+  if (!is.null(timeVar)&&!is.character(timeVar)) stop("timeVar must be a character containing the name of the time variable in data")
   if (length(formFixed)!=3) stop("formFixed must be a two-sided linear formula object")
   if (!is.data.frame(data)) stop("data must be a data.frame")
   #if (is_tibble(data)) data=as.data.frame(data)
@@ -21,7 +18,8 @@ smn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "UNC", tim
   if (length(vars_miss)>0) stop(paste(vars_used[vars_miss],"not found in data"))
   data = data[,vars_used]
   #
-  if (!is.factor(data[,groupVar])) data[,groupVar]<-as.factor(data[,groupVar])
+  #data <- data[order(data[,groupVar]),]
+  if (!is.factor(data[,groupVar])) data[,groupVar]<-haven::as_factor(data[,groupVar])
   x <- model.matrix(formFixed,data=data)
   y <-data[,all.vars(formFixed)[1]]
   z<-model.matrix(formRandom,data=data)
@@ -29,22 +27,39 @@ smn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "UNC", tim
   data$ind <-data[,groupVar]
   m<-nlevels(ind)#n_distinct(ind)
   if (m<=1) stop(paste(groupVar,"must have more than 1 level"))
+  if (all(table(ind)==1)) stop(paste(groupVar,"must have more than 1 observation by level"))
   p<-ncol(x)
   q1<-ncol(z)
   if ((sum(is.na(x))+sum(is.na(z))+sum(is.na(y))+sum(is.na(ind)))>0) stop ("NAs not allowed")
-  if (!is.null(timeVar) & sum(is.na(data[,timeVar]))) stop ("NAs not allowed")
+  if (!is.null(timeVar) && sum(is.na(data[,timeVar]))) stop ("NAs not allowed")
   #
   if (!(distr %in% c("norm","t","sl","cn"))) stop("Accepted distributions: norm, t, sl, cn")
-  if ((!is.null(lb))&distr!="norm") if((distr=="t"&(lb<=1))|(distr=="sl"&(lb<=.5))) stop("Invalid lb")
-  if (is.null(lb)&distr!="norm") lb = ifelse(distr=="cn",rep(.01,2),ifelse(distr=="t",1.01,.51))
-  if (is.null(lu)&distr!="norm") lu = ifelse(distr=="cn",rep(.99,2),ifelse(distr=="t",100,50))
+  if ((!is.null(control$lb))&&distr!="norm") if((distr=="t"&&(control$lb<=1))||(distr=="sl"&&(control$lb<=.5))) stop("Invalid lb")
+  if (is.null(control$lb)&&distr!="norm") control$lb = ifelse(distr=="cn",rep(.01,2),ifelse(distr=="t",1.01,.51))
+  if (is.null(control$lu)&&distr!="norm") control$lu = ifelse(distr=="cn",rep(.99,2),ifelse(distr=="t",100,50))
   #
-  if (depStruct=="ARp" & !is.null(timeVar) & ((sum(!is.wholenumber(data[,timeVar]))>0)|(sum(data[,timeVar]<=0)>0))) stop("timeVar must contain positive integer numbers when using ARp dependency")
-  if (depStruct=="ARp" & !is.null(timeVar)) if (min(data[,timeVar])!=1) warning("consider using a transformation such that timeVar starts at 1")
+  if (depStruct=="ARp" && !is.null(timeVar) &&
+      ((sum(!is.wholenumber(data[,timeVar]))>0)||(sum(data[,timeVar]<=0)>0))) stop("timeVar must contain positive integer numbers when using ARp dependency")
+  if (depStruct=="ARp" && !is.null(timeVar)) if (min(data[,timeVar])!=1) warning("consider using a transformation such that timeVar starts at 1")
   if (depStruct=="CI") depStruct = "UNC"
   if (!(depStruct %in% c("UNC","ARp","CS","DEC","CAR1"))) stop("accepted depStruct: UNC, ARp, CS, DEC or CAR1")
   #
-  if (is.null(initialValues$beta)|is.null(initialValues$sigma2)|is.null(initialValues$D)) {
+  if (!(covRandom %in% c('pdSymm','pdDiag'))) stop("accepted covRandom: pdSymm or pdDiag")
+  diagD <- covRandom=='pdDiag'
+  if (q1==1) diagD=FALSE
+  #
+  if (is.null(control$parallelphi)) control$parallelphi <- ifelse(m>30,TRUE,FALSE)
+  if (depStruct=="UNC") control$parallelphi <- FALSE
+  if (is.null(control$parallelnu)) {
+    if (distr=='t'||distr=='norm') control$parallelnu <- FALSE
+    else if (distr=='sl') control$parallelnu <- ifelse(m>30,TRUE,FALSE)
+    else control$parallelnu <- ifelse(m>50,TRUE,FALSE)
+  }
+  if (distr=='norm') control$parallelnu <- FALSE
+  if (is.null(control$ncores)) if (control$parallelnu||control$parallelphi) control$ncores <- max(parallel::detectCores() - 1, 1, na.rm = TRUE)
+  #
+  if (is.null(control$initialValues$beta)||is.null(control$initialValues$sigma2)||
+      is.null(control$initialValues$D)) {
     lmefit = try(lme(formFixed,random=formula(paste('~',as.character(formRandom)[length(formRandom)],
                                                     '|',"ind")),data=data),silent=T)
     if (class(lmefit)=="try-error") {
@@ -58,17 +73,17 @@ smn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "UNC", tim
       D1init <- (var(random.effects(lmefit)))
     }
   }
-  if (!is.null(initialValues$beta)) {
-    beta1 <- initialValues$beta
+  if (!is.null(control$initialValues$beta)) {
+    beta1 <- control$initialValues$beta
   } else beta1 <- as.numeric(lmefit$coefficients$fixed)
-  if (!is.null(initialValues$sigma2)) {
-    sigmae <- initialValues$sigma2
+  if (!is.null(control$initialValues$sigma2)) {
+    sigmae <- control$initialValues$sigma2
   } else sigmae <- as.numeric(lmefit$sigma^2)
-  if (!is.null(initialValues$D)) {
-    D1 <- initialValues$D
+  if (!is.null(control$initialValues$D)) {
+    D1 <- control$initialValues$D
   } else D1 <- D1init
   #
-  if (length(D1)==1 & !is.matrix(D1)) D1=as.matrix(D1)
+  if (length(D1)==1 && !is.matrix(D1)) D1=as.matrix(D1)
   #
   if (length(beta1)!=p) stop ("wrong dimension of beta")
   if (!is.matrix(D1)) stop("D must be a matrix")
@@ -76,56 +91,85 @@ smn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "UNC", tim
   if (length(sigmae)!=1) stop ("wrong dimension of sigma2")
   if (sigmae<=0) stop("sigma2 must be positive")
   #
-  if (depStruct=="ARp") phiAR<- initialValues$phi
-  if (depStruct=="CS") phiCS<- initialValues$phi
-  if (depStruct=="DEC") parDEC<- initialValues$phi
-  if (depStruct=="CAR1") phiCAR1<- initialValues$phi
+  if (depStruct=="ARp") phiAR<- control$initialValues$phi
+  if (depStruct=="CS") phiCS<- control$initialValues$phi
+  if (depStruct=="DEC") parDEC<- control$initialValues$phi
+  if (depStruct=="CAR1") phiCAR1<- control$initialValues$phi
   #
-  nu = initialValues$nu
+  nu = control$initialValues$nu
   #
-  if (distr=="t"&is.null(nu)) nu=10
-  if (distr=="sl"&is.null(nu)) nu=5
-  if (distr=="cn"&is.null(nu)) nu=c(.05,.8)
+  if (distr=="t"&&is.null(nu)) nu=10
+  if (distr=="sl"&&is.null(nu)) nu=5
+  if (distr=="cn"&&is.null(nu)) nu=c(.05,.8)
   #
-  if (distr=="t"&length(nu)!=1) stop ("wrong dimension of nu")
-  if (distr=="sl"&length(nu)!=1) stop ("wrong dimension of nu")
-  if (distr=="cn"&length(nu)!=2) stop ("wrong dimension of nu")
+  if (distr=="t"&&length(nu)!=1) stop ("wrong dimension of nu")
+  if (distr=="sl"&&length(nu)!=1) stop ("wrong dimension of nu")
+  if (distr=="cn"&&length(nu)!=2) stop ("wrong dimension of nu")
   #
   if (distr=="norm") distrs="sn"
   if (distr=="t") distrs="st"
   if (distr=="sl") distrs="ss"
   if (distr=="cn") distrs="scn"
   ###
-  if (depStruct=="UNC") obj.out <- EM.sim(formFixed,formRandom,data,groupVar,distr=distrs,beta1,sigmae,D1,
-                                         nu,lb,lu,precisao=tol,informa=calc.se,max.iter=max.iter,showiter=!quiet,showerroriter = (!quiet)&showCriterium)
-  if (depStruct=="ARp") obj.out <- EM.AR(formFixed,formRandom,data,groupVar,pAR,timeVar,
-                                         distr=distrs,beta1,sigmae,phiAR,D1,nu,lb,lu,
-                                         precisao=tol,informa=calc.se,max.iter=max.iter,showiter=!quiet,showerroriter = (!quiet)&showCriterium)
-  if (depStruct=="CS") obj.out <-EM.CS(formFixed,formRandom,data,groupVar,
-                                       distr=distrs,beta1,sigmae,phiCS,D1,nu,lb,lu,
-                                       precisao=tol,informa=calc.se,max.iter=max.iter,showiter=!quiet,showerroriter = (!quiet)&showCriterium)
-  if (depStruct=="DEC") obj.out <-EM.DEC(formFixed,formRandom,data,groupVar,timeVar,
-                                         beta1,sigmae,D1,distr=distrs,nu,parDEC,lb,lu,luDEC,
-                                         precisao=tol,informa=calc.se,max.iter=max.iter,showiter=!quiet,showerroriter = (!quiet)&showCriterium)
-  if (depStruct=="CAR1") obj.out <-EM.CAR1(formFixed = formFixed,formRandom = formRandom,
-                                           data = data,groupVar = groupVar,timeVar = timeVar,
-                                           distr=distrs,beta1 = beta1,sigmae = sigmae,
-                                           phiCAR1 = phiCAR1,D1 = D1,nu = nu,lb = lb,lu = lu,
-                                           precisao=tol,informa=calc.se,max.iter=max.iter,showiter=!quiet,showerroriter = (!quiet)&showCriterium)
+  if (depStruct=="UNC") obj.out <- DAAREM.UNC(formFixed, formRandom, data, groupVar,
+                                              distr=distrs, beta1, sigmae, D1, nu, lb=control$lb, lu=control$lu,
+                                              diagD = diagD, precisao=control$tol, informa=control$calc.se,
+                                              max.iter=control$max.iter,showiter=!control$quiet,
+                                              showerroriter = (!control$quiet)&&control$showCriterium,
+                                              algorithm=control$algorithm, control.daarem = control$control.daarem,
+                                              parallelnu = control$parallelnu, ncores = control$ncores)
+  if (depStruct=="ARp") obj.out <- DAAREM.AR(formFixed, formRandom, data, groupVar,pAR,timeVar,
+                                             distr=distrs, beta1, sigmae,phiAR, D1, nu, lb=control$lb, lu=control$lu,
+                                             diagD = diagD,precisao=control$tol, informa=control$calc.se,
+                                             max.iter=control$max.iter,showiter=!control$quiet,
+                                             showerroriter = (!control$quiet)&&control$showCriterium,
+                                             algorithm=control$algorithm, control.daarem = control$control.daarem,
+                                             parallelphi = control$parallelphi, parallelnu = control$parallelnu,
+                                             ncores = control$ncores)
+  if (depStruct=="CS") obj.out <- DAAREM.CS(formFixed, formRandom, data, groupVar,
+                                           distr=distrs, beta1, sigmae,phiCS, D1, nu,
+                                           lb=control$lb, lu=control$lu, diagD = diagD,
+                                           precisao=control$tol, informa=control$calc.se,
+                                           max.iter=control$max.iter,showiter=!control$quiet,
+                                           showerroriter = (!control$quiet)&&control$showCriterium,
+                                           algorithm=control$algorithm, control.daarem = control$control.daarem,
+                                           parallelphi = control$parallelphi, parallelnu = control$parallelnu,
+                                           ncores = control$ncores)
+  if (depStruct=="DEC") obj.out <- DAAREM.DEC(formFixed, formRandom, data, groupVar,timeVar,
+                                             distr=distrs, beta1, sigmae,parDEC, D1, nu,
+                                             lb=control$lb, lu=control$lu, luDEC=control$luDEC,
+                                             diagD = diagD,precisao=control$tol, informa=control$calc.se,
+                                             max.iter=control$max.iter,showiter=!control$quiet,
+                                             showerroriter = (!control$quiet)&&control$showCriterium,
+                                             algorithm=control$algorithm, control.daarem = control$control.daarem,
+                                             parallelphi = control$parallelphi, parallelnu = control$parallelnu,
+                                             ncores = control$ncores)
+  if (depStruct=="CAR1") obj.out <-DAAREM.CAR1(formFixed, formRandom, data, groupVar,timeVar,
+                                              distr=distrs, beta1, sigmae,phiCAR1, D1, nu,
+                                              lb=control$lb, lu=control$lu, diagD = diagD,
+                                              precisao=control$tol, informa=control$calc.se,
+                                              max.iter=control$max.iter,showiter=!control$quiet,
+                                              showerroriter = (!control$quiet)&&control$showCriterium,
+                                              algorithm=control$algorithm, control.daarem = control$control.daarem,
+                                              parallelphi = control$parallelphi, parallelnu = control$parallelnu,
+                                              ncores = control$ncores)
   obj.out$call <- match.call()
 
   npar<-length(obj.out$theta);N<-nrow(data)
   obj.out$criteria$AIC <- 2*npar-2*obj.out$loglik
   obj.out$criteria$BIC <- log(N)*npar - 2*obj.out$loglik
-  obj.out$data = data
-  obj.out$formula$formFixed=formFixed
-  obj.out$formula$formRandom=formRandom
-  obj.out$depStruct = depStruct
-  obj.out$distr=distr
-  obj.out$N = N
-  obj.out$n = m#n_distinct(ind)
-  obj.out$groupVar = groupVar
-  obj.out$timeVar = timeVar
+  obj.out$data <- data
+  obj.out$formula$formFixed <- formFixed
+  obj.out$formula$formRandom <- formRandom
+  obj.out$depStruct <- depStruct
+  obj.out$covRandom <- covRandom
+  obj.out$distr <- distr
+  obj.out$N <- N
+  obj.out$n <- m#n_distinct(ind)
+  obj.out$groupVar <- groupVar
+  obj.out$timeVar <- timeVar
+  obj.out$control <- control
+  obj.out$diagD <- diagD
   #
   fitted <- numeric(N)
   ind_levels <- levels(ind)
@@ -145,13 +189,15 @@ print.SMN <- function(x,...){
   cat("Linear mixed models with distribution", x$distr, "and dependency structure",x$depStruct,"\n")
   cat("Call:\n")
   print(x$call)
-  cat("\nFixed:")
+  cat("\nFixed: ")
   print(x$formula$formFixed)
-  #print(x$theta)
-  cat("Random:")
+  cat("Random:\n")
+  cat("  Formula: ")
   print(x$formula$formRandom)
+  cat("  Structure:",ifelse(x$covRandom=='pdSymm','General positive-definite',
+                            'Diagonal'),'\n')
   cat("  Estimated variance (D):\n")
-  D1 = Dmatrix(x$estimates$dsqrt)%*%Dmatrix(x$estimates$dsqrt)
+  D1 = x$estimates$D
   colnames(D1)=row.names(D1)= colnames(model.matrix(x$formula$formRandom,data=x$data))
   print(D1)
   cat("\nEstimated parameters:\n")
@@ -177,22 +223,9 @@ print.SMN <- function(x,...){
   cat('Number of groups:',x$n,'\n')
 }
 
-summary.SMN <- function(object,confint.level=.95,...){
-  cat("Linear mixed models with distribution", object$distr, "and dependency structure",object$depStruct,"\n")
-  cat("Call:\n")
-  print(object$call)
-  cat("\nDistribution", object$distr)
-  if (object$distr!="norm") cat(" with nu =", object$estimates$nu,"\n")
-  cat("\nRandom effects: ")
-  print(object$formula$formRandom)
-  cat("  Estimated variance (D):\n")
-  D1 = Dmatrix(object$estimates$dsqrt)%*%Dmatrix(object$estimates$dsqrt)
+summary.SMN <- function(object, confint.level=.95, ...){
+  D1 = object$estimates$D
   colnames(D1)=row.names(D1)= colnames(model.matrix(object$formula$formRandom,data=object$data))
-  print(D1)
-  cat("\nFixed effects: ")
-  print(object$formula$formFixed)
-  if (!is.null(object$std.error)) cat("with approximate confidence intervals\n")
-  else cat(" (std errors not estimated)\n")
   p<-length(object$estimates$beta)
   if (!is.null(object$std.error)) {
     qIC <- qnorm(.5+confint.level/2)
@@ -203,27 +236,54 @@ summary.SMN <- function(object,confint.level=.95,...){
     rownames(tab) = names(object$theta[1:p])
     colnames(tab) = c("Value","Std.error",paste0("CI ",confint.level*100,"% lower"),
                       paste0("CI ",confint.level*100,"% upper"))
-  } else {
-    tab = (rbind(object$estimates$beta))
+  }
+  else {
+    tab = rbind(object$estimates$beta)
     colnames(tab) = names(object$theta[1:p])
     rownames(tab) = c("Value")
   }
-  print(tab)
-  cat("\nDependency structure:", object$depStruct)
-  cat("\n  Estimate(s):\n")
   covParam <- c(object$estimates$sigma2, object$estimates$phi)
   if (object$depStruct=="UNC") names(covParam) <- "sigma2"
   else names(covParam) <- c("sigma2",paste0("phi",1:(length(covParam)-1)))
-  print(covParam)
-  cat('\nModel selection criteria:\n')
   criteria <- c(object$loglik, object$criteria$AIC, object$criteria$BIC)
   criteria <- round(t(as.matrix(criteria)),digits=3)
   dimnames(criteria) <- list(c(""),c("logLik", "AIC", "BIC"))
-  print(criteria)
+  outobj<- list(varRandom=D1,varFixed=covParam,tableFixed=tab,criteria=criteria,
+                call = object$call, distr = object$distr, formula = object$formula,
+                D = D1, depStruct = object$depStruct,
+                estimates = object$estimates, n = object$n, N = object$N,
+                covParam = covParam)
+  class(outobj) <- c("SMNsumm","list")
+  outobj
+}
+
+print.SMNsumm <- function(x,...){
+  cat("Linear mixed models with distribution", x$distr, "and dependency structure",x$depStruct,"\n")
+  cat("Call:\n")
+  print(x$call)
+  cat("\nDistribution", x$distr)
+  if (x$distr!="norm") cat(" with nu =", x$estimates$nu,"\n")
+  cat("\nRandom effects: \n")
+  cat("  Formula: ")
+  print(x$formula$formRandom)
+  cat("  Structure:",ifelse(x$covRandom=='pdSymm','General positive-definite',
+                            'Diagonal'),'\n')
+  cat("  Estimated variance (D):\n")
+  D1 = x$D
+  print(D1)
+  cat("\nFixed effects: ")
+  print(x$formula$formFixed)
+  if (nrow(x$tab)>1) cat("with approximate confidence intervals\n")
+  else cat(" (std errors not estimated)\n")
+  print(x$tab)
+  cat("\nDependency structure:", x$depStruct)
+  cat("\n  Estimate(s):\n")
+  print(x$covParam)
+  cat('\nModel selection criteria:\n')
+  print(x$criteria)
   cat('\n')
-  cat('Number of observations:',object$N,'\n')
-  cat('Number of groups:',object$n,'\n')
-  invisible(list(varRandom=D1,varFixed=covParam,tableFixed=tab,criteria=criteria))
+  cat('Number of observations:',x$N,'\n')
+  cat('Number of groups:',x$n,'\n')
 }
 
 fitted.SMN <- function(object,...) object$fitted
@@ -231,7 +291,7 @@ fitted.SMN <- function(object,...) object$fitted
 
 #colocar if subj not in data
 predict.SMN <- function(object,newData,...){
-  if (missing(newData)) stop("newData must be a dataset containing the covariates, groupVar and timeVar (when used) from data that should be predicted")
+  if (missing(newData)||is.null(newData)) return(fitted(object))
   if (!is.data.frame(newData)) stop("newData must be a data.frame object")
   if (nrow(newData)==0) stop("newData can not be an empty dataset")
   dataFit <- object$data
@@ -252,14 +312,17 @@ predict.SMN <- function(object,newData,...){
   depStruct <- object$depStruct
   if (depStruct=="CI") depStruct = "UNC"
   if (any(!(dataPred[,groupVar] %in% dataFit[,groupVar]))) stop("subjects for which future values should be predicted must also be at fitting data")
-  if (!is.factor(dataFit[,groupVar])) dataFit[,groupVar]<-as.factor(dataFit[,groupVar])
+  if (!is.factor(dataFit[,groupVar])) dataFit[,groupVar]<-haven::as_factor(dataFit[,groupVar])
   if (!is.factor(dataPred[,groupVar])) dataPred[,groupVar]<-factor(dataPred[,groupVar],levels=levels(dataFit[,groupVar]))
+  dd<-matrix.sqrt(object$estimates$D)[upper.tri(object$estimates$D, diag = T)]
+  theta <- c(object$estimates$beta,object$estimates$sigma2,object$estimates$phi,
+             dd,object$estimates$nu)
   #
-  if (depStruct=="UNC") obj.out <- predictf.sim(formFixed,formRandom,dataFit,dataPred,groupVar,distr=distrs,theta=object$theta)
+  if (depStruct=="UNC") obj.out <- predictf.sim(formFixed,formRandom,dataFit,dataPred,groupVar,distr=distrs,theta=theta)
   if (depStruct=="ARp") obj.out <- predictf.AR(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,distr=distrs,
-                                                   pAR=length(object$estimates$phi),theta=object$theta)
-  if (depStruct=="CS") obj.out <-predictf.CS(formFixed,formRandom,dataFit,dataPred,groupVar,distr=distrs,theta=object$theta)
-  if (depStruct=="DEC") obj.out <-predictf.DEC(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,distr=distrs,theta=object$theta)
-  if (depStruct=="CAR1") obj.out <-predictf.CAR1(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,distr=distrs,theta=object$theta)
+                                                   pAR=length(object$estimates$phi),theta=theta)
+  if (depStruct=="CS") obj.out <-predictf.CS(formFixed,formRandom,dataFit,dataPred,groupVar,distr=distrs,theta=theta)
+  if (depStruct=="DEC") obj.out <-predictf.DEC(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,distr=distrs,theta=theta)
+  if (depStruct=="CAR1") obj.out <-predictf.CAR1(formFixed,formRandom,dataFit,dataPred,groupVar,timeVar,distr=distrs,theta=theta)
   obj.out
 }

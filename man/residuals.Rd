@@ -8,9 +8,9 @@
  The conditional residuals are obtained by subtracting the fitted values from the response vector, while the marginal residuals are obtained by subtracting only the fixed effects from the response vector.}
 
 \usage{
-\method{residuals}{SMN}(object,level="conditional",type="response",\dots)
+\method{residuals}{SMN}(object, level = "conditional", type = "response", \dots)
 
-\method{residuals}{SMSN}(object,level="conditional",type="response",\dots)
+\method{residuals}{SMSN}(object, level = "conditional", type = "response", \dots)
 }
 
 \arguments{
@@ -37,9 +37,10 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 \code{\link{smn.lmm}}, \code{\link{smsn.lmm}}, \code{\link{acfresid}},
 \code{\link{mahalDist}}, \code{\link{healy.plot}}
 }
-\examples{fm1 <- smn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar="Subject")
+\examples{
+fm1 <- smn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar = "Subject")
 residuals(fm1)
-plot(fm1)
+plot(fm1, useweight = FALSE)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

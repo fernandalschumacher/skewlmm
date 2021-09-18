@@ -836,7 +836,7 @@ EM.CS<- function(formFixed,formRandom,data,groupVar,
 
 
   if (informa) {
-    desvios<-try(InfmatrixCS(y,x,z,ind,beta1,sigmae,phiCS,D1,distr = distr,nu = nu),silent = T)
+    desvios<-try(InfmatrixCSs(y,x,z,ind,beta1,sigmae,phiCS,D1,distr = distr,nu = nu),silent = T)
     if (class(desvios)=="try-error") {
       warning("Numerical error in calculating standard errors")
       obj.out$std.error=NULL
@@ -1821,6 +1821,57 @@ scoreCSis <- function(jseq,y,x,z,beta1,sigmae,phiCS,D1,distr,nu) {
 
 }
 
+# scoreCSis2 <- function(jseq,y,x,z,beta1,sigmae,phiCS,D1,distr,nu) {
+#   y1=y[jseq]
+#   p= ncol(x);q1=ncol(z)
+#   q2 = q1*(q1+1)/2
+#   x1=matrix(x[jseq,  ],ncol=p)
+#   z1=matrix(z[jseq,  ],ncol=q1)
+#   ni = length(y1)
+#   Fmat = matrix.sqrt(D1)
+#   Gammab<-D1#-Deltab%*%t(Deltab)
+#   med<-x1%*%beta1#+ c.*z1%*%Deltab
+#   Covmat <- CovCS(phiCS,ni)
+#   sCovmat<-solve(Covmat)
+#   Sigma <- sigmae*Covmat
+#   Psi<-(z1)%*%(D1)%*%t(z1)+Sigma
+#   sPsi <- solve(Psi)
+#   di<-as.numeric(t(y1-med)%*%sPsi%*%(y1-med))
+#   Deltab <- matrix(rep(0,q1))
+#   #Mtj2<-(1+t(Deltab)%*%t(z1)%*%solve(Sigma+z1%*%Gammab%*%t(z1))%*%z1%*%Deltab)^(-1)
+#   #mutj<-Mtj2*t(Deltab)%*%t(z1)%*%solve(Sigma+z1%*%Gammab%*%t(z1))%*%(y1-med)
+#   Ai<-0#as.numeric(mutj/sqrt(Mtj2))
+#   sFmat = solve(Fmat)
+#   Lambda = solve(solve(D1)+ t(z1)%*%solve(Sigma)%*%z1)
+#   F.lista <- lapply(1:q2,F.r,q1=q1)
+#   #theta = c(beta1,sigmae,phi,dd,lambda,nu) - para AR(p)
+#   indpar = c(rep("beta",p),"sigma","phi",rep("dd",q2))
+#   lpar = length(indpar)
+#   ##### derivadas de log(det(Psi))
+#   dlogdpsi = numeric(lpar)
+#   dlogdpsi[indpar=="sigma"] =traceM(sPsi%*%Covmat)
+#   for (i in 1:q2) dlogdpsi[indpar=="dd"][i] = traceM(sPsi%*%z1%*%(F.lista[[i]]%*%Fmat+
+#                                                                     Fmat%*%F.lista[[i]])%*%t(z1))
+#   derCov <- matrix(1,nrow=ni,ncol=ni)-diag(ni)
+#   dlogdpsi[indpar=="phi"] = sigmae*traceM(sPsi%*%derCov)
+#   
+#   ##### derivadas de di
+#   ddi = numeric(lpar)
+#   ddi[indpar=="beta"] =-2*t(x1)%*%sPsi%*%(y1-med)
+#   ddi[indpar=="sigma"] = -t(y1-med)%*%sPsi%*%Covmat%*%sPsi%*%(y1-med)
+#   for (i in 1:q2) ddi[indpar=="dd"][i] =- t(y1-med)%*%sPsi%*%z1%*%(F.lista[[i]]%*%Fmat+Fmat%*%F.lista[[i]])%*%t(z1)%*%sPsi%*%(y1-med)
+#   ddi[indpar=="phi"] = -sigmae*t(y1-med)%*%sPsi%*%derCov%*%sPsi%*%(y1-med)
+#   
+#   ##### derivadas de ki
+#   ki = IPhi(ni/2,di=di,Ai=Ai,distr = distr,nu=nu)
+#   dki = numeric(lpar)
+#   dki = -.5*IPhi(ni/2+1,di=di,Ai=Ai,distr = distr,nu=nu)*ddi
+#   
+#   sihat = -.5*dlogdpsi+1/ki*dki
+#   sihat
+#   
+# }
+
 
 InfmatrixCSs <- function(y,x,z,ind,beta1,sigmae,phiCS,D1,distr,nu){
   N <-length(y)
@@ -1829,7 +1880,7 @@ InfmatrixCSs <- function(y,x,z,ind,beta1,sigmae,phiCS,D1,distr,nu){
   infmat <- Reduce("+",mi_list)
   npar <- nrow(infmat);nd<-nrow(D1)
   infmat<- infmat[1:(npar-nd),1:(npar-nd)]
-  if (abs(det(infmat))<2e-5) infmat= infmat+1e-10*diag(nrow(infmat))
+  if (abs(det(infmat))<1e-3) infmat= infmat+1e-10*diag(nrow(infmat))
   sqrt(diag(solve(infmat)))
 }
 

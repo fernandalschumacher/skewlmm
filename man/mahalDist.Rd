@@ -8,7 +8,7 @@
     Returns the squared Mahalanobis distance from a fitted SMN-LMM or SMSN-LMM.}
 
 \usage{
-mahalDist(object,decomposed=FALSE,dataPlus=NULL)
+mahalDist(object, decomposed = FALSE, dataPlus = NULL)
 }
 
 \arguments{
@@ -19,11 +19,11 @@ mahalDist(object,decomposed=FALSE,dataPlus=NULL)
    }
 
 \value{
-  A vector containing the Mahalanobis distance, if \code{decomposed=FALSE}, or a data frame containing the Mahalanobis distance and its decomposition in error term and random effect (b) term, if \code{decomposed=TRUE}.
+  A vector containing the Mahalanobis distance, if \code{decomposed = FALSE}, or a data frame containing the Mahalanobis distance and its decomposition in error term and random effect (b) term, if \code{decomposed = TRUE}.
 }
 
 \references{
-Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Statistics in Medicine. \doi{10.1002/sim.8870}.
+Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Statistics in Medicine 40(7), 1790-1810.
 
 Zeller, C. B., Labra, F. V., Lachos, V. H. & Balakrishnan, N. (2010). Influence analyses of skew-normal/independent linear mixed models. Computational Statistics & Data Analysis, 54(5).
 }
@@ -36,9 +36,9 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 \code{\link{smn.lmm}}, \code{\link{smsn.lmm}}, \code{\link{plot.mahalDist}}
 }
 \examples{
-fm1 <- smn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar="Subject")
+fm1 <- smn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar = "Subject")
 mahalDist(fm1)
-plot(mahalDist(fm1),fm1)
+plot(mahalDist(fm1), nlabels = 2)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

@@ -8,12 +8,11 @@
   It performs a likelihood-ratio test for two nested SMSN-LMM or SMN-LMM.
 }
 \usage{
-lr.test(obj1, obj2, level=0.05, quiet=FALSE)
+lr.test(obj1, obj2, level = 0.05)
 }
 \arguments{
   \item{obj1, obj2}{smsn.lmm or smn.lmm objects containing the fitted models to be tested.}
-  \item{level}{The significance level that should be used. If \code{quiet=TRUE}, this is ignored.}
-  \item{quiet}{A logical value indicating if the result message should be suppressed. Default is \code{FALSE}.}
+  \item{level}{The significance level that should be used. If \code{quiet = TRUE}, this is ignored.}
 }
 \value{
   \item{statistic}{The test statistic value.}
@@ -21,7 +20,7 @@ lr.test(obj1, obj2, level=0.05, quiet=FALSE)
   \item{df}{The degrees of freedom used on the test.}
 }
 \references{
-Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Statistics in Medicine. \doi{10.1002/sim.8870}.
+Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Statistics in Medicine 40(7), 1790-1810.
 }
 \author{
 Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
@@ -33,8 +32,9 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-fm1<- smn.lmm(nlme::Orthodont,formFixed=distance ~ age+Sex,groupVar="Subject")
-fm2<- smsn.lmm(nlme::Orthodont,formFixed=distance ~ age+Sex,groupVar="Subject",tol=.0001)
+fm1<- smn.lmm(nlme::Orthodont, formFixed = distance ~ age+Sex, groupVar = "Subject")
+fm2<- smsn.lmm(nlme::Orthodont, formFixed = distance ~ age+Sex, groupVar = "Subject",
+               control = lmmControl(tol = .0001))
 lr.test(fm1,fm2)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

@@ -24,7 +24,7 @@ errorVar(times, object = NULL, sigma2 = NULL, depStruct = NULL,
   Matrix of dimension \code{length(times)}.
 }
 \references{
-Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Statistics in Medicine. \doi{10.1002/sim.8870}.
+Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Statistics in Medicine 40(7), 1790-1810.
 }
 \author{
 Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos

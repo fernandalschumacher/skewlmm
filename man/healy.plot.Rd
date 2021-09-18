@@ -10,8 +10,8 @@ It creates a Healy-type plot from a smn.lmm or smsn.lmm object, for goodness-of-
 }
 
 \usage{
-healy.plot(object,dataPlus=NULL,dotsize=0.4,calcCI = FALSE,
-                       IClevel, MCiter, seed,...)
+healy.plot(object, dataPlus = NULL, dotsize = 0.4, calcCI = FALSE,
+           levelCI, MCiter, seed, ...)
 }
 
 \arguments{
@@ -20,7 +20,7 @@ healy.plot(object,dataPlus=NULL,dotsize=0.4,calcCI = FALSE,
   \item{dataPlus}{Optional. Expanded dataset that should be used instead the one used for fitting. This is necessary for unbalanced datasets, since Haley's plot requires all subject to have the same number of observations.}
   \item{dotsize}{Optional. Dotsize used in ggplot.}
   \item{calcCI}{\code{TRUE} or \code{FALSE} (default). A logical value indicating if Monte Carlo confidence intervals should be computed for the conditionally independent model, which can be used for testing if the autocorrelations are zero.}
- \item{IClevel}{An optional numeric value in \eqn{(0,1)} indicating the confidence level that should be used in the Monte Carlo confidence intervals. Default is \code{0.95}.}
+ \item{levelCI}{An optional numeric value in \eqn{(0,1)} indicating the confidence level that should be used in the Monte Carlo confidence intervals. Default is \code{0.95}.}
  \item{MCiter}{An optional discrete value indicating the number of Monte Carlo samples that should be used to compute the confidence intervals. Default is \code{300}.}
  \item{seed}{An optional value used to specify seeds inside the function. Default is to use a random seed.}
  \item{\dots}{Additional arguments.}
@@ -38,8 +38,7 @@ should resemble a straight line through the origin with unit slope.
 \references{
 Healy, M. J. R. (1968). Multivariate normal plotting. Journal of the Royal Statistical Society: Series C (Applied Statistics), 17(2), 157-161.
 
-Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Statistics in Medicine. \doi{10.1002/sim.8870}.
-}
+Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Statistics in Medicine 40(7), 1790-1810.}
 \author{
 Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 }
@@ -52,8 +51,8 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 fm1 <- smn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar="Subject")
 healy.plot(fm1)
 
-## computing approximate CIs
-\donttest{healy.plot(fm1,calcCI=TRUE)
+## computing simulated bands
+\donttest{healy.plot(fm1, calcCI = TRUE)
 }
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

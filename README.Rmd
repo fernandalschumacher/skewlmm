@@ -48,7 +48,8 @@ This is a basic example which shows you how to fit a SMSN-LMM:
 ```{r example1, out.width = '70%', fig.align = "center"}
 library(skewlmm)
 dat1 <- as.data.frame(nlme::Orthodont)
-fm1 <- smsn.lmm(dat1,formFixed=distance ~ age,groupVar="Subject",quiet=T)
+fm1 <- smsn.lmm(dat1, formFixed = distance ~ age, groupVar = "Subject",
+                control = lmmControl(quiet=TRUE))
 summary(fm1)
 plot(fm1)
 ```
@@ -57,15 +58,16 @@ Several methods are available for SMSN and SMN objects, such as: print, summary,
 
 Some tools for goodness-of-fit assessment are also available, for example:
 ```{r example2, out.width = '70%', fig.align = "center"}
-acf1<- acfresid(fm1,calcCI=TRUE)
+acf1<- acfresid(fm1, calcCI = TRUE)
 plot(acf1)
-plot(mahalDist(fm1),fm1,nlabels=2)
+plot(mahalDist(fm1), nlabels = 2)
 healy.plot(fm1)
 ```
 
 Furthermore, to fit a SMN-LMM one can use the following:
 ```{r example3}
-fm2 <- smn.lmm(dat1,formFixed=distance ~ age,groupVar="Subject",quiet=T)
+fm2 <- smn.lmm(dat1, formFixed = distance ~ age, groupVar = "Subject",
+               control = lmmControl(quiet=TRUE))
 summary(fm2)
 ```
 

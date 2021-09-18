@@ -8,8 +8,8 @@
 This function calculates the empirical autocorrelation function for the within-subject residuals from a smn.lmm or smsn.lmm  fit. The autocorrelation values are calculated using pairs of residuals within-subjects. The autocorrelation function is useful for investigating serial correlation models for discrete-time data, preferably equally spaced.}
 
 \usage{
-acfresid(object,maxLag,resLevel="marginal",resType="normalized",
-         calcCI=FALSE,IClevel,MCiter,seed)
+acfresid(object, maxLag, resLevel = "marginal", resType = "normalized",
+    calcCI = FALSE, levelCI, MCiter, seed)
 }
 
 \arguments{
@@ -19,7 +19,7 @@ acfresid(object,maxLag,resLevel="marginal",resType="normalized",
  \item{resLevel}{\code{"marginal"} (default) or \code{"conditional"}. An optional character string specifying which residual should be used. For details see \code{\link{residuals.SMN}}.}
  \item{resType}{\code{"response"}, \code{"normalized"} (default), or \code{"modified"}. An optional character string specifying which type of residual should be used. For details see \code{\link{residuals.SMN}}.}
  \item{calcCI}{\code{TRUE} or \code{FALSE} (default). A logical value indicating if Monte Carlo confidence intervals should be computed for the conditionally independent model, which can be used for testing if the autocorrelations are zero.}
- \item{IClevel}{An optional numeric value in \eqn{(0,1)} indicating the confidence level that should be used in the Monte Carlo confidence intervals. Default is \code{0.95}.}
+ \item{levelCI}{An optional numeric value in \eqn{(0,1)} indicating the confidence level that should be used in the Monte Carlo confidence intervals. Default is \code{0.95}.}
  \item{MCiter}{An optional discrete value indicating the number of Monte Carlo samples that should be used to compute the confidence intervals. Default is \code{300}.}
  \item{seed}{An optional value used to specify seeds inside the function. Default is to use a random seed.}
    }
@@ -31,7 +31,7 @@ A data frame with columns lag, ACF, and n.used representing, respectively, the l
 \references{
 Pinheiro, J. C. & Bates, D. M. (2000). Mixed-Effects Models in S and S-PLUS. Springer, New York, NY.
 
-Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Statistics in Medicine. \doi{10.1002/sim.8870}.
+Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Statistics in Medicine 40(7), 1790-1810.
 }
 \author{
 Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
@@ -47,7 +47,8 @@ acf1<- acfresid(fm1)
 acf1
 plot(acf1)
 
-\donttest{acfCI<- acfresid(fm1,calcCI=TRUE)
+## computing simulated bands
+\donttest{acfCI<- acfresid(fm1, calcCI = TRUE)
 plot(acfCI)
   }
 }
