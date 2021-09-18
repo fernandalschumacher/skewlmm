@@ -17,7 +17,6 @@ knitr::opts_chunk$set(
 
 # skewlmm
 
-[![Travis build status](https://travis-ci.org/fernandalschumacher/skewlmm.svg?branch=master)](https://travis-ci.org/fernandalschumacher/skewlmm)
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/skewlmm)](https://cran.r-project.org/package=skewlmm)
 
 
@@ -48,32 +47,55 @@ This is a basic example which shows you how to fit a SMSN-LMM:
 ```{r example1, out.width = '70%', fig.align = "center"}
 library(skewlmm)
 dat1 <- as.data.frame(nlme::Orthodont)
-fm1 <- smsn.lmm(dat1, formFixed = distance ~ age, groupVar = "Subject",
-                control = lmmControl(quiet=TRUE))
+fm1 <- smsn.lmm(dat1, formFixed = distance ~ age, formRandom = ~ age,
+                groupVar = "Subject", distr = "st",
+                control = lmmControl(quiet = TRUE))
 summary(fm1)
 plot(fm1)
 ```
 
-Several methods are available for SMSN and SMN objects, such as: print, summary, plot, fitted, residuals, and predict.
+Several methods are available for SMSN and SMN objects, such as: `print`, `summary`, `plot`, `fitted`, `residuals`, `predict`, and `update`.
 
 Some tools for goodness-of-fit assessment are also available, for example:
 ```{r example2, out.width = '70%', fig.align = "center"}
 acf1<- acfresid(fm1, calcCI = TRUE)
 plot(acf1)
 plot(mahalDist(fm1), nlabels = 2)
-healy.plot(fm1)
+healy.plot(fm1, calcCI = TRUE)
 ```
 
 Furthermore, to fit a SMN-LMM one can use the following:
 ```{r example3}
-fm2 <- smn.lmm(dat1, formFixed = distance ~ age, groupVar = "Subject",
-               control = lmmControl(quiet=TRUE))
+fm2 <- smn.lmm(dat1, formFixed = distance ~ age, formRandom = ~ age,
+               groupVar = "Subject", distr = "t",
+               control = lmmControl(quiet = TRUE))
 summary(fm2)
 ```
 
-Now, for performing a LRT for testing if the skewness parameter is 0, one can use the following:
+Now, for performing a LRT for testing if the skewness parameter is 0 ($\text{H}_0: \lambda_i=0, \forall i$), one can use the following:
 ```{r example4}
 lr.test(fm1,fm2)
 ```
 
-For more examples, see help(smsn.lmm) and help(smn.lmm).
+By default, the functions `smsn.lmm` and `smn.lmm` now use the DAAREM method (a method for EM accelaration, for details see `help(package="daarem")`) for estimation, to improve the computational performance. This method usually greatly reduces the convergence time, but its use can result in numerical errors, specially for small samples. In this cases, the EM algorithm can be used, as follows:
+
+```{r example5}
+fm2EM <- smn.lmm(dat1, formFixed = distance ~ age, formRandom = ~ age, distr = 't',
+                 groupVar = "Subject", control = lmmControl(algorithm = "EM", 
+                                                            quiet = TRUE))
+fm2EM
+```
+
+Also, we can fit a t-LMM with diagonal scale matrix for the random effects by using:
+```{r}
+fm2diag <- update(fm2, covRandom = "pdDiag")
+fm2diag
+```
+
+We can compare the information criteria for all fitted models using the `criteria` function, as follows:
+
+```{r}
+criteria(list(`ST-LMM` = fm1, `t-LMM` = fm2, `t-LMM(EM)` = fm2EM, `t-LMM-diag` = fm2diag))
+```
+
+For more examples, see `help(smsn.lmm)` and `help(smn.lmm)`.

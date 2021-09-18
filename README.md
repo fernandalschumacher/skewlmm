@@ -3,8 +3,6 @@
 
 # skewlmm
 
-[![Travis build
-status](https://travis-ci.org/fernandalschumacher/skewlmm.svg?branch=master)](https://travis-ci.org/fernandalschumacher/skewlmm)
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/skewlmm)](https://cran.r-project.org/package=skewlmm)
 
 The goal of skewlmm is to fit skew robust linear mixed models, using
@@ -44,39 +42,41 @@ library(skewlmm)
 #> Loading required package: optimParallel
 #> Loading required package: parallel
 dat1 <- as.data.frame(nlme::Orthodont)
-fm1 <- smsn.lmm(dat1, formFixed = distance ~ age, groupVar = "Subject",
-                control = lmmControl(quiet=TRUE))
+fm1 <- smsn.lmm(dat1, formFixed = distance ~ age, formRandom = ~ age,
+                groupVar = "Subject", distr = "st",
+                control = lmmControl(quiet = TRUE))
 summary(fm1)
-#> Linear mixed models with distribution sn and dependency structure UNC 
+#> Linear mixed models with distribution st and dependency structure UNC 
 #> Call:
 #> smsn.lmm(data = dat1, formFixed = distance ~ age, groupVar = "Subject", 
-#>     control = lmmControl(quiet = TRUE))
+#>     formRandom = ~age, distr = "st", control = lmmControl(quiet = TRUE))
 #> 
-#> Distribution sn
+#> Distribution st with nu = 4.662322 
+#> 
 #> Random effects: 
-#>   Formula: ~1
-#> <environment: 0x0000000012ecfc70>
+#>   Formula: ~age
 #>   Structure:  
 #>   Estimated variance (D):
-#>             (Intercept)
-#> (Intercept)    6.505804
+#>             (Intercept)         age
+#> (Intercept)   6.5378405 -0.55063271
+#> age          -0.5506327  0.07893263
 #> 
 #> Fixed effects: distance ~ age
 #> with approximate confidence intervals
-#>                  Value  Std.error CI 95% lower CI 95% upper
-#> (Intercept) 16.7624874 1.00640490   14.7899701   18.7350048
-#> age          0.6601852 0.06985842    0.5232652    0.7971052
+#>                  Value Std.error CI 95% lower CI 95% upper
+#> (Intercept) 17.0163263 0.9456853   15.1628172   18.8698354
+#> age          0.6248518 0.1242525    0.3813214    0.8683822
 #> 
 #> Dependency structure: UNC
 #>   Estimate(s):
-#>   sigma2 
-#> 2.024342 
+#>  sigma2 
+#> 0.81705 
 #> 
-#> Skewness parameter estimate: 1.073796
+#> Skewness parameter estimate: -3.000814 2.202111
 #> 
 #> Model selection criteria:
 #>    logLik     AIC     BIC
-#>  -221.657 453.314 466.724
+#>  -209.837 437.675 461.814
 #> 
 #> Number of observations: 108 
 #> Number of groups: 27
@@ -85,8 +85,9 @@ plot(fm1)
 
 <img src="man/figures/README-example1-1.png" width="70%" style="display: block; margin: auto;" />
 
-Several methods are available for SMSN and SMN objects, such as: print,
-summary, plot, fitted, residuals, and predict.
+Several methods are available for SMSN and SMN objects, such as:
+`print`, `summary`, `plot`, `fitted`, `residuals`, `predict`, and
+`update`.
 
 Some tools for goodness-of-fit assessment are also available, for
 example:
@@ -99,13 +100,13 @@ plot(acf1)
 <img src="man/figures/README-example2-1.png" width="70%" style="display: block; margin: auto;" />
 
 ``` r
-plot(mahalDist(fm1),nlabels = 2)
+plot(mahalDist(fm1), nlabels = 2)
 ```
 
 <img src="man/figures/README-example2-2.png" width="70%" style="display: block; margin: auto;" />
 
 ``` r
-healy.plot(fm1)
+healy.plot(fm1, calcCI = TRUE)
 ```
 
 <img src="man/figures/README-example2-3.png" width="70%" style="display: block; margin: auto;" />
@@ -113,97 +114,149 @@ healy.plot(fm1)
 Furthermore, to fit a SMN-LMM one can use the following:
 
 ``` r
-fm2 <- smn.lmm(dat1, formFixed = distance ~ age, groupVar = "Subject",
-               control = lmmControl(quiet=TRUE))
+fm2 <- smn.lmm(dat1, formFixed = distance ~ age, formRandom = ~ age,
+               groupVar = "Subject", distr = "t",
+               control = lmmControl(quiet = TRUE))
 summary(fm2)
-#> $varRandom
-#>             (Intercept)
-#> (Intercept)    4.290319
-#> 
-#> $varFixed
-#>   sigma2 
-#> 2.025079 
-#> 
-#> $tableFixed
-#>                  Value  Std.error CI 95% lower CI 95% upper
-#> (Intercept) 16.7611111 0.99272253   14.8154107   18.7068115
-#> age          0.6601852 0.06979482    0.5233898    0.7969805
-#> 
-#> $criteria
-#>    logLik    AIC     BIC
-#>  -221.695 451.39 462.118
-#> 
-#> $call
+#> Linear mixed models with distribution t and dependency structure UNC 
+#> Call:
 #> smn.lmm(data = dat1, formFixed = distance ~ age, groupVar = "Subject", 
-#>     control = lmmControl(quiet = TRUE))
+#>     formRandom = ~age, distr = "t", control = lmmControl(quiet = TRUE))
 #> 
-#> $distr
-#> [1] "norm"
+#> Distribution t with nu = 4.966122 
 #> 
-#> $formula
-#> $formula$formFixed
-#> distance ~ age
+#> Random effects: 
+#>   Formula: ~age
+#>   Structure:  
+#>   Estimated variance (D):
+#>             (Intercept)         age
+#> (Intercept)   3.2735098 -0.16423589
+#> age          -0.1642359  0.03246643
 #> 
-#> $formula$formRandom
-#> ~1
-#> <environment: 0x0000000018362258>
+#> Fixed effects: distance ~ age
+#> with approximate confidence intervals
+#>                 Value  Std.error CI 95% lower CI 95% upper
+#> (Intercept) 17.274030 0.67741340   15.9463240   18.6017357
+#> age          0.593514 0.06218718    0.4716294    0.7153986
 #> 
+#> Dependency structure: UNC
+#>   Estimate(s):
+#>    sigma2 
+#> 0.8926729 
 #> 
-#> $D
-#>             (Intercept)
-#> (Intercept)    4.290319
+#> Model selection criteria:
+#>    logLik     AIC     BIC
+#>  -211.351 436.701 455.476
 #> 
-#> $depStruct
-#> [1] "UNC"
-#> 
-#> $estimates
-#> $estimates$beta
-#> [1] 16.7611111  0.6601852
-#> 
-#> $estimates$sigma2
-#> [1] 2.025079
-#> 
-#> $estimates$dsqrt
-#> [1] 2.071308
-#> 
-#> $estimates$D
-#>          [,1]
-#> [1,] 4.290319
-#> 
-#> 
-#> $n
-#> [1] 27
-#> 
-#> $N
-#> [1] 108
-#> 
-#> $covParam
-#>   sigma2 
-#> 2.025079 
-#> 
-#> attr(,"class")
-#> [1] "SMNsumm" "list"
+#> Number of observations: 108 
+#> Number of groups: 27
 ```
 
-Now, for performing a LRT for testing if the skewness parameter is 0,
-one can use the following:
+Now, for performing a LRT for testing if the skewness parameter is 0
+(H<sub>0</sub> : *λ*<sub>*i*</sub> = 0, ∀*i*), one can use the
+following:
 
 ``` r
 lr.test(fm1,fm2)
 #> 
 #> Model selection criteria:
 #>       logLik     AIC     BIC
-#> fm1 -221.657 453.314 466.724
-#> fm2 -221.695 451.390 462.118
+#> fm1 -209.837 437.675 461.814
+#> fm2 -211.351 436.701 455.476
 #> 
 #>     Likelihood-ratio Test
 #> 
-#> chi-square statistics =  0.07597064 
-#> df =  1 
-#> p-value =  0.782834 
+#> chi-square statistics =  3.026434 
+#> df =  2 
+#> p-value =  0.2202005 
 #> 
 #> The null hypothesis that both models represent the 
 #> data equally well is not rejected at level  0.05
 ```
 
-For more examples, see help(smsn.lmm) and help(smn.lmm).
+By default, the functions `smsn.lmm` and `smn.lmm` now use the DAAREM
+method (a method for EM accelaration, for details see
+`help(package="daarem")`) for estimation, to improve the computational
+performance. This method usually greatly reduces the convergence time,
+but its use can result in numerical errors, specially for small samples.
+In this cases, the EM algorithm can be used, as follows:
+
+``` r
+fm2EM <- smn.lmm(dat1, formFixed = distance ~ age, formRandom = ~ age, distr = 't',
+                 groupVar = "Subject", control = lmmControl(algorithm = "EM", 
+                                                            quiet = TRUE))
+fm2EM
+#> Linear mixed models with distribution t and dependency structure UNC 
+#> Call:
+#> smn.lmm(data = dat1, formFixed = distance ~ age, groupVar = "Subject", 
+#>     formRandom = ~age, distr = "t", control = lmmControl(algorithm = "EM", 
+#>         quiet = TRUE))
+#> 
+#> Fixed: distance ~ age
+#> Random:
+#>   Formula: ~age
+#>   Structure: General positive-definite 
+#>   Estimated variance (D):
+#>             (Intercept)        age
+#> (Intercept)   3.1584628 -0.1533659
+#> age          -0.1533659  0.0314773
+#> 
+#> Estimated parameters:
+#>      (Intercept)    age sigma2 Dsqrt11 Dsqrt12 Dsqrt22    nu1
+#>          17.2876 0.5958 0.8982  1.7754 -0.0793  0.1587 4.9883
+#> s.e.      0.6684 0.0616 0.2460  0.8421  0.0931  0.0518     NA
+#> 
+#> Model selection criteria:
+#>    logLik     AIC     BIC
+#>  -211.351 436.701 455.476
+#> 
+#> Number of observations: 108 
+#> Number of groups: 27
+```
+
+Also, we can fit a t-LMM with diagonal scale matrix for the random
+effects by using:
+
+``` r
+fm2diag <- update(fm2, covRandom = "pdDiag")
+fm2diag
+#> Linear mixed models with distribution t and dependency structure UNC 
+#> Call:
+#> smn.lmm(data = dat1, formFixed = distance ~ age, groupVar = "Subject", 
+#>     formRandom = ~age, distr = "t", covRandom = "pdDiag", control = lmmControl(quiet = TRUE))
+#> 
+#> Fixed: distance ~ age
+#> Random:
+#>   Formula: ~age
+#>   Structure: Diagonal 
+#>   Estimated variance (D):
+#>             (Intercept)        age
+#> (Intercept)    1.546268 0.00000000
+#> age            0.000000 0.01789115
+#> 
+#> Estimated parameters:
+#>      (Intercept)    age sigma2 Dsqrt11 Dsqrt22    nu1
+#>          17.2827 0.5959 0.9699  1.2435  0.1338 4.9841
+#> s.e.      0.5864 0.0540 0.2388  0.6191  0.0551     NA
+#> 
+#> Model selection criteria:
+#>    logLik     AIC    BIC
+#>  -211.598 435.197 451.29
+#> 
+#> Number of observations: 108 
+#> Number of groups: 27
+```
+
+We can compare the information criteria for all fitted models using the
+`criteria` function, as follows:
+
+``` r
+criteria(list(`ST-LMM` = fm1, `t-LMM` = fm2, `t-LMM(EM)` = fm2EM, `t-LMM-diag` = fm2diag))
+#>               logLik npar      AIC      BIC
+#> ST-LMM     -209.8374    9 437.6748 461.8140
+#> t-LMM      -211.3506    7 436.7012 455.4761
+#> t-LMM(EM)  -211.3506    7 436.7013 455.4762
+#> t-LMM-diag -211.5985    6 435.1969 451.2897
+```
+
+For more examples, see `help(smsn.lmm)` and `help(smn.lmm)`.
