@@ -68,7 +68,7 @@ smnCens.lmm = function(data, formFixed, groupVar, formRandom=~1, depStruct="UNC"
       ((sum(!is.wholenumber(data[,timeVar]))>0)||(sum(data[,timeVar]<=0)>0))) stop("timeVar must contain positive integer numbers when using ARp dependency")
   if (depStruct=="ARp" && !is.null(timeVar)) if (min(data[,timeVar])!=1) warning("consider using a transformation such that timeVar starts at 1")
   if (depStruct=="CI") depStruct = "UNC"
-  if (!(depStruct %in% c("UNC","ARp","CS","DEC","MA1"))) stop("accepted depStruct: UNC, ARp, CS, DEC or MA1")
+  if (!(depStruct %in% c("UNC","ARp","CS","DEC","MA1", "CAR1"))) stop("accepted depStruct: UNC, ARp, CS, DEC, CAR1 or MA1")
   #
   # Initial values
   if (is.null(control$initialValues$beta)||is.null(control$initialValues$sigma2)||is.null(control$initialValues$D)) {
@@ -106,7 +106,7 @@ smnCens.lmm = function(data, formFixed, groupVar, formRandom=~1, depStruct="UNC"
     if (nu <=2 ) stop ("nu must be greater than 2")
   }
   #
-  if (depStruct%in%c("ARp", "CS", "DEC", "MA1")){
+  if (depStruct%in%c("ARp", "CS", "DEC", "MA1", "CAR1")){
     if (depStruct=="ARp"){
       if (!is.numeric(pAR)) stop ("pAR must be provided")
       if (pAR<=0 | pAR%%1!=0) stop ("pAR must be integer greater than 1")
@@ -124,6 +124,9 @@ smnCens.lmm = function(data, formFixed, groupVar, formRandom=~1, depStruct="UNC"
       } else if (depStruct=="CS"){
         if (length(c(phi))>1) stop ("phi must be a number in (0, 1)")
         if (phi<=0 | phi>=1) stop ("phi must be a number in (0, 1)")
+      } else if (depStruct=="CAR1"){
+        if (length(c(phi))>1) stop ("phi must be a number in (0, 1)")
+        if (phi<=0 | phi>=1) stop ("phi must be a number in (0, 1)")
       } else if (depStruct=="MA1"){
         if (length(c(phi))>1) stop ("phi must be a number in (-0.50, 0.50)")
         if (phi<=-0.5 | phi>=0.5) stop ("phi must be a number in (-0.50, 0.50)")
@@ -134,6 +137,7 @@ smnCens.lmm = function(data, formFixed, groupVar, formRandom=~1, depStruct="UNC"
 
       if (depStruct=="ARp") phi = as.numeric(pacf(ydif, lag.max=pAR, plot=F)$acf) # pit
       if (depStruct=="CS")  phi = abs(as.numeric(pacf(ydif, lag.max=1, plot=F)$acf))
+      if (depStruct=="CAR1") phi = abs(as.numeric(pacf(ydif, lag.max=1, plot=F)$acf))
       if (depStruct=="MA1"){
         phit = seq(-0.4, 0.4, by=.05)
         logveroDECvs = function(phitheta, distri){
@@ -215,7 +219,7 @@ print.SMNCens = function(x,...){
   print(D1)
   cat("\nEstimated parameters:\n")
   if (!is.null(x$std.error)) {
-    tab = round(rbind(x$theta, c(x$std.error, rep(NA, length(x$theta)-length(x$std.error)))),4)
+    tab = rbind(round(x$theta, 4), c(round(x$std.error,4), rep(NA, length(x$theta)-length(x$std.error))))
     colnames(tab) = names(x$theta)
     rownames(tab) = c("","s.e.")
   } else {
@@ -226,9 +230,9 @@ print.SMNCens = function(x,...){
   print(tab)
   cat('\n')
   cat('Model selection criteria:\n')
-  critFin = c(x$loglik, x$criteria$AIC, x$criteria$BIC, x$criteria$SIC)
+  critFin = c(x$loglik, x$criteria$AIC, x$criteria$BIC)
   critFin = round(t(as.matrix(critFin)),digits=3)
-  dimnames(critFin) = list(c(""),c("logLik", "AIC", "BIC", "SIC"))
+  dimnames(critFin) = list(c(""),c("logLik", "AIC", "BIC"))
   print(critFin)
   cat('\n')
   cat('Number of observations:',x$N,'\n')
@@ -276,9 +280,9 @@ summary.SMNCens = function(object, confint.level=0.95, ...){
   else names(covParam) = c("sigma2", paste0("phi",1:(length(covParam)-1)))
   print(covParam)
   cat("\nModel selection criteria:\n")
-  criteria = c(object$loglik, object$criteria$AIC, object$criteria$BIC, object$criteria$SIC)
+  criteria = c(object$loglik, object$criteria$AIC, object$criteria$BIC)
   criteria = round(t(as.matrix(criteria)), digits=3)
-  dimnames(criteria) = list(c(""),c("logLik", "AIC", "BIC", "SIC"))
+  dimnames(criteria) = list(c(""),c("logLik", "AIC", "BIC"))
   print(criteria)
   cat('\n')
   cat('Number of observations:', object$N,'\n')
@@ -461,12 +465,12 @@ rsmnCens.lmm = function(time, ind, x, z, sigma2, D, beta, depStruct="UNC",
     if (nu <=2 ) stop ("nu must be greater than 2")
   }
   #
-  if (!(depStruct %in% c("UNC","ARp","CS", "CI","DEC","MA1"))) stop("accepted depStruct: UNC, ARp, CS, DEC or MA1")
+  if (!(depStruct %in% c("UNC","ARp","CS", "CI","DEC","MA1", "CAR1"))) stop("accepted depStruct: UNC, ARp, CS, DEC, CAR1 or MA1")
   if (depStruct=="CI") depStruct = "UNC"
   if (depStruct=="ARp" && ((sum(!is.wholenumber(time))>0)||(sum(time<=0)>0))) stop("time must contain positive integer numbers when using ARp dependency")
   if (depStruct=="ARp") if (min(time)!=1) warning("consider using a transformation such that time starts at 1")
-  if (depStruct%in%c("ARp", "CS", "DEC", "MA1")){
-    if (is.null(phi)) stop("phi must be provided for ARp, CS, DEC, and MA1 dependency")
+  if (depStruct%in%c("ARp", "CS", "DEC", "MA1", "CAR1")){
+    if (is.null(phi)) stop("phi must be provided for ARp, CS, DEC, CAR1 and MA1 dependency")
     if (depStruct=="ARp"){
       piis = tphitopi(phi)
       if (any(piis<(-1)|piis>1)) stop ("invalid value for phi")
@@ -474,6 +478,9 @@ rsmnCens.lmm = function(time, ind, x, z, sigma2, D, beta, depStruct="UNC",
       if (length(c(phi))!=2) stop ("phi must be a bi-dimensional vector")
       if (any(phi<=0 | phi>=1)) stop ("phi elements must be in (0, 1)")
     } else if (depStruct=="CS"){
+      if (length(c(phi))>1) stop ("phi must be a number in (0, 1)")
+      if (phi<=0 | phi>=1) stop ("phi must be a number in (0, 1)")
+    } else if (depStruct=="CAR1"){
       if (length(c(phi))>1) stop ("phi must be a number in (0, 1)")
       if (phi<=0 | phi>=1) stop ("phi must be a number in (0, 1)")
     } else if (depStruct=="MA1"){

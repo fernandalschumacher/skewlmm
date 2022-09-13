@@ -36,7 +36,7 @@ importFrom("stats","ARMAacf","dgamma","dnorm","fitted","formula","integrate","ma
            "model.frame","model.matrix","optim","optimize","pacf","pchisq","pf","pgamma","pnorm","pt",
            "qchisq","qf","qgamma","qnorm","quantile","rbeta","rgamma","rnorm","runif",
            "toeplitz","residuals","uniroot","var")
-importFrom("tlrmvnmvt","pmvt")
+importFrom("TruncatedNormal","pmvt")
 importFrom("utils","capture.output","modifyList")
 #
 S3method(fitted,SMSN)

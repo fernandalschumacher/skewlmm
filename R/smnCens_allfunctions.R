@@ -29,6 +29,10 @@ MatDec = function(tt, phi, struc){
     Rn = Rn/(1 - sum(rhos*phi))
     V = as.matrix(Rn[tt,tt])
 
+  } else if (struc=="CAR1"){
+    H = (abs(outer(tt, tt, "-")))
+    V = (phi^H)
+
   } else if (struc=="MA1"){
     W = matrix(0, nrow=r, ncol=r)
     for (i in 1:r){
@@ -148,7 +152,7 @@ FCi = function(phiG, beta1, sigmae, ttc, ubi, ubbi, uybi, uyyi, uyi, x, z, nj){
   return(-soma)
 }
 
-# Estimate phi (CS and MA(1) model)
+# Estimate phi (CS, CAR1, and MA1 model)
 FCiphi1 = function(phi1, beta1, sigmae, ttc, ubi, ubbi, uybi, uyyi, uyi, x, z, nj, struc){
   m  = length(nj)[1]
   p  = dim(x)[2]
@@ -181,7 +185,7 @@ FCiphi1 = function(phi1, beta1, sigmae, ttc, ubi, ubbi, uybi, uyyi, uyi, x, z, n
   return(-soma)
 }
 
-# Estimate phi (AR(p) model)
+# Estimate phi (ARp model)
 FCiArp = function(piis, beta1, sigmae, ttc, ubi, ubbi, uybi, uyyi, uyi, x, z, nj){
   m  = length(nj)[1]
   p  = dim(x)[2]
@@ -300,7 +304,6 @@ censEM.norm = function(y, x, z, cc, lcl, ucl, ind, ttc, data, beta1, sigmae, D1,
   loglik = loglikFuncN(y=y, cc=cc, x=x, z=z, ttc=ttc, nj=nj, LL=lcl, LU=ucl, betas=beta1, sigmae=sigmae, D1=D1, phi1=phi1, struc=struc)
   if (is.nan(loglik)|is.infinite(abs(loglik))) stop("NaN/infinity initial likelihood")
   loglikvec = NULL
-  Theta = NULL
 
   while ((criterio>precision)&(count<itermax)){
     count = count + 1
@@ -432,6 +435,10 @@ censEM.norm = function(y, x, z, cc, lcl, ucl, ind, ttc, data, beta1, sigmae, D1,
         phi1 = optimize(f=FCiphi1, lower=0.001, upper=0.99, beta1=beta1, sigmae=sigmae,
                         ttc=ttc, ubi=ubi, ubbi=ubbi, uybi=uybi, uyyi=uyyi, uyi=uyi, x=x, z=z, nj=nj, struc=struc)$minimum
 
+      } else if (struc=="CAR1"){
+        phi1 = optimize(f=FCiphi1, lower=0.001, upper=0.99, beta1=beta1, sigmae=sigmae,
+                        ttc=ttc, ubi=ubi, ubbi=ubbi, uybi=uybi, uyyi=uyyi, uyi=uyi, x=x, z=z, nj=nj, struc=struc)$minimum
+
       } else if (struc=="MA1"){
         phi1 = optimize(f=FCiphi1, lower=-0.49, upper=0.49, beta1=beta1, sigmae=sigmae,
                         ttc=ttc, ubi=ubi, ubbi=ubbi, uybi=uybi, uyyi=uyyi, uyi=uyi, x=x, z=z, nj=nj, struc=struc)$minimum
@@ -443,7 +450,6 @@ censEM.norm = function(y, x, z, cc, lcl, ucl, ind, ttc, data, beta1, sigmae, D1,
     criterio = sqrt(((loglik1/loglik)-1)%*%((loglik1/loglik)-1))
     loglik = loglik1
     loglikvec = c(loglikvec, loglik)
-    Theta = rbind(Theta, teta1)
     #
     if (showiter&&!showerroriter) cat("Iteration ",count,"\r")
     if (showerroriter) cat("Iteration ",count," of ",itermax," - criterium =",criterio," - loglik =",loglik,"\r")
@@ -464,7 +470,6 @@ censEM.norm = function(y, x, z, cc, lcl, ucl, ind, ttc, data, beta1, sigmae, D1,
   npar = length(c(teta1))
   AICc = -2*loglik + 2*npar
   BICc = -2*loglik + log(N)*npar
-  SIC  = -2*loglik + npar*log(N)
 
   namesD = NULL
   for (k in 1:nrow(D1)) namesD = c(namesD, paste0("D",1:k,k))
@@ -479,9 +484,9 @@ censEM.norm = function(y, x, z, cc, lcl, ucl, ind, ttc, data, beta1, sigmae, D1,
 
   if (informa) obj.out = list(theta=teta1, iter=count, estimates=estimates, yest=yhatorg, uhat=uhat, loglik.track=loglikvec,
                               random.effects=bi, std.error=sqrt(diag(solve(Infbetas))), loglik=loglik, elapsedTime=timediff,
-                              error=criterio, criteria=list(AIC=AICc, BIC=BICc, SIC=SIC))
+                              error=criterio, criteria=list(AIC=AICc, BIC=BICc))
   else obj.out = list(theta=teta1, iter=count, estimates=estimates, yest=yhatorg, uhat=uhat, loglik.track=loglikvec, random.effects=bi,
-                      std.error=NULL, loglik=loglik, elapsedTime=timediff, error=criterio, criteria=list(AIC=AICc, BIC=BICc, SIC=SIC))
+                      std.error=NULL, loglik=loglik, elapsedTime=timediff, error=criterio, criteria=list(AIC=AICc, BIC=BICc))
   return(obj.out)
 }
 
@@ -597,9 +602,8 @@ FCiArpt = function(piis, beta1, sigmae, ttc, ubi, ubbi, uybi, uyyi, uyi, ui, x, 
 }
 
 # Probability of multivariate Student-t
-acumTs = function(y, mu, sigma, nu){
-  lower = rep(-Inf, length(y))
-  resp = pmvt(lower=lower, upper=y, delta=mu, df=nu, sigma=sigma, type="shifted")[1]
+acumTs = function(lower, upper, mu, sigma, nu){
+  resp = pmvt(mu=mu, sigma=sigma, df=nu, lb=lower, ub=upper)[1] #pmvt(lower=lower, upper=y, delta=mu, df=nu, sigma=sigma, type="shifted")[1]
   return(resp)
 }
 
@@ -628,41 +632,41 @@ loglikFunct = function(nu, y, x, z, cc, ttc, nj, LL, LU, betas, sigmae, D1, phi1
     SIGMA = (SIGMA + t(SIGMA))/2
 
     if (sum(cc1)==0){ # No censored observations
-      ver[j,] = dmvt(x=y1, delta=muii, sigma=SIGMA, df=nu, log=TRUE, type="shifted") #dTs(y1,as.vector(muii),SIGMA,nu)
+      ver[j,] = dmvt(x=y1, delta=muii, sigma=as.matrix(SIGMA), df=nu, log=TRUE, type="shifted") #dTs(y1,as.vector(muii),SIGMA,nu)
 
     } else {
-      if (sum(cc1)>=1){
-        if (sum(cc1)==nj[j]){ # All censored observations
-          ver[j,] = log(pmvt(lower=LL1, upper=LU1, delta=muii, df=nu, sigma=SIGMA, type="shifted")[1]) #acumTs(as.vector(y1-muii),rep(0,sum(cc1)),SIGMA,nu)
+      if (sum(cc1)==nj[j]){ # All censored observations
+        ver[j,] = log(pmvt(mu=muii, sigma=SIGMA, df=nu, lb=LL1, ub=LU1)[1]) #log(pmvt(lower=LL1, upper=LU1, delta=muii, df=nu, sigma=SIGMA, type="shifted")[1]) #acumTs(as.vector(y1-muii),rep(0,sum(cc1)),SIGMA,nu)
 
-        } else { # At least one censored observation
-          if (sum(cc1)==1){
-            isigma00 = solve(SIGMA[cc1==0,cc1==0])
-            muiic = muii[cc1==1] + SIGMA[cc1==1,cc1==0]%*%isigma00%*%(y1[cc1==0]-muii[cc1==0])
-            muiic = as.numeric(muiic)
-            Si = SIGMA[cc1==1,cc1==1] - SIGMA[cc1==1,cc1==0]%*%isigma00%*%SIGMA[cc1==0,cc1==1]
-            Si = as.numeric(Si)
-            coef1 = as.numeric((mahalanobis(y1[cc1==0], muii[cc1==0], SIGMA[cc1==0,cc1==0]) + nu)/(nu + length(cc1[cc1==0])))
-            Sic = sqrt(coef1*Si)
-            #
-            ver[j,] = dmvt(x=y1[cc1==0], delta=muii[cc1==0], sigma=SIGMA[cc1==0,cc1==0], df=nu, log=TRUE, type="shifted") +
-              log(pt(q=(LU1[cc1==1]-muiic)/Sic, df=(nu+length(cc1==0))) - pt(q=(LL1[cc1==1]-muiic)/Sic, df=(nu+length(cc1==0))))
+      } else { # At least one censored observation
+        if (sum(cc1)==1){
+          n2 = length(cc1[cc1==0])
+          isigma00 = solve(SIGMA[cc1==0,cc1==0])
+          muiic = muii[cc1==1] + SIGMA[cc1==1,cc1==0]%*%isigma00%*%(y1[cc1==0]-muii[cc1==0])
+          muiic = as.numeric(muiic)
+          Si = SIGMA[cc1==1,cc1==1] - SIGMA[cc1==1,cc1==0]%*%isigma00%*%SIGMA[cc1==0,cc1==1]
+          Si = as.numeric(Si)
+          coef1 = as.numeric((mahalanobis(y1[cc1==0], muii[cc1==0], SIGMA[cc1==0,cc1==0]) + nu)/(nu + n2))
+          Sic = sqrt(coef1*Si)
+          #
+          ver[j,] = dmvt(x=y1[cc1==0], delta=muii[cc1==0], sigma=as.matrix(SIGMA[cc1==0,cc1==0]), df=nu, log=TRUE, type="shifted") +
+            log(pt(q=(LU1[cc1==1]-muiic)/Sic, df=(nu+n2)) - pt(q=(LL1[cc1==1]-muiic)/Sic, df=(nu+n2)))
 
-          } else {
-            isigma00 = solve(SIGMA[cc1==0,cc1==0])
-            muiic = muii[cc1==1] + SIGMA[cc1==1,cc1==0]%*%isigma00%*%(y1[cc1==0]-muii[cc1==0])
-            muiic = as.vector(muiic)
-            Si = SIGMA[cc1==1,cc1==1] - SIGMA[cc1==1,cc1==0]%*%isigma00%*%SIGMA[cc1==0,cc1==1]
-            Si = (Si + t(Si))/2
-            coef1 = as.numeric((mahalanobis(y1[cc1==0], muii[cc1==0], SIGMA[cc1==0,cc1==0]) + nu)/(nu + length(cc1[cc1==0])))
-            Sic = coef1*Si
-            Sic = (Sic + t(Sic))/2
-            #
-            ver[j,] = dmvt(x=y1[cc1==0], delta=muii[cc1==0], sigma=SIGMA[cc1==0,cc1==0], df=nu, log=TRUE, type="shifted") +
-              log(pmvt(lower=LL1[cc1==1], upper=LU1[cc1==1], delta=muiic, df=(nu+length(cc1==0)), sigma=Sic, type="shifted")[1])
-          }
+        } else {
+          n2 = length(cc1[cc1==0])
+          isigma00 = solve(SIGMA[cc1==0,cc1==0])
+          muiic = muii[cc1==1] + SIGMA[cc1==1,cc1==0]%*%isigma00%*%(y1[cc1==0]-muii[cc1==0])
+          muiic = as.vector(muiic)
+          Si = SIGMA[cc1==1,cc1==1] - SIGMA[cc1==1,cc1==0]%*%isigma00%*%SIGMA[cc1==0,cc1==1]
+          Si = (Si + t(Si))/2
+          coef1 = as.numeric((mahalanobis(y1[cc1==0], muii[cc1==0], SIGMA[cc1==0,cc1==0]) + nu)/(nu + n2))
+          Sic = coef1*Si
+          Sic = (Sic + t(Sic))/2
+          #
+          ver[j,] = dmvt(x=y1[cc1==0], delta=muii[cc1==0], sigma=as.matrix(SIGMA[cc1==0,cc1==0]), df=nu, log=TRUE, type="shifted") +
+            log(pmvt(mu=muiic, sigma=Sic, df=(nu+n2), lb=LL1[cc1==1], ub=LU1[cc1==1])[1]) #log(pmvt(lower=LL1[cc1==1], upper=LU1[cc1==1], delta=muiic, df=(nu+length(cc1==0)), sigma=Sic, type="shifted")[1])
         }
-      } # End if (sum(cc1)>=1)
+      }
     } # End else
   } #end for
   logvero = sum(ver)
@@ -769,24 +773,24 @@ censEM.t = function(y, x, z, cc, lcl, ucl, ind, ttc, data, beta1, sigmae, D1, ph
       } else if (sum(cc1)>=1){ # At least one censored observation
 
         if(sum(cc1)==nj[j]){
-          aux1U = acumTs(as.vector(y1-muii), rep(0,sum(cc1)), as.matrix((nu/(nu+2))*SIGMA), (nu + 2))
-          aux2U = acumTs(as.vector(y1-muii), rep(0,sum(cc1)), as.matrix(SIGMA), nu)
+          aux1U = acumTs(LL1, LU1, muii, as.matrix((nu/(nu+2))*SIGMA), (nu+2))
+          aux2U = acumTs(LL1, LU1, muii, as.matrix(SIGMA), nu)
           u = as.numeric(aux1U/aux2U)
-          auxy = mvtelliptical(as.vector(muii), as.matrix((nu/(nu+2))*SIGMA), lower=as.vector(LL1), upper=as.vector(LU1), "t", nu=(nu+2), n=1e5)
+          auxy = mvtelliptical(lower=as.vector(LL1), upper=as.vector(LU1), mu=as.vector(muii), Sigma=as.matrix((nu/(nu+2))*SIGMA), dist="t", nu=(nu+2), n=5e4)
 
           uy = u*auxy$EY
           uyy = u*auxy$EYY
           ub  = (Lambda1%*%(t(z1)*(1/sigmae))%*%invGama)%*%(uy - u*muii)
           ubb = Lambda1 + (Lambda1%*%(t(z1)*(1/sigmae))%*%invGama)%*%(uyy - uy%*%t(muii) - muii%*%t(uy) + u*muii%*%t(muii))%*%t(Lambda1%*%(t(z1)*(1/sigmae))%*%invGama)
           uyb = (uyy - uy%*%t(muii))%*%(invGama%*%(z1*(1/sigmae))%*%Lambda1)
-          auxb = mvtelliptical(as.vector(muii), as.matrix(SIGMA), lower=as.vector(LL1), upper=as.vector(LU1), "t", nu=(nu), n=1e5)
+          auxb = mvtelliptical(lower=as.vector(LL1), upper=as.vector(LU1), mu=as.vector(muii), Sigma=as.matrix(SIGMA), dist="t", nu=nu, n=5e4)
           yh   = auxb$EY
           best = (Lambda1%*%(t(z1)*(1/sigmae))%*%invGama)%*%(yh - muii)
 
           if (informa){## Information matrix
             cp = (((nu+nj[j])/nu)^2)*((gamma((nu+nj[j])/2)*gamma((nu+4)/2))/(gamma(nu/2)*gamma((nu+nj[j]+4)/2)))
-            auxw = mvtelliptical(as.vector(muii), as.matrix((nu/(nu + 4))*SIGMA), lower=as.vector(LL1), upper=as.vector(LU1), "t", nu=(nu+4), n=1e5)
-            auxEU = acumTs(as.vector(y1-muii), rep(0,sum(cc1)), as.matrix((nu/(nu+4))*SIGMA), (nu+4))
+            auxw = mvtelliptical(lower=as.vector(LL1), upper=as.vector(LU1), mu=as.vector(muii), Sigma=as.matrix((nu/(nu + 4))*SIGMA), dist="t", nu=(nu+4), n=5e4)
+            auxEU = acumTs(LL1, LU1, muii, as.matrix((nu/(nu+4))*SIGMA), (nu+4))
             Eu2yy = cp*(auxEU/aux2U)*auxw$EYY
             Eu2y  = cp*(auxEU/aux2U)*auxw$EY
             Eu2 = cp*(auxEU/aux2U)
@@ -808,10 +812,10 @@ censEM.t = function(y, x, z, cc, lcl, ucl, ind, ttc, data, beta1, sigmae, D1, ph
           LL1c = LL1[cc1==1]
           LU1c = LU1[cc1==1]
 
-          aux1U = acumTs(as.vector(y1[cc1==1]-muiic),rep(0,sum(cc1)),Sc0til,(nu + 2 + n2))
-          aux2U = acumTs(as.vector(y1[cc1==1]-muiic),rep(0,sum(cc1)),Sc0,(nu + n2))
+          aux1U = acumTs(LL1c, LU1c, muiic, Sc0til, (nu+2+n2))
+          aux2U = acumTs(LL1c, LU1c, muiic, Sc0, (nu+n2))
           u = as.numeric(aux1U/aux2U)*(1/auxQy0)
-          auxy = mvtelliptical(as.vector(muiic), as.matrix(Sc0til), lower=as.vector(LL1c), upper=as.vector(LU1c), "t", nu=(nu + 2 + n2), n=1e5)
+          auxy = mvtelliptical(lower=as.vector(LL1c), upper=as.vector(LU1c), mu=as.vector(muiic), Sigma=as.matrix(Sc0til), dist="t", nu=(nu + 2 + n2), n=5e4)
           w1aux = auxy$EY
           w2aux = auxy$EYY
 
@@ -827,15 +831,15 @@ censEM.t = function(y, x, z, cc, lcl, ucl, ind, ttc, data, beta1, sigmae, D1, ph
           ubb = Lambda1 + (Lambda1%*%(t(z1)*(1/sigmae))%*%invGama)%*%(uyy - uy%*%t(muii) - muii%*%t(uy) + u*muii%*%t(muii))%*%t(Lambda1%*%(t(z1)*(1/sigmae))%*%invGama)
           uyb = (uyy - uy%*%t(muii))%*%(invGama%*%(z1*(1/sigmae))%*%Lambda1)
 
-          auxb = mvtelliptical(as.vector(muiic), as.matrix(Sc0), lower=as.vector(LL1c), upper=as.vector(LU1c), "t", nu=(nu + n2), n=1e5)$EY
+          auxb = mvtelliptical(lower=as.vector(LL1c), upper=as.vector(LU1c), mu=as.vector(muiic), Sigma=as.matrix(Sc0), dist="t", nu=(nu + n2), n=5e4)$EY
           yh = matrix(y1,nj[j],1)
           yh[cc1==1] = auxb
           best = (Lambda1%*%(t(z1)*(1/sigmae))%*%invGama)%*%(yh - muii)
 
           if (informa) {# Information matrix
             dp = ((nu+nj[j])^2)*((gamma((nu+nj[j])/2)*gamma((nu+4+n2)/2))/(gamma((nu+n2)/2)*gamma((nu+4+nj[j])/2)))
-            auxEU = acumTs(as.vector(y1[cc1==1]-muiic), rep(0,sum(cc1)), as.matrix(as.numeric((nu+Qy0)/(nu+4+n2))*Si), (nu+4+n2))
-            auxEw = mvtelliptical(as.vector(muiic), as.matrix(as.numeric((nu+Qy0)/(nu+4+n2))*Si), lower=as.vector(LL1c), upper=as.vector(LU1c), "t", nu=(nu+4+n2), n=1e5)
+            auxEU = acumTs(LL1c, LU1c, muiic, as.matrix(as.numeric((nu+Qy0)/(nu+4+n2))*Si), (nu+4+n2))
+            auxEw = mvtelliptical(lower=as.vector(LL1c), upper=as.vector(LU1c), mu=as.vector(muiic), Sigma=as.matrix(as.numeric((nu+Qy0)/(nu+4+n2))*Si), dist="t", nu=(nu+4+n2), n=5e4)
             Ew1aux = auxEw$EY
             Ew2aux = auxEw$EYY
 
@@ -886,14 +890,14 @@ censEM.t = function(y, x, z, cc, lcl, ucl, ind, ttc, data, beta1, sigmae, D1, ph
     iD1 = solve(D1)
 
     # Update nu
-    if (nu.fixed==FALSE){
+    if (!nu.fixed){
       nu = optimize(f=loglikFunct, interval=c(2.1,50), tol=0.001, maximum=TRUE, y=y, x=x, z=z, cc=cc, ttc=ttc, nj=nj,
                     LL=lcl, LU=ucl, betas=beta1, sigmae=sigmae, D1=D1, phi1=phi1, struc=struc)$maximum
     }
 
     # Update phi1
     if (struc=="UNC"){
-      if (nu.fixed==FALSE) teta1 = c(beta1, sigmae, D1[upper.tri(D1, diag = T)], nu)
+      if (!nu.fixed) teta1 = c(beta1, sigmae, D1[upper.tri(D1, diag = T)], nu)
       else teta1 = c(beta1, sigmae, D1[upper.tri(D1, diag = T)])
 
     } else {
@@ -910,11 +914,15 @@ censEM.t = function(y, x, z, cc, lcl, ucl, ind, ttc, data, beta1, sigmae, D1, ph
         phi1 = optimize(f=FCiphi1t, lower=0.001, upper=0.99, tol=0.001, beta1=beta1, sigmae=sigmae,
                         ttc=ttc, ubi=ubi, ubbi=ubbi, uybi=uybi, uyyi=uyyi, uyi=uyi, ui=ui, x=x, z=z, nj=nj, struc=struc)$minimum
 
+      } else if (struc=="CAR1"){
+        phi1 = optimize(f=FCiphi1t, lower=0.001, upper=0.99, tol=0.001, beta1=beta1, sigmae=sigmae,
+                        ttc=ttc, ubi=ubi, ubbi=ubbi, uybi=uybi, uyyi=uyyi, uyi=uyi, ui=ui, x=x, z=z, nj=nj, struc=struc)$minimum
+
       } else if (struc=="MA1"){
         phi1 = optimize(f=FCiphi1t, lower=-0.49, upper=0.49, tol=0.001, beta1=beta1, sigmae=sigmae,
                         ttc=ttc, ubi=ubi, ubbi=ubbi, uybi=uybi, uyyi=uyyi, uyi=uyi, ui=ui, x=x, z=z, nj=nj, struc=struc)$minimum
       }
-      if (nu.fixed==FALSE) teta1 = c(beta1, sigmae, phi1, D1[upper.tri(D1,diag=T)], nu)
+      if (!nu.fixed) teta1 = c(beta1, sigmae, phi1, D1[upper.tri(D1,diag=T)], nu)
       else teta1 = c(beta1, sigmae, phi1, D1[upper.tri(D1,diag=T)])
     } # End estimation phi1
 
@@ -942,7 +950,6 @@ censEM.t = function(y, x, z, cc, lcl, ucl, ind, ttc, data, beta1, sigmae, D1, ph
   npar = length(c(teta1))
   AICc = -2*loglik + 2*npar
   BICc = -2*loglik + log(N)*npar
-  SIC  = -2*loglik + npar*log(N)
   #
   namesD = NULL
   for (k in 1:nrow(D1)) namesD = c(namesD, paste0("D",1:k,k))
@@ -963,10 +970,10 @@ censEM.t = function(y, x, z, cc, lcl, ucl, ind, ttc, data, beta1, sigmae, D1, ph
 
   if (informa) obj.out = list(theta=teta1, iter=count, estimates=estimates, yest=yhatorg, uhat=uhat, loglik.track=loglikvec,
                               random.effects=bi, std.error=sqrt(diag(solve(Infbetas))), loglik=loglik, elapsedTime=timediff,
-                              error=criterio, criteria=list(AIC=AICc, BIC=BICc, SIC=SIC))
+                              error=criterio, criteria=list(AIC=AICc, BIC=BICc))
   else obj.out = list(theta=teta1, iter=count, estimates=estimates, yest=yhatorg, uhat=uhat, loglik.track=loglikvec,
                       random.effects=bi, std.error=NULL, loglik=loglik, elapsedTime=timediff, error=criterio,
-                      criteria=list(AIC=AICc, BIC=BICc, SIC=SIC))
+                      criteria=list(AIC=AICc, BIC=BICc))
   return(obj.out)
 }
 
