@@ -1,7 +1,7 @@
 \name{plot}
-\alias{plot.SMN}\alias{plot.SMSN}
+\alias{plot.SMN}\alias{plot.SMSN}\alias{plot.SMNCens}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Plot a smn.lmm or smsn.lmm object
+\title{Plot a smn.lmm, smsn.lmm or smnCens.lmm object
 %%  ~~function to do ... ~~
 }
 \description{
@@ -14,10 +14,13 @@ Fitted values versus residuals plot.
 
 \method{plot}{SMSN}(x, type = "response", level = "conditional",
      useweight = TRUE, alpha = 0.3, \dots)
+
+\method{plot}{SMNCens}(x, type = "response", level = "conditional",
+     useweight = TRUE, alpha = 0.3, \dots)
 }
 
 \arguments{
- \item{x}{An object inheriting from class \code{SMN} or \code{SMSN}, representing
+ \item{x}{An object inheriting from class \code{SMN}, \code{SMSN} or \code{SMNCens}, representing
    a fitted scale mixture of (skew) normal linear mixed model.}
   \item{type}{Type of residual that should be used. For details see \code{\link{residuals.SMN}}. Default is "response", indicating raw residuals.}
   \item{level}{Level of residual that should be used. For details see \code{\link{residuals.SMN}}. Default is "conditional".}
@@ -31,17 +34,17 @@ Fitted values versus residuals plot.
 }
 
 \author{
-Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
+Fernanda L. Schumacher, Larissa A. Matos, Katherine L. Valeriano, and Victor H. Lachos
 }
 
 
 \seealso{
-\code{\link{ggplot}}, \code{\link{smn.lmm}}, \code{\link{smsn.lmm}}, \code{\link{fitted.SMN}},
-\code{\link{fitted.SMSN}},\code{\link{residuals.SMN}}, \code{\link{residuals.SMSN}}
+\code{\link{ggplot}}, \code{\link{smn.lmm}}, \code{\link{smsn.lmm}}, \code{\link{smnCens.lmm}}, \code{\link{fitted.SMN}},
+\code{\link{fitted.SMSN}}, \code{\link{fitted.SMNCens}}, \code{\link{residuals.SMN}}, \code{\link{residuals.SMSN}}, \code{\link{residuals.SMNCens}}
 }
 \examples{
-fm1 <- smn.lmm(distance ~ age + Sex, data = nlme::Orthodont,
-               groupVar="Subject", distr="t")
+fm1 = smn.lmm(distance ~ age + Sex, data = nlme::Orthodont,
+              groupVar="Subject", distr="t")
 plot(fm1)
 plot(fm1, useweight = FALSE)
 

@@ -16,7 +16,7 @@ rsmsn.lmm(time1, x1, z1, sigma2, D1, beta, lambda, depStruct = "UNC",
   \item{time1}{Vector containing times that should be used in data generation.}
   \item{x1}{Design matrix for fixed effects.}
   \item{z1}{Design matrix for random effects.}
-  \item{sigma2}{Common variance parameter, such that \eqn{\Sigma=sigma2*R}.}
+  \item{sigma2}{Common variance parameter, such that \eqn{\Sigma=\sigma^2*R}.}
   \item{D1}{Variance matrix for random effects.}
   \item{beta}{Vector of fixed effects parameter.}
   \item{lambda}{Skewness parameter of random effects.}
@@ -49,24 +49,25 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-#generating a sample for 1 individual at 5 times
-nj1<-5
-rsmsn.lmm(1:nj1, cbind(1, 1:nj1), rep(1, nj1), sigma2 = .25, D1 = diag(1),
-          beta = c(1, 2), lambda = 2, depStruct = "ARp",phi = .5,
-          distr = "st", nu = 5)
+# Generating a sample for 1 individual at 5 times
+nj1 = 5
+rsmsn.lmm(1:nj1, cbind(1, 1:nj1), rep(1, nj1), sigma2=.25, D1=diag(1),
+          beta=c(1, 2), lambda=2, depStruct="ARp", phi=.5,
+          distr="st", nu=5)
 
-#generating a sample for m=20 individuals with 5 times
+# Generating a sample for m=25 individuals with 5 times
 library(dplyr)
 library(purrr)
 library(ggplot2)
-nj1 <- 5
-m <- 25
-gendatList <- map(rep(nj1, m), function(nj) rsmsn.lmm(1:nj, cbind(1, 1:nj), rep(1, nj),
-                  sigma2 = .25, D1 = .5*diag(1), beta = c(1, 2), lambda = 2,
-                  depStruct = "ARp", phi = .5))
-gendat <- bind_rows(gendatList, .id = "ind")
-ggplot(gendat, aes(x = x, y = y, group = ind)) + geom_line() +
-  stat_summary(aes(group = 1), geom = "line", fun = mean, col = "blue", size = 2)
+nj1 = 5
+m = 25
+gendatList = map(rep(nj1, m),
+                 function(nj) rsmsn.lmm(1:nj, cbind(1, 1:nj), rep(1, nj),
+                                        sigma2=.25, D1=.5*diag(1), beta=c(1, 2),
+                                        lambda=2, depStruct="ARp", phi=.5))
+gendat = bind_rows(gendatList, .id="ind")
+ggplot(gendat, aes(x=x, y=y, group=ind)) + geom_line() +
+  stat_summary(aes(group=1), geom="line", fun=mean, col="blue", size=2)
 #
 \donttest{fm1 <- smsn.lmm(y ~ x, data = gendat, groupVar = "ind", depStruct = "ARp",
                 pAR = 1)

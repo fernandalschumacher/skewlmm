@@ -556,10 +556,10 @@ plot.mahalDist <- function(x,fitobject,type,level=.99,nlabels=3,...){
       if (distr=="ssl"||distr=="sl") {
         mdquantile <- try(uniroot(function(x.) pMDsl(x.,nu,nj1) -level,
                               c(1,qchisq(level,nj1)^2))$root,silent = T)
-        if (class(mdquantile)=='try-error') {
+        if (is(mdquantile,"try-error")) {
           mdquantile <- try(uniroot(function(x.) pMDsl(x.,nu,nj1) -level,
                                     c(1,qchisq(level,nj1)^5))$root,silent = T)
-          if (class(mdquantile)=='try-error') mdquantile<-NULL
+          if (is(mdquantile,"try-error")) mdquantile<-NULL
         }
         #y.<-seq(1,qchisq(level,nj1)^2,length.out =1000)
         #py.<-pchisq(y.,nj1)-2^nu*gamma(nj1/2+nu)/(y.^nu)/gamma(nj1/2)*
@@ -569,10 +569,10 @@ plot.mahalDist <- function(x,fitobject,type,level=.99,nlabels=3,...){
       if (distr=="scn"||distr=="cn") {
         mdquantile <- try(uniroot(function(x.) pMDcn(x.,nu,nj1) -level,
                               c(1,qchisq(level,nj1)^2))$root,silent = T)
-        if (class(mdquantile)=='try-error') {
+        if (is(mdquantile,"try-error")) {
           mdquantile <- try(uniroot(function(x.) pMDcn(x.,nu,nj1) -level,
                                     c(1,qchisq(level,nj1)^5))$root,silent = T)
-          if (class(mdquantile)=='try-error') mdquantile<-NULL
+          if (is(mdquantile,"try-error")) mdquantile<-NULL
         }
       }
 
@@ -589,19 +589,19 @@ plot.mahalDist <- function(x,fitobject,type,level=.99,nlabels=3,...){
       if (distr=="ssl"||distr=="sl") {
         mdquantile <- try(unlist(lapply(as.list(njvec),function(nj1) uniroot(function(x) pMDsl(x,nu,nj1) -level,
                                     c(1,qchisq(level,nj1)^2))$root)),silent = T)
-        if (class(mdquantile)=='try-error') {
+        if (is(mdquantile,"try-error")) {
           mdquantile <- try(unlist(lapply(as.list(njvec),function(nj1) uniroot(function(x) pMDsl(x,nu,nj1) -level,
                                   c(1,qchisq(level,nj1)^5))$root)),silent = T)
-          if (class(mdquantile)=='try-error') mdquantile<-NULL
+          if (is(mdquantile,"try-error")) mdquantile<-NULL
         }
       }
       if (distr=="scn"||distr=="cn") { #nu<-c(.25,.3)
         mdquantile <- try(unlist(lapply(as.list(njvec),function(nj1) uniroot(function(x) pMDcn(x,nu,nj1) -level,
                                        c(1,qchisq(level,nj1)^2))$root)),silent = T)
-        if (class(mdquantile)=='try-error') {
+        if (is(mdquantile,"try-error")) {
           mdquantile <- try(unlist(lapply(as.list(njvec),function(nj1) uniroot(function(x) pMDcn(x,nu,nj1) -level,
                                    c(1,qchisq(level,nj1)^5))$root)),silent = T)
-          if (class(mdquantile)=='try-error') mdquantile<-NULL
+          if (is(mdquantile,"try-error")) mdquantile<-NULL
         }
       }
       datline <- data.frame(nj= c(njvec,max(njvec)+1),quantile=c(mdquantile,max(mdquantile)))
@@ -1047,7 +1047,7 @@ gen_fit <- function(fit1, ...) {
                                     parallelnu=FALSE, ncores=NULL),silent = TRUE)
     }
   }
-  if (class(obj.out)[1]!='try-error') {
+  if (!is(obj.out,"try-error")) { #class(obj.out)[1]!='try-error'
     return(obj.out$theta)
   } else return(NULL)
 }

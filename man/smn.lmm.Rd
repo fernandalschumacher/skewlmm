@@ -19,7 +19,7 @@ smn.lmm(data, formFixed, groupVar, formRandom = ~1, depStruct = "UNC",
   \item{groupVar}{A character containing the name of the variable which represents the subjects or groups in \code{data}.}
   \item{formRandom}{A one-sided linear formula object describing the random effects part of the model, with the covariates, separated by \code{+} operators, on the right of a \code{~} operator. By default, a model with random intercept is considered.}
   \item{depStruct}{A character indicating which dependence structure should be used. \code{"UNC"} for conditionally uncorrelated (\code{"CI"} is also accepted), \code{"ARp"} for AR(p) -- p is \code{length(phi)}--, \code{"CS"} for compound symmetry, \code{"DEC"} for DEC, and \code{"CAR1"} for  continuous-time AR(1).}
-  \item{timeVar}{A character containing the name of the variable which represents the time in \code{data}. Meaningless if \code{depStruct="UNC"} or \code{depStruct="CS"}. For other structures, if \code{is.null(timeVar)} the observations are considered equally spaced and ordered. If \code{depStruct="ARp"}, timeVar must the an index, preferably starting at 1.}
+  \item{timeVar}{A character containing the name of the variable which represents the time in \code{data}. Meaningless if \code{depStruct="UNC"} or \code{depStruct="CS"}. For other structures, if \code{is.null(timeVar)} the observations are considered equally spaced and ordered. If \code{depStruct="ARp"}, timeVar must be an index, preferably starting at 1.}
   \item{distr}{A character indicating which distribution should be used. \code{"norm"} for normal, \code{"t"} for t, \code{"sl"} for slash, and \code{"cn"} for contaminated normal.}
     \item{covRandom}{A character indicating which structure should be used for the random
 effects scale matrix (either \code{"pdSymm"} (default), for a general positive-definite matrix, or \code{"pdDiag"}, for a diagonal matrix).}
@@ -50,7 +50,7 @@ Specifically, the following components are returned:
   \item{call}{The \code{smn.lmm} call that produced the object.}
   \item{criteria}{A list with AIC and BIC criterion.}
   \item{data}{The data frame used on \code{smn.lmm} call.}
-  \item{forumla}{A list containing the formulas used on \code{smn.lmm} call.}
+  \item{formula}{A list containing the formulas used on \code{smn.lmm} call.}
   \item{depStruct}{A character indicating which dependence structure was used.}
   \item{covRandom}{A character indicating which structure was used for the random effects scale matrix.}
   \item{distr}{A character indicating which distribution was used.}

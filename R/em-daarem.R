@@ -32,7 +32,7 @@ DAAREM.SkewAR<- function(formFixed,formRandom,data,groupVar,pAR,timeVar,
 
   if (is.null(phiAR)) {
     lmeAR <- try(lme(formFixed,random=~1|ind,data=data,correlation=corARMA(p=pAR,q=0)),silent=T)
-    if (class(lmeAR)=="try-error") piAR =as.numeric(pacf(y-x%*%beta1,lag.max=pAR,plot=F)$acf)
+    if (is(lmeAR,"try-error")) piAR =as.numeric(pacf(y-x%*%beta1,lag.max=pAR,plot=F)$acf)
     else {
       phiAR <- capture.output(lmeAR$modelStruct$corStruct)[3]
       phiAR <- as.numeric(strsplit(phiAR, " ")[[1]])
@@ -134,7 +134,7 @@ DAAREM.SkewAR<- function(formFixed,formRandom,data,groupVar,pAR,timeVar,
     desvios<-try(InfmatrixAR(y,x,z,time,ind,beta1,sigmae,phiAR,D1,lambda,
                              distr = distr,nu = nu,skewind = skewind,diagD=diagD),
                  silent = T)
-    if (class(desvios)=="try-error") {
+    if (is(desvios,"try-error")) {
       warning("Numerical error in calculating standard errors")
       obj.out$std.error=NULL
     } else{
@@ -230,7 +230,7 @@ DAAREM.SkewUNC<- function(formFixed,formRandom,data,groupVar,
     names_dd <- paste0("Dsqrt",1:q1,1:q1)
   } else{
     dd<-try(matrix.sqrt(D1)[upper.tri(D1, diag = T)],silent = T)
-    if (class(dd)[1]=='try-error') stop("Numerical error, try using algorithm = 'EM' in control")
+    if (class(dd)[1]=='try-error') stop("Numerical error, try using algorithm = 'EM' in control") # class(dd)[1]=='try-error'
     names_dd <- matrix(paste0("Dsqrt",rep(1:q1,q1),rep(1:q1,each=q1)),ncol=q1)[upper.tri(D1, diag = T)]
   }
   theta <- c(beta1,sigmae,dd,lambda[skewind==1],nu)
@@ -252,7 +252,7 @@ DAAREM.SkewUNC<- function(formFixed,formRandom,data,groupVar,
   if (informa) {
     desvios<-try(Infmatrix(y,x,z,ind,beta1,sigmae,D1,lambda,distr = distr,nu = nu,
                            skewind = skewind,diagD=diagD),silent = T)
-    if (class(desvios)=="try-error") {
+    if (is(desvios,"try-error")) {
       warning("Numerical error in calculating standard errors")
       obj.out$std.error=NULL
     } else{
@@ -366,7 +366,7 @@ DAAREM.SkewCS<- function(formFixed,formRandom,data,groupVar,
     names_dd <- paste0("Dsqrt",1:q1,1:q1)
   } else{
     dd<-try(matrix.sqrt(D1)[upper.tri(D1, diag = T)],silent = T)
-    if (class(dd)[1]=='try-error') stop("Numerical error, try using algorithm = 'EM' in control")
+    if (class(dd)[1]=='try-error') stop("Numerical error, try using algorithm = 'EM' in control") #class(dd)[1]=='try-error'
     names_dd <- matrix(paste0("Dsqrt",rep(1:q1,q1),rep(1:q1,each=q1)),ncol=q1)[upper.tri(D1, diag = T)]
   }
   theta <- c(beta1,sigmae,phiCS,dd,lambda[skewind==1],nu)
@@ -388,7 +388,7 @@ DAAREM.SkewCS<- function(formFixed,formRandom,data,groupVar,
   if (informa) {
     desvios<-try(InfmatrixCS(y,x,z,ind,beta1,sigmae,phiCS,D1,lambda,distr = distr,
                              nu = nu,skewind = skewind,diagD=diagD),silent = T)
-    if (class(desvios)=="try-error") {
+    if (is(desvios,"try-error")) {
       warning("Numerical error in calculating standard errors")
       obj.out$std.error=NULL
     } else{
@@ -522,7 +522,7 @@ DAAREM.SkewDEC<- function(formFixed,formRandom,data,groupVar,timeVar,
     names_dd <- paste0("Dsqrt",1:q1,1:q1)
   } else{
     dd<-try(matrix.sqrt(D1)[upper.tri(D1, diag = T)],silent = T)
-    if (class(dd)[1]=='try-error') stop("Numerical error, try using algorithm = 'EM' in control")
+    if (class(dd)[1]=='try-error') stop("Numerical error, try using algorithm = 'EM' in control") #class(dd)[1]=='try-error'
     names_dd <- matrix(paste0("Dsqrt",rep(1:q1,q1),rep(1:q1,each=q1)),ncol=q1)[upper.tri(D1, diag = T)]
   }
   theta <- c(beta1,sigmae,phiDEC,thetaDEC,dd,lambda[skewind==1],nu)
@@ -546,7 +546,7 @@ DAAREM.SkewDEC<- function(formFixed,formRandom,data,groupVar,timeVar,
     desvios<-try(InfmatrixDEC(y,x,z,time,ind,beta1,sigmae,phiDEC,thetaDEC,D1,
                               lambda,distr = distr,nu = nu, skewind = skewind,
                               diagD=diagD),silent = T)
-    if (class(desvios)=="try-error") {
+    if (is(desvios,"try-error")) {
       warning("Numerical error in calculating standard errors")
       obj.out$std.error=NULL
     } else{
@@ -597,7 +597,7 @@ DAAREM.SkewCAR1 <- function(formFixed,formRandom,data,groupVar,timeVar,
 
   if (is.null(phiCAR1)) {
     lmeCAR = try(lme(formFixed,random=~1|ind,data=data,correlation=corCAR1(form = ~time)),silent=T)
-    if (class(lmeCAR)=="try-error") phiDEC =abs(as.numeric(pacf(y-x%*%beta1,lag.max=1,plot=F)$acf))
+    if (is(lmeCAR,"try-error")) phiDEC =abs(as.numeric(pacf(y-x%*%beta1,lag.max=1,plot=F)$acf))
     else {
       phiDEC = capture.output(lmeCAR$modelStruct$corStruct)[3]
       phiDEC = as.numeric(strsplit(phiDEC, " ")[[1]])
@@ -671,7 +671,7 @@ DAAREM.SkewCAR1 <- function(formFixed,formRandom,data,groupVar,timeVar,
     names_dd <- paste0("Dsqrt",1:q1,1:q1)
   } else{
     dd<-try(matrix.sqrt(D1)[upper.tri(D1, diag = T)],silent = T)
-    if (class(dd)[1]=='try-error') stop("Numerical error, try using algorithm = 'EM' in control")
+    if (class(dd)[1]=='try-error') stop("Numerical error, try using algorithm = 'EM' in control") #class(dd)[1]=='try-error'
     names_dd <- matrix(paste0("Dsqrt",rep(1:q1,q1),rep(1:q1,each=q1)),ncol=q1)[upper.tri(D1, diag = T)]
   }
   theta <- c(beta1,sigmae,phiDEC,dd,lambda[skewind==1],nu)
@@ -696,7 +696,7 @@ DAAREM.SkewCAR1 <- function(formFixed,formRandom,data,groupVar,timeVar,
     desvios<-try(InfmatrixCAR1(y,x,z,time,ind,beta1,sigmae,phiDEC,D1,lambda,
                                distr = distr,nu = nu,skewind = skewind,
                                diagD=diagD),silent = T)
-    if (class(desvios)=="try-error") {
+    if (is(desvios,"try-error")) {
       warning("Numerical error in calculating standard errors")
       obj.out$std.error=NULL
     } else{
@@ -743,7 +743,7 @@ DAAREM.AR<- function(formFixed,formRandom,data,groupVar,pAR,timeVar,
 
   if (is.null(phiAR)) {
     lmeAR = try(lme(formFixed,random=~1|ind,data=data,correlation=corARMA(p=pAR,q=0)),silent=T)
-    if (class(lmeAR)=="try-error") piAR =as.numeric(pacf(y-x%*%beta1,lag.max=pAR,plot=F)$acf)
+    if (is(lmeAR,"try-error")) piAR =as.numeric(pacf(y-x%*%beta1,lag.max=pAR,plot=F)$acf)
     else {
       phiAR = capture.output(lmeAR$modelStruct$corStruct)[3]
       phiAR = as.numeric(strsplit(phiAR, " ")[[1]])
@@ -838,7 +838,7 @@ DAAREM.AR<- function(formFixed,formRandom,data,groupVar,pAR,timeVar,
   if (informa) {
     desvios<-try(InfmatrixAR(y,x,z,time,ind,beta1,sigmae,phiAR,D1,lambda=rep(0,q1),
                              distr = distr,nu = nu,diagD=diagD,skewind=rep(0,q1)),silent = T)
-    if (class(desvios)=="try-error") {
+    if (is(desvios,"try-error")) {
       warning("Numerical error in calculating standard errors")
       obj.out$std.error=NULL
     } else{
@@ -943,7 +943,7 @@ DAAREM.UNC<- function(formFixed,formRandom,data,groupVar,
     desvios<-try(Infmatrix(y,x,z,ind,beta1,sigmae,D1,lambda=rep(0,q1),distr = distr,
                            nu = nu,diagD=diagD,skewind=rep(0,q1)),
                  silent = T)
-    if (class(desvios)=="try-error") {
+    if (is(desvios,"try-error")) {
       warning("Numerical error in calculating standard errors")
       obj.out$std.error=NULL
     } else{
@@ -1067,7 +1067,7 @@ DAAREM.CS<- function(formFixed,formRandom,data,groupVar,
                              distr = distr,nu = nu,diagD=diagD,skewind=rep(0,q1)),
                              silent = T)
     #desvios<-try(InfmatrixCS(y,x,z,ind,beta1,sigmae,phiCS,D1,lambda,distr = distr,nu = nu),silent = T)
-    if (class(desvios)=="try-error") {
+    if (is(desvios,"try-error")) {
       warning("Numerical error in calculating standard errors")
       obj.out$std.error=NULL
     } else{
@@ -1213,7 +1213,7 @@ DAAREM.DEC<- function(formFixed,formRandom,data,groupVar,timeVar,
     desvios<-try(InfmatrixDEC(y,x,z,time,ind,beta1,sigmae,phiDEC,thetaDEC,D1,
                               lambda=rep(0,q1),distr = distr,nu = nu,diagD=diagD,
                               skewind=rep(0,q1)),silent = T)
-    if (class(desvios)=="try-error") {
+    if (is(desvios,"try-error")) {
       warning("Numerical error in calculating standard errors")
       obj.out$std.error=NULL
     } else{
@@ -1258,7 +1258,7 @@ DAAREM.CAR1 <- function(formFixed,formRandom,data,groupVar,timeVar,
 
   if (is.null(phiCAR1)) {
     lmeCAR = try(lme(formFixed,random=~1|ind,data=data,correlation=corCAR1(form = ~time)),silent=T)
-    if (class(lmeCAR)=="try-error") phiDEC =abs(as.numeric(pacf(y-x%*%beta1,lag.max=1,plot=F)$acf))
+    if (is(lmeCAR,"try-error")) phiDEC =abs(as.numeric(pacf(y-x%*%beta1,lag.max=1,plot=F)$acf))
     else {
       phiDEC = capture.output(lmeCAR$modelStruct$corStruct)[3]
       phiDEC = as.numeric(strsplit(phiDEC, " ")[[1]])
@@ -1351,7 +1351,7 @@ DAAREM.CAR1 <- function(formFixed,formRandom,data,groupVar,timeVar,
     desvios<-try(InfmatrixCAR1(y,x,z,time,ind,beta1,sigmae,phiDEC,D1,lambda=rep(0,q1),
                                distr = distr,nu = nu,diagD=diagD,skewind=rep(0,q1)),
                  silent = T)
-    if (class(desvios)=="try-error") {
+    if (is(desvios,"try-error")) {
       warning("Numerical error in calculating standard errors")
       obj.out$std.error=NULL
     } else{

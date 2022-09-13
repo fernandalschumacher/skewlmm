@@ -150,11 +150,10 @@ emjARs = function(jseq, y, x, z,time, beta1, D1,sigmae,piAR,distr,nu) {
   return(obj.out)
 }
 
-EM.AR<- function(formFixed,formRandom,data,groupVar,pAR,timeVar,
-                 distr,beta1,sigmae,phiAR,D1,nu,lb,lu,
-                 precisao,informa,max.iter,showiter,showerroriter){
-  ti <- Sys.time()
-  x <- model.matrix(formFixed,data=data)
+EM.AR = function(formFixed, formRandom, data, groupVar, pAR, timeVar, distr, beta1, sigmae,
+                 phiAR, D1, nu, lb, lu, precisao, informa, max.iter, showiter, showerroriter){
+  ti = Sys.time()
+  x = model.matrix(formFixed,data=data)
   varsx <- all.vars(formFixed)[-1]
   y <-data[,all.vars(formFixed)[1]]
   z<-model.matrix(formRandom,data=data)
@@ -174,7 +173,7 @@ EM.AR<- function(formFixed,formRandom,data,groupVar,pAR,timeVar,
   #
   if (is.null(phiAR)) {
     lmeAR = try(lme(formFixed,random=~1|ind,data=data,correlation=corARMA(p=pAR,q=0)),silent=T)
-    if (class(lmeAR)=="try-error") piAR =as.numeric(pacf(y-x%*%beta1,lag.max=pAR,plot=F)$acf)
+    if (is(lmeAR,"try-error")) piAR =as.numeric(pacf(y-x%*%beta1,lag.max=pAR,plot=F)$acf)
     else {
       phiAR = capture.output(lmeAR$modelStruct$corStruct)[3]
       phiAR = as.numeric(strsplit(phiAR, " ")[[1]])
@@ -249,7 +248,7 @@ EM.AR<- function(formFixed,formRandom,data,groupVar,pAR,timeVar,
 
   if (informa) {
     desvios<-try(InfmatrixARs(y,x,z,time,ind,beta1,sigmae,phiAR,D1,distr = distr,nu = nu),silent = T)
-    if (class(desvios)=="try-error") {
+    if (is(desvios,"try-error")) {
       warning("Numerical error in calculating standard errors")
       obj.out$std.error=NULL
     } else{
@@ -540,7 +539,7 @@ EM.sim<- function(formFixed,formRandom,data,groupVar,distr,beta1,sigmae,D1,nu,lb
 
   if (informa) {
     desvios<-try(Infmatrixs(y,x,z,ind,beta1,sigmae,D1,distr = distr,nu = nu),silent = T)
-    if (class(desvios)=="try-error") {
+    if (is(desvios,"try-error")) {
       warning("Numerical error in calculating standard errors")
       obj.out$std.error=NULL
     } else{
@@ -837,7 +836,7 @@ EM.CS<- function(formFixed,formRandom,data,groupVar,
 
   if (informa) {
     desvios<-try(InfmatrixCSs(y,x,z,ind,beta1,sigmae,phiCS,D1,distr = distr,nu = nu),silent = T)
-    if (class(desvios)=="try-error") {
+    if (is(desvios,"try-error")) {
       warning("Numerical error in calculating standard errors")
       obj.out$std.error=NULL
     } else{
@@ -1157,7 +1156,7 @@ EM.DEC<- function(formFixed,formRandom,data,groupVar,timeVar,
 
   if (informa) {
     desvios<-try(InfmatrixDECs(y,x,z,time,ind,beta1,sigmae,phiDEC,thetaDEC,D1,distr = distr,nu = nu),silent = T)
-    if (class(desvios)=="try-error") {
+    if (is(desvios,"try-error")) {
       warning("Numerical error in calculating standard errors")
       obj.out$std.error=NULL
     } else{
@@ -1398,7 +1397,7 @@ EM.CAR1<- function(formFixed,formRandom,data,groupVar,timeVar,
   #
   if (is.null(phiCAR1)) {
     lmeCAR = try(lme(formFixed,random=~1|ind,data=data,correlation=corCAR1(form = ~time)),silent=T)
-    if (class(lmeCAR)=="try-error") phiDEC =abs(as.numeric(pacf(y-x%*%beta1,lag.max=1,plot=F)$acf))
+    if (is(lmeCAR,"try-error")) phiDEC =abs(as.numeric(pacf(y-x%*%beta1,lag.max=1,plot=F)$acf))
     else {
       phiDEC = capture.output(lmeCAR$modelStruct$corStruct)[3]
       phiDEC = as.numeric(strsplit(phiDEC, " ")[[1]])
@@ -1468,7 +1467,7 @@ EM.CAR1<- function(formFixed,formRandom,data,groupVar,timeVar,
 
   if (informa) {
     desvios<-try(InfmatrixCAR1s(y,x,z,time,ind,beta1,sigmae,phiDEC,D1,distr = distr,nu = nu),silent = T)
-    if (class(desvios)=="try-error") {
+    if (is(desvios,"try-error")) {
       warning("Numerical error in calculating standard errors")
       obj.out$std.error=NULL
     } else{
@@ -1854,22 +1853,22 @@ scoreCSis <- function(jseq,y,x,z,beta1,sigmae,phiCS,D1,distr,nu) {
 #                                                                     Fmat%*%F.lista[[i]])%*%t(z1))
 #   derCov <- matrix(1,nrow=ni,ncol=ni)-diag(ni)
 #   dlogdpsi[indpar=="phi"] = sigmae*traceM(sPsi%*%derCov)
-#   
+#
 #   ##### derivadas de di
 #   ddi = numeric(lpar)
 #   ddi[indpar=="beta"] =-2*t(x1)%*%sPsi%*%(y1-med)
 #   ddi[indpar=="sigma"] = -t(y1-med)%*%sPsi%*%Covmat%*%sPsi%*%(y1-med)
 #   for (i in 1:q2) ddi[indpar=="dd"][i] =- t(y1-med)%*%sPsi%*%z1%*%(F.lista[[i]]%*%Fmat+Fmat%*%F.lista[[i]])%*%t(z1)%*%sPsi%*%(y1-med)
 #   ddi[indpar=="phi"] = -sigmae*t(y1-med)%*%sPsi%*%derCov%*%sPsi%*%(y1-med)
-#   
+#
 #   ##### derivadas de ki
 #   ki = IPhi(ni/2,di=di,Ai=Ai,distr = distr,nu=nu)
 #   dki = numeric(lpar)
 #   dki = -.5*IPhi(ni/2+1,di=di,Ai=Ai,distr = distr,nu=nu)*ddi
-#   
+#
 #   sihat = -.5*dlogdpsi+1/ki*dki
 #   sihat
-#   
+#
 # }
 
 

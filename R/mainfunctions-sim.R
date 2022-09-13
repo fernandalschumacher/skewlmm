@@ -3,8 +3,8 @@ smn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "UNC",
                     timeVar=NULL,distr="norm",covRandom='pdSymm',pAR=1,
                     control = lmmControl()
                     ) {
-  if (class(formFixed)!="formula") stop("formFixed must be a formula")
-  if (class(formRandom)!="formula") stop("formRandom must be a formula")
+  if (!is(formFixed,"formula")) stop("formFixed must be a formula")
+  if (!is(formRandom,"formula")) stop("formRandom must be a formula")
   if (!inherits(control,"lmmControl")) stop("control must be a list generated with lmmControl()")
   #
   if (!is.character(groupVar)) stop("groupVar must be a character containing the name of the grouping variable in data")
@@ -62,9 +62,9 @@ smn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "UNC",
       is.null(control$initialValues$D)) {
     lmefit = try(lme(formFixed,random=formula(paste('~',as.character(formRandom)[length(formRandom)],
                                                     '|',"ind")),data=data),silent=T)
-    if (class(lmefit)=="try-error") {
+    if (is(lmefit,"try-error")) {
       lmefit = try(lme(formFixed,random=~1|ind,data=data),silent=TRUE)
-      if (class(lmefit)=="try-error") {
+      if (is(lmefit,"try-error")) {
         stop("error in calculating initial values")
       } else {
         D1init <- diag(q1)*as.numeric(var(random.effects(lmefit)))

@@ -3,8 +3,8 @@ smsn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "UNC", ti
                      distr="sn",covRandom = 'pdSymm',skewind,pAR=1,
                      control = lmmControl()
                      ) {
-  if (class(formFixed)!="formula") stop("formFixed must be a formula")
-  if (class(formRandom)!="formula") stop("formRandom must be a formula")
+  if (!is(formFixed,"formula")) stop("formFixed must be a formula")
+  if (!is(formRandom,"formula")) stop("formRandom must be a formula")
   if (!inherits(control,"lmmControl")) stop("control must be a list generated with lmmControl()")
   #
   if (!is.character(groupVar)) stop("groupVar must be a character containing the name of the grouping variable in data")
@@ -67,9 +67,9 @@ smsn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "UNC", ti
       is.null(control$initialValues$lambda)||is.null(control$initialValues$D)) {
     lmefit = try(lme(formFixed,random=formula(paste('~',as.character(formRandom)[length(formRandom)],
                                                     '|',"ind")),data=data),silent=T)
-    if (class(lmefit)=="try-error") {
+    if (is(lmefit,"try-error")) {
       lmefit = try(lme(formFixed,random=~1|ind,data=data),silent=TRUE)
-      if (class(lmefit)=="try-error") {
+      if (is(lmefit,"try-error")) {
         stop("error in calculating initial values")
       } else {
         lambdainit <- rep(1,q1)*sign(as.numeric(skewness(random.effects(lmefit))))
@@ -457,13 +457,13 @@ print.lmmLRT <- function(x, ...) {
   } #else cat("LR test could not be performed")
 }
 
-criteria <- function(lobjects) {
-  if (class(lobjects)[1]!="list") stop("lobjects must be a list of SMN and/or SMSN objects")
-  if (!all(sapply(lobjects,function(x) class(x)[1] %in% c("SMN","SMSN")))) stop("lobjects must be a list of SMN and/or SMSN objects")
+criteria = function(lobjects) {
+  if (!is(lobjects,"list")) stop("lobjects must be a list of SMN, SMSN, or SMNCens objects")
+  if (!all(sapply(lobjects,function(x) class(x)[1] %in% c("SMN","SMSN", "SMNCens")))) stop("lobjects must be a list of SMN, SMSN, or SMNCens objects")
   #
-  crit.out<-t(sapply(lobjects, function(x) c(x$loglik, length(x$theta),
+  crit.out = t(sapply(lobjects, function(x) c(x$loglik, length(x$theta),
                                              x$criteria$AIC, x$criteria$BIC)))
-  colnames(crit.out) <- c("logLik", "npar", "AIC", "BIC")
+  colnames(crit.out) = c("logLik", "npar", "AIC", "BIC")
   as.data.frame(crit.out)
 }
 
