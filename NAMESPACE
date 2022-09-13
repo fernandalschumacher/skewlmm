@@ -31,7 +31,7 @@ importFrom("mvtnorm","dmvt","dmvnorm","pmvnorm","rmvnorm","rmvt")
 importFrom("nlme","corARMA","lme","corCAR1","random.effects","ranef")
 importFrom("numDeriv","jacobian")
 importFrom("purrr","flatten_int","map")
-importFrom("relliptical","mvtelliptical")
+importFrom("relliptical","mvtelliptical","rtelliptical")
 importFrom("stats","ARMAacf","dgamma","dnorm","fitted","formula","integrate","mahalanobis",
            "model.frame","model.matrix","optim","optimize","pacf","pchisq","pf","pgamma","pnorm","pt",
            "qchisq","qf","qgamma","qnorm","quantile","rbeta","rgamma","rnorm","runif",

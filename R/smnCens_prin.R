@@ -184,7 +184,7 @@ smnCens.lmm = function(data, formFixed, groupVar, formRandom=~1, depStruct="UNC"
     seqi = ind==ind_levels[i]
     xfiti = matrix(x[seqi,], ncol=p)
     zfiti = matrix(z[seqi,], ncol=q1)
-    fitted[seqi] = xfiti%*%obj.out$estimates$beta + zfiti%*%obj.out$random.effects[i]
+    fitted[seqi] = xfiti%*%obj.out$estimates$beta + zfiti%*%obj.out$random.effects[i,]
   }
   obj.out$fitted = fitted
   #
@@ -240,8 +240,9 @@ summary.SMNCens = function(object, confint.level=0.95, ...){
   cat("Call:\n")
   print(object$call)
   cat("\nDistribution", object$distr)
-  if (object$distr!="norm") cat(" with nu =", object$estimates$nu, "\n")
-  cat("Random effects:\n")
+  if (object$distr!="norm") cat(" with nu =", object$estimates$nu)
+  cat("\n")
+  cat("\nRandom effects:\n")
   cat("  Formula: ")
   print(object$formula$formRandom)
   cat("  Structure:", ifelse(object$covRandom=='pdSymm','General positive-definite',
@@ -332,7 +333,7 @@ residuals.SMNCens = function(object, level="conditional", type="response",...){
         seqi = ind==ind_levels[i]
         xfiti = matrix(x[seqi,],ncol=p)
         zfiti = matrix(z[seqi,],ncol=q1)
-        res[seqi] = y[seqi] - (xfiti%*%object$estimates$beta + zfiti%*%object$random.effects[i])
+        res[seqi] = y[seqi] - (xfiti%*%object$estimates$beta + zfiti%*%object$random.effects[i,])
       }
     }
   } # End response
@@ -360,7 +361,7 @@ residuals.SMNCens = function(object, level="conditional", type="response",...){
         timei = time[seqi]
         Sigmaest = sigmae*MatDec(timei, object$estimates$phi, object$depStruct)
         sigeFitinv = matrix.sqrt(solve(Sigmaest))
-        res[seqi]  = sigeFitinv%*%(y[seqi] - (xfiti%*%object$estimates$beta + zfiti%*%object$random.effects[i]))
+        res[seqi]  = sigeFitinv%*%(y[seqi] - (xfiti%*%object$estimates$beta + zfiti%*%object$random.effects[i,]))
       }
     }
   } # End modified
@@ -392,7 +393,7 @@ residuals.SMNCens = function(object, level="conditional", type="response",...){
         timei = time[seqi]
         Sigmaest = sigmae*MatDec(timei, object$estimates$phi, object$depStruct)
         sigeFitinv = matrix.sqrt(solve(k2*Sigmaest))
-        res[seqi] = sigeFitinv%*%(y[seqi] - (xfiti%*%object$estimates$beta + zfiti%*%object$random.effects[i]))
+        res[seqi] = sigeFitinv%*%(y[seqi] - (xfiti%*%object$estimates$beta + zfiti%*%object$random.effects[i,]))
       }
     }
   } # End normalized
@@ -422,7 +423,7 @@ plot.SMNCens = function(x, type="response", level="conditional", useweight=TRUE,
   } else {
     qplot(fitted(x),resid,alpha=I(alpha),...=...) +theme_minimal() +
       geom_hline(yintercept = 0,linetype="dashed") + ylab(attr(resid,"label")) +
-      xlab("fitted values")+ ggtitle(paste0(depStructp,'-',distrp,'Cens-LMM')) +
+      xlab("fitted values") + ggtitle(paste0(depStructp,'-',distrp,'Cens-LMM')) +
       theme(plot.title = element_text( face="italic", size=10))
   }
 }

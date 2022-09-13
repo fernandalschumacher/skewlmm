@@ -404,7 +404,7 @@ censEM.norm = function(y, x, z, cc, lcl, ucl, ind, ttc, data, beta1, sigmae, D1,
     yhatorg = apply(yhi, 1, sum) # y original + imputado
     yfit = apply(yest, 1, sum)   # y fitted
     yfit[cc==1] = yhatorg[cc==1]
-    bi = apply(ubi, 1, sum)
+    bi = matrix(apply(ubi, 1, sum), nrow=m, ncol=q1, byrow=TRUE)
 
     ## M-step: Uptade parameters
     ## -----------------------------------------
@@ -452,7 +452,7 @@ censEM.norm = function(y, x, z, cc, lcl, ucl, ind, ttc, data, beta1, sigmae, D1,
   t2 = Sys.time()
   timediff = t2 - t1
   #
-  dd = D1[upper.tri(D1, diag = T)]
+  dd = matrix.sqrt(D1)[upper.tri(D1, diag=T)]
 
   # The information matrix
   if (informa){
@@ -471,10 +471,11 @@ censEM.norm = function(y, x, z, cc, lcl, ucl, ind, ttc, data, beta1, sigmae, D1,
   if (struc!="UNC") names(teta1) = c(colnames(x), "sigma2", paste0("phi", 1:length(phi1)), namesD)
   else names(teta1) = c(colnames(x), "sigma2", namesD)
 
-  if (struc!="UNC") estimates = list(beta=beta1, sigma2=sigmae, phi=phi1, dsqrt=sqrt(dd), D=D1)
-  else estimates = list(beta=beta1, sigma2=sigmae, dsqrt=sqrt(dd), D=D1)
+  if (struc!="UNC") estimates = list(beta=beta1, sigma2=sigmae, phi=phi1, dsqrt=dd, D=D1)
+  else estimates = list(beta=beta1, sigma2=sigmae, dsqrt=dd, D=D1)
 
   uhat = rep(1, m);  names(uhat) = names(nj)
+  colnames(bi) = colnames(z)
 
   if (informa) obj.out = list(theta=teta1, iter=count, estimates=estimates, yest=yhatorg, uhat=uhat, loglik.track=loglikvec,
                               random.effects=bi, std.error=sqrt(diag(solve(Infbetas))), loglik=loglik, elapsedTime=timediff,
@@ -635,17 +636,31 @@ loglikFunct = function(nu, y, x, z, cc, ttc, nj, LL, LU, betas, sigmae, D1, phi1
           ver[j,] = log(pmvt(lower=LL1, upper=LU1, delta=muii, df=nu, sigma=SIGMA, type="shifted")[1]) #acumTs(as.vector(y1-muii),rep(0,sum(cc1)),SIGMA,nu)
 
         } else { # At least one censored observation
-          isigma00 = solve(SIGMA[cc1==0,cc1==0])
-          muiic = muii[cc1==1] + SIGMA[cc1==1,cc1==0]%*%isigma00%*%(y1[cc1==0]-muii[cc1==0])
-          muiic = as.vector(muiic)
-          Si = SIGMA[cc1==1,cc1==1] - SIGMA[cc1==1,cc1==0]%*%isigma00%*%SIGMA[cc1==0,cc1==1]
-          Si = (Si + t(Si))/2
-          coef1 = as.numeric((mahalanobis(y1[cc1==0], muii[cc1==0], SIGMA[cc1==0,cc1==0]) + nu)/(nu + length(cc1[cc1==0])))
-          Sic = coef1*Si
-          Sic = (Sic + t(Sic))/2
-          #
-          ver[j,] = dmvt(x=y1[cc1==0], delta=muii[cc1==0], sigma=SIGMA[cc1==0,cc1==0], df=nu, log=TRUE, type="shifted") +
-            log(pmvt(lower=LL1[cc1==1], upper=LU1[cc1==1], delta=muiic, df=(nu+length(cc1==0)), sigma=Sic, type="shifted")[1])
+          if (sum(cc1)==1){
+            isigma00 = solve(SIGMA[cc1==0,cc1==0])
+            muiic = muii[cc1==1] + SIGMA[cc1==1,cc1==0]%*%isigma00%*%(y1[cc1==0]-muii[cc1==0])
+            muiic = as.numeric(muiic)
+            Si = SIGMA[cc1==1,cc1==1] - SIGMA[cc1==1,cc1==0]%*%isigma00%*%SIGMA[cc1==0,cc1==1]
+            Si = as.numeric(Si)
+            coef1 = as.numeric((mahalanobis(y1[cc1==0], muii[cc1==0], SIGMA[cc1==0,cc1==0]) + nu)/(nu + length(cc1[cc1==0])))
+            Sic = sqrt(coef1*Si)
+            #
+            ver[j,] = dmvt(x=y1[cc1==0], delta=muii[cc1==0], sigma=SIGMA[cc1==0,cc1==0], df=nu, log=TRUE, type="shifted") +
+              log(pt(q=(LU1[cc1==1]-muiic)/Sic, df=(nu+length(cc1==0))) - pt(q=(LL1[cc1==1]-muiic)/Sic, df=(nu+length(cc1==0))))
+
+          } else {
+            isigma00 = solve(SIGMA[cc1==0,cc1==0])
+            muiic = muii[cc1==1] + SIGMA[cc1==1,cc1==0]%*%isigma00%*%(y1[cc1==0]-muii[cc1==0])
+            muiic = as.vector(muiic)
+            Si = SIGMA[cc1==1,cc1==1] - SIGMA[cc1==1,cc1==0]%*%isigma00%*%SIGMA[cc1==0,cc1==1]
+            Si = (Si + t(Si))/2
+            coef1 = as.numeric((mahalanobis(y1[cc1==0], muii[cc1==0], SIGMA[cc1==0,cc1==0]) + nu)/(nu + length(cc1[cc1==0])))
+            Sic = coef1*Si
+            Sic = (Sic + t(Sic))/2
+            #
+            ver[j,] = dmvt(x=y1[cc1==0], delta=muii[cc1==0], sigma=SIGMA[cc1==0,cc1==0], df=nu, log=TRUE, type="shifted") +
+              log(pmvt(lower=LL1[cc1==1], upper=LU1[cc1==1], delta=muiic, df=(nu+length(cc1==0)), sigma=Sic, type="shifted")[1])
+          }
         }
       } # End if (sum(cc1)>=1)
     } # End else
@@ -860,7 +875,7 @@ censEM.t = function(y, x, z, cc, lcl, ucl, ind, ttc, data, beta1, sigmae, D1, ph
     yhatorg = apply(yhi, 1, sum) # y original + imputado
     yfit = apply(yest, 1, sum)   # y fitted
     yfit[cc==1] = yhatorg[cc==1]
-    bi = apply(biest, 1, sum)
+    bi = matrix(apply(biest, 1, sum), nrow=m, ncol=q1, byrow=TRUE)
 
     ## M-step: Uptade parameters
     ## -----------------------------------------
@@ -915,7 +930,7 @@ censEM.t = function(y, x, z, cc, lcl, ucl, ind, ttc, data, beta1, sigmae, D1, ph
   t2 = Sys.time()
   timediff = t2 - t1
   #
-  dd = D1[upper.tri(D1, diag = T)]
+  dd = matrix.sqrt(D1)[upper.tri(D1, diag=T)]
 
   # The information matrix
   if (informa){
@@ -939,11 +954,12 @@ censEM.t = function(y, x, z, cc, lcl, ucl, ind, ttc, data, beta1, sigmae, D1, ph
     else names(teta1) = c(colnames(x), "sigma2", namesD, "nu")
   }
 
-  if (struc!="UNC") estimates = list(beta=beta1, sigma2=sigmae, phi=phi1, dsqrt=sqrt(dd), D=D1, nu=nu)
-  else estimates = list(beta=beta1, sigma2=sigmae, dsqrt=sqrt(dd), D=D1, nu=nu)
+  if (struc!="UNC") estimates = list(beta=beta1, sigma2=sigmae, phi=phi1, dsqrt=dd, D=D1, nu=nu)
+  else estimates = list(beta=beta1, sigma2=sigmae, dsqrt=dd, D=D1, nu=nu)
 
   uhat = ui
   names(uhat) = names(nj)
+  colnames(bi) = colnames(z)
 
   if (informa) obj.out = list(theta=teta1, iter=count, estimates=estimates, yest=yhatorg, uhat=uhat, loglik.track=loglikvec,
                               random.effects=bi, std.error=sqrt(diag(solve(Infbetas))), loglik=loglik, elapsedTime=timediff,
