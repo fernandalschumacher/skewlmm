@@ -14,7 +14,7 @@ Authors@R: c(person("Fernanda L.", "Schumacher", role = c("aut", "cre"),
 Maintainer: Fernanda L. Schumacher <fernandalschumacher@gmail.com>
 Description: It fits scale mixture of skew-normal linear mixed models using an expectation–maximization (EM) type algorithm, including some possibilities for modeling the within-subject dependence. Details can be found in Schumacher, Lachos and Matos (2021) <doi:10.1002/sim.8870>.
 License: MIT + file LICENSE
-Depends: R (>= 4.2), optimParallel
+Depends: R (>= 4.2.0), optimParallel
 Encoding: UTF-8
 Imports: DescTools, dplyr, furrr, future, ggplot2, ggrepel, haven, matrixcalc, methods, moments, MomTrunc, mvtnorm, nlme, numDeriv, purrr, relliptical, TruncatedNormal
 URL: https://github.com/fernandalschumacher/skewlmm
