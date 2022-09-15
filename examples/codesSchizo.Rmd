@@ -1,0 +1,155 @@
+---
+title: "Application - Chapter 4"
+author: "Fernanda L. Schumacher, Larissa A. Matos, and Victor H. Lachos"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 6, fig.height = 3, fig.align = 'center')
+library(tidyverse)
+library(nlme)
+library(skewlmm)
+library(gridExtra)
+library(knitr)
+```
+
+## Loading and ploting the data
+```{r data}
+#http://www-personal.umich.edu/~pxsong/BOOKLDA.html
+data <- read_table(url("http://www-personal.umich.edu/~pxsong/Schizo.dat.txt"), 
+                   col_names = c("Treatment","Site", "ID", "Week", "BPRS", "Status"), 
+                   show_col_types = FALSE)
+
+#selecting only status complete
+data <- filter(data, Status==0)
+data %>% glimpse()
+```
+
+```{r dataman, include=F}
+data$Treat <- as_factor(data$Treatment)
+levels(data$Treat) <- c("NT-L","NT-M","NT-H","STD")
+data$Treat <- relevel(data$Treat,ref="STD")
+#
+data <- data %>% transform(y = BPRS/10, ind = as_factor(ID), tt = (Week-3)/10, 
+                           time = Week+1)
+data <- data %>% transform(tt2 = tt^2)
+```
+
+```{r dataplot, fig.width=6, fig.height=3.8 ,echo=FALSE}
+ggplot(data,aes(x=Week,y=BPRS,group=ID)) + geom_line(alpha=.4) + 
+  facet_wrap(~Treat) + xlab("week") +
+  stat_summary(aes(group = 1),geom = "line", fun= mean, colour=1,size=1) +
+  scale_x_continuous()+ theme_minimal()
+```
+
+##Fiting N-LMM with nlme
+```{r fit1plot, fig.width=4.5, fig.height=4 ,echo=FALSE}
+fitlme<- lme(fixed = y~Treat*tt+tt2,data = data,random = ~tt|ind)
+
+g1<-nlme::ranef(fitlme) %>% dplyr::rename(`intercepts`=`(Intercept)`,
+                                          `slopes`=tt) %>% 
+  pivot_longer(cols = everything()) %>% 
+  ggplot(aes(x=value))+ geom_histogram(bins=7,aes(y=..density..)) +
+  theme_minimal()+ facet_wrap(~name,scales = "free")+xlab('')+ylab('density') 
+
+g2<-nlme::ranef(fitlme) %>% dplyr::rename(`intercepts`=`(Intercept)`,
+                                          `slopes`=tt) %>% 
+  pivot_longer(cols = everything()) %>% 
+  ggplot(aes(sample=value))+geom_qq() + geom_qq_line()+
+  facet_wrap(~name,scales = 'free')+theme_minimal() + ylab("sample") + xlab("theoretical")
+
+gridExtra::grid.arrange(g1,g2,ncol=1)
+```
+
+## Using the skewlmm package
+By default, DAAREM is used for parameter estimation. To use the EM algorithm instead, set `algorithm = "EM"` in control.
+```{r fit1, echo=T}
+# normal
+mod0 <- smn.lmm(data = data, formFixed = y~Treat * tt + tt2,
+               groupVar = "ind", formRandom = ~tt, distr = "norm",
+               control = lmmControl(quiet = TRUE)) 
+
+# SMSN-LMM
+mod1 <- smsn.lmm(data = data,formFixed = y ~ Treat * tt + tt2, groupVar = "ind",
+                formRandom = ~ tt, distr = "sn",
+                control = lmmControl(quiet = TRUE))
+mod2 <- update(mod1, distr = "st")
+mod3 <- update(mod1, distr = "scn")
+
+#AR1
+mod0ar1 <- update(mod0, depStruct = "ARp", timeVar = "time")
+mod1ar1 <- update(mod1, depStruct = "ARp", timeVar = "time")
+mod2ar1 <- update(mod2, depStruct = "ARp", timeVar = "time")
+mod3ar1 <- update(mod3, depStruct = "ARp", timeVar = "time")
+
+######
+criteria(list(UNC_N = mod0, UNC_SN = mod1, UNC_ST = mod2, 
+              UNC_SCN = mod3, AR1_N = mod0ar1, AR1_SN = mod1ar1, 
+              AR1_ST = mod2ar1, AR1_SCN = mod3ar1)) %>% kable(digits = 1)
+```
+
+## Assessing the goodness of fit using a Healy-type plot
+```{r healy1, echo=T}
+# creating full data
+dataf <- data %>% select(y, ind, time, Treat) %>% complete(ind, time) %>% 
+  transform(tt = (time-4)/10) %>% transform(tt2 = tt^2) %>% fill(Treat)
+
+# prediction for AR(1)-N
+pred <- predict(mod0ar1,filter(dataf, is.na(y)))%>% select(ypred, time, groupVar)
+data_mod0ar <- dataf
+data_mod0ar[is.na(dataf$y),"y"] <- pred$ypred
+
+# prediction for AR(1)-ST
+pred <- predict(mod2ar1,filter(dataf, is.na(y)))
+data_mod2ar <- dataf
+data_mod2ar[is.na(dataf$y),"y"] <- pred$ypred
+
+# prediction for AR(1)-SCN
+pred <- predict(mod3ar1,filter(dataf, is.na(y)))
+data_mod3ar <- dataf
+data_mod3ar[is.na(dataf$y),"y"] <- pred$ypred
+
+grid.arrange(healy.plot(mod0ar1, dataPlus = data_mod0ar, calcCI = TRUE),
+             healy.plot(mod2ar1, dataPlus = data_mod2ar, calcCI = TRUE),
+             healy.plot(mod3ar1, dataPlus = data_mod3ar, calcCI = TRUE), nrow = 1)
+```
+
+## Extracting the results from the AR(1)-SCN-LMM
+```{r fit1res}
+#estimates
+mod3ar1
+summary(mod3ar1)$tableFixed %>% kable(digits = 3)
+```
+
+```{r fit2res}
+mod3ar1_red <- update(mod3ar1, formFixed = y ~ tt + tt2)
+lr.test(mod3ar1_red,mod3ar1)
+```
+
+```{r fit4res}
+mod3sar1<- update(mod0ar1, distr='cn') 
+lr.test(mod3sar1,mod3ar1)
+```
+
+
+## Ploting the ACF for the residuals
+```{r acf1, echo=T}
+grid.arrange(plot(acfresid(mod3, calcCI = TRUE, maxLag = 5)),
+             plot(acfresid(mod3ar1, calcCI = TRUE, maxLag = 5)), nrow=1)
+```
+
+## Mahalanobis distance for AR(1)-SCN-LMM
+```{r mahal1, echo=T, fig.height=3}
+grid.arrange(plot(mahalDist(mod3ar1), nlabels = 0) + ggtitle(NULL),
+             qplot(mahalDist(mod3ar1), mod3ar1$uhat, shape=I(1)) +
+               geom_point(shape=1)+ theme_minimal() +
+               ylab("weight") + xlab("Mahalanobis distance"), ncol=2)
+```
+
+## Ploting the fitted object
+```{r extra1, echo=T}
+plot(mod3ar1,type = "normalized")
+```
+
+
+

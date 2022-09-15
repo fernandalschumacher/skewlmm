@@ -1,0 +1,138 @@
+---
+title: "Application - Chapter 3"
+author: "Fernanda L. Schumacher, Larissa A. Matos, and Victor H. Lachos"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 6, fig.height = 3, fig.align = 'center')
+library(tidyverse)
+library(nlme)
+library(skewlmm)
+library(gridExtra)
+library(knitr)
+```
+
+## Loading and ploting the data
+
+The average reaction time per day for subjects was evaluated by Gregory et al. (2003) in a sleep deprivation study. 
+On day 0 the subjects had their normal amount of sleep and starting that night they were restricted to 3 hours of sleep per night for 9 days, and the reaction time basead on a series of tests was measured on each day for each subject. 
+The data are available at the R package \emph{lme4}.
+
+```{r data}
+data("sleepstudy",package = "lme4")
+sleepstudy <- subset(sleepstudy,Days>=2)
+sleepstudy$Days <- sleepstudy$Days-2
+sleepstudy$Dayst <- sleepstudy$Days-3.5
+```
+
+```{r fit1plot, fig.width=4.5, fig.height=2.5}
+ggplot(sleepstudy,aes(x=Days,y=Reaction,group=Subject)) + geom_line(alpha=.4) + 
+  stat_summary(aes(group = 1),geom = "line", fun= mean, colour=1,size=1) +
+  scale_x_continuous()+ylab("reaction time")+xlab("days")+
+  theme_minimal()
+```
+
+##Fiting N-LMM with nlme
+```{r fit1plot2, fig.width=4.5, fig.height=4}
+fitlme <- lme(fixed = Reaction ~ Dayst, data = sleepstudy, 
+              random = ~Dayst | Subject)
+
+g1<-nlme::ranef(fitlme) %>% dplyr::rename(`intercepts`=`(Intercept)`,
+                                          `slopes`=Dayst) %>% 
+  pivot_longer(cols = everything()) %>% 
+  ggplot(aes(x=value))+ geom_histogram(bins=7,aes(y=..density..)) +
+  theme_minimal()+ facet_wrap(~name,scales = "free")+xlab('')+ylab('density') 
+
+g2<-nlme::ranef(fitlme) %>% dplyr::rename(`intercepts`=`(Intercept)`,
+                                          `slopes`=Dayst) %>% 
+  pivot_longer(cols = everything()) %>% 
+  ggplot(aes(sample=value))+geom_qq() + geom_qq_line()+
+  facet_wrap(~name,scales = 'free')+theme_minimal()
+
+gridExtra::grid.arrange(g1,g2,ncol=1)
+
+```
+
+## Using the skewlmm package
+```{r fit1, results="hide"}
+library(skewlmm)
+
+fit_norm <- smn.lmm(data = sleepstudy, formFixed = Reaction ~ Dayst,
+                    formRandom = ~Dayst, groupVar = "Subject", 
+                    control = lmmControl(quiet = TRUE))
+
+fit_sl <- update(object = fit_norm, distr = "sl")
+```
+
+## Printing the fitted object
+```{r fit1res}
+fit_sl
+```
+
+## Assessing the goodness of fit using a Healy-type plot
+```{r healy1}
+grid.arrange(healy.plot(fit_norm, calcCI = TRUE),
+             healy.plot(fit_sl, calcCI = TRUE), nrow=1)
+```
+
+## Fiting different dependence structures
+```{r fitAR}
+fit_sl_ar1 <- update(fit_sl, depStruct = "ARp", pAR=1)
+fit_sl_ar2 <- update(fit_sl, depStruct = "ARp", pAR=2)
+fit_sl_DEC <- update(fit_sl, depStruct = "DEC", timeVar="Days")
+fit_sl_DEC$elapsedTime
+
+fit_sl_DEC_seq <- update(fit_sl_DEC, control = lmmControl(parallelphi = FALSE, 
+                                                          quiet = TRUE))
+fit_sl_DEC_seq$elapsedTime
+```
+
+```{r fitARcrit}
+criteria(list(UNC = fit_sl, AR1 = fit_sl_ar1,
+              AR2 = fit_sl_ar2, DEC = fit_sl_DEC)) %>% kable()
+```
+
+```{r ar2est}
+rbind(fit_sl_ar2$theta,fit_sl_ar2$std.error) %>% kable(digits = 3)
+```
+
+## Ploting the ACF for the residuals
+```{r acf1}
+grid.arrange(plot(acfresid(fit_sl, calcCI = TRUE, maxLag = 6)),
+             plot(acfresid(fit_sl_ar1, calcCI = TRUE, maxLag = 6)), nrow=1)
+```
+
+## Summary of the chosen model
+```{r summary}
+summary(fit_sl_ar1)
+```
+
+## Mahalanobis distance for AR(1)-SL-LMM
+```{r mahal1, fig.height=3}
+grid.arrange(plot(mahalDist(fit_sl_ar1), nlabels = 0) + ggtitle(NULL),
+             qplot(mahalDist(fit_sl_ar1), fit_sl_ar1$uhat, shape=I(1)) +
+               geom_point(shape=1)+ theme_minimal() +
+               ylab("weight") + xlab("Mahalanobis distance"), ncol=2)
+```
+
+## Ploting the fitted object
+```{r extra1}
+plot(fit_sl_ar1,type = "normalized")
+```
+
+## Obtaining parametric bootstraps CI (may take a while to run)
+```{r bootshow}
+boot_sl_ar1<-boot_par(fit_sl_ar1, B=100)
+boot_ci(boot_sl_ar1) %>% kable(digits=2)
+```
+
+## Extra option: changing the default initial value for nu
+```{r initialval}
+fit_sl2 <- update(fit_sl, control = lmmControl(initialValues = list(nu = 1),
+                                               quiet = TRUE))
+fit_sl2
+```
+
+
+
