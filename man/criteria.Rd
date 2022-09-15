@@ -5,13 +5,13 @@
 %%  ~~function to do ... ~~
 }
 \description{
-  It extracts criteria for model comparison of sereval SMSN-LMM, SMN-LMM, and/or SMNCens-LMM (with censored responses).
+  It extracts criteria for model comparison of sereval SMSN-LMM, SMN-LMM and/or SMNCens-LMM (for censored responses).
 }
 \usage{
 criteria(lobjects)
 }
 \arguments{
-  \item{lobjects}{A list containg the smsn.lmm, smn.lmm, or smnCens.lmm objects to be compared.}
+  \item{lobjects}{A list containg the smsn.lmm, smn.lmm or smnCens.lmm objects to be compared.}
 }
 \value{
 A \code{data.frame} containing for each model the maximum log-likelihood value, the number of parameters, the AIC, and the BIC.

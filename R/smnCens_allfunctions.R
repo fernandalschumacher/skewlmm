@@ -977,3 +977,68 @@ censEM.t = function(y, x, z, cc, lcl, ucl, ind, ttc, data, beta1, sigmae, D1, ph
   return(obj.out)
 }
 
+
+# Prediction
+# ------------------------------------------
+predictionSMNCens = function(formFixed, formRandom, dataFit, dataPred, groupVar, timeVar, estimates, yest, struc){
+  dataPred[,all.vars(formFixed)[1]] = 0
+  dataFit[,all.vars(formFixed)[1]] = yest
+  dataFit$ind = dataFit[,groupVar]
+  dataPred$ind = dataPred[,groupVar]
+  dataPred$ind = droplevels(dataPred$ind)
+  #
+  p = ncol(model.matrix(formFixed,data=dataPred))
+  q1 = ncol(model.matrix(formRandom,data=dataPred))
+  beta1 = matrix(estimates$beta, ncol=1)
+  sigmae = as.numeric(estimates$sigma2)
+  phi = estimates$phi
+  D1 = estimates$D
+  #
+  ypred = numeric(length = nrow(dataPred))
+  timepred = numeric(length = nrow(dataPred))
+  xpred = matrix(nrow=nrow(dataPred), ncol=p)
+  #
+  for (indj in levels(dataPred$ind)) {
+    dataFitj  = subset(dataFit, dataFit$ind==indj, select = c("ind",all.vars(formFixed),all.vars(formRandom),timeVar))
+    dataPredj = subset(dataPred,dataPred$ind==indj,select = c("ind",all.vars(formFixed),all.vars(formRandom),timeVar))
+    if (!is.null(timeVar)) {
+      dataFitj$time  = dataFitj[,timeVar]
+      dataPredj$time = dataPredj[,timeVar]
+    }
+    njFit = nrow(dataFitj)
+    njPred = nrow(dataPredj)
+    seqFit = 1:njFit
+    seqPred = njFit+1:njPred
+    #
+    if (is.null(timeVar)) {
+      dataFitj$time = seqFit
+      dataPredj$time = seqPred
+    }
+    dataPlus = rbind(dataFitj, dataPredj)
+    #
+    xPlus1 = model.matrix(formFixed, data=dataPlus)
+    zPlus1 = model.matrix(formRandom, data=dataPlus)
+    z1 = matrix(zPlus1[seqFit,], ncol=ncol(zPlus1))
+    x1 = matrix(xPlus1[seqFit,], ncol=ncol(xPlus1))
+    z1Pred = matrix(zPlus1[seqPred,], ncol=ncol(zPlus1))
+    x1Pred = matrix(xPlus1[seqPred,], ncol=ncol(xPlus1))
+    #
+    medFit  = x1%*%beta1
+    medPred = x1Pred%*%beta1
+    #
+    y1 = dataFitj[,all.vars(formFixed)[1]]
+    SigmaPlus = sigmae*MatDec(c(dataFitj$time,dataPredj$time), phi, struc)
+    PsiPlus = (zPlus1)%*%(D1)%*%t(zPlus1) + SigmaPlus
+    ypredj  = medPred + PsiPlus[seqPred,seqFit]%*%solve(PsiPlus[seqFit,seqFit])%*%(y1-medFit)
+    ypred[dataPred$ind==indj] = ypredj
+    xpred[dataPred$ind==indj,] = matrix(xPlus1[seqPred,], ncol=ncol(xPlus1))
+    timepred[dataPred$ind==indj] = dataPredj$time
+  }
+  xpred = as.data.frame(xpred)
+  colnames(xpred) = colnames(xPlus1)
+  if (all(xpred[,1]==1)) xpred = xpred[-1]
+  if (is.null(timeVar)) dfout = data.frame(groupVar=dataPred$ind, xpred, ypred)
+  else dfout = data.frame(groupVar=dataPred$ind, time=timepred, xpred, ypred)
+  dfout
+}
+

@@ -21,7 +21,7 @@
   \item{sigma2}{Common variance parameter, such that \eqn{\Sigma=\sigma^2*R}.}
   \item{D}{Variance matrix for random effects.}
   \item{beta}{Vector of fixed effects parameter.}
-  \item{depStruct}{Dependence structure. \code{"UNC"} for conditionally uncorrelated (\code{"CI"} is also accepted), \code{"ARp"} for AR(p) -- p is \code{length(phi)}--, \code{"CS"} for compound symmetry, \code{"DEC"} for DEC, and \code{"MA1"} for moving average of order 1.}
+  \item{depStruct}{Dependence structure. \code{"UNC"} for conditionally uncorrelated (\code{"CI"} is also accepted), \code{"ARp"} for AR(p) -- p is \code{length(phi)}--, \code{"CS"} for compound symmetry, \code{"DEC"} for DEC, \code{"CAR1"} for continuous-time AR(1), and \code{"MA1"} for moving average of order 1.}
   \item{phi}{Parameter vector indexing the dependence structure.}
   \item{distr}{Distribution that should be used. \code{"norm"} for normal and \code{"t"} for Student-t.}
   \item{nu}{Degrees of freedom for Student-t distribution. It must be greater than 2.}

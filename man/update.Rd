@@ -23,7 +23,7 @@
 An object resulting from the \code{smsm.lmm()}, \code{smn.lmm()} or \code{smnCens.lmm()} function.
 }
 \author{
-Fernanda L. Schumacher, Larissa A. Matos, Katherine L. Valeriano, and Victor H. Lachos
+Fernanda L. Schumacher, Larissa A. Matos, Victor H. Lachos and Katherine L. Valeriano
 }
 
 \seealso{

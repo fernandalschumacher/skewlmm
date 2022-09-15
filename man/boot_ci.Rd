@@ -27,8 +27,8 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{\donttest{
-fm1<- smn.lmm(nlme::Orthodont, formFixed = distance ~ age+Sex, groupVar = "Subject")
-b1<- boot_par(fm1, B = 100)
+fm1 = smn.lmm(nlme::Orthodont, formFixed=distance ~ age+Sex, groupVar="Subject")
+b1 = boot_par(fm1, B=100)
 boot_ci(b1)
 }
 }

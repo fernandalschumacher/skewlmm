@@ -36,9 +36,9 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 \code{\link{smn.lmm}}, \code{\link{smsn.lmm}}, \code{\link{plot.mahalDist}}
 }
 \examples{
-fm1 <- smn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar = "Subject")
+fm1 = smn.lmm(distance ~ age+Sex, data=nlme::Orthodont, groupVar="Subject")
 mahalDist(fm1)
-plot(mahalDist(fm1), nlabels = 2)
+plot(mahalDist(fm1), nlabels=2)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

@@ -219,9 +219,10 @@ print.SMNCens = function(x,...){
   print(D1)
   cat("\nEstimated parameters:\n")
   if (!is.null(x$std.error)) {
-    tab = rbind(round(x$theta, 4), c(round(x$std.error,4), rep(NA, length(x$theta)-length(x$std.error))))
+    tab = as.table(rbind(x$theta, c(x$std.error, rep(NA, length(x$theta)-length(x$std.error)))))
     colnames(tab) = names(x$theta)
     rownames(tab) = c("","s.e.")
+    tab = Format(tab, digits=4, na.form="--")
   } else {
     tab = round(rbind(x$theta),4)
     colnames(tab) = names(x$theta)
@@ -291,9 +292,29 @@ summary.SMNCens = function(object, confint.level=0.95, ...){
 
 # Prediction
 # ------------------------------------------------------------------------------
-
-
-
+predict.SMNCens = function(object, newData,...){
+  if (missing(newData)||is.null(newData)) return(fitted(object))
+  if (!is.data.frame(newData)) stop("newData must be a data.frame object")
+  if (nrow(newData)==0) stop("newData can not be an empty dataset")
+  dataFit = object$data
+  formFixed = object$formula$formFixed
+  formRandom = object$formula$formRandom
+  groupVar = object$groupVar
+  timeVar = object$timeVar
+  dataPred = newData
+  #
+  vars_used = unique(c(all.vars(formFixed)[-1],all.vars(formRandom),groupVar,timeVar))
+  vars_miss = which(!(vars_used %in% names(newData)))
+  if (length(vars_miss)>0) stop(paste(vars_used[vars_miss],"not found in newData"))
+  depStruct = object$depStruct
+  if (depStruct=="CI") depStruct = "UNC"
+  if (any(!(dataPred[,groupVar] %in% dataFit[,groupVar]))) stop("subjects for which future values should be predicted must also be at fitting data")
+  if (!is.factor(dataFit[,groupVar])) dataFit[,groupVar] = haven::as_factor(dataFit[,groupVar])
+  if (!is.factor(dataPred[,groupVar])) dataPred[,groupVar]= factor(dataPred[,groupVar],levels=levels(dataFit[,groupVar]))
+  #
+  obj.out = predictionSMNCens(formFixed, formRandom, dataFit, dataPred, groupVar, timeVar, object$estimates, object$yest, depStruct)
+  obj.out
+}
 
 # Residuals
 # ------------------------------------------------------------------------------

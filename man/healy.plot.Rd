@@ -48,11 +48,11 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 \code{\link{mahalDist}}, \code{\link{acfresid}}
 }
 \examples{
-fm1 <- smn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar="Subject")
+fm1 = smn.lmm(distance ~ age+Sex, data=nlme::Orthodont, groupVar="Subject")
 healy.plot(fm1)
 
 ## computing simulated bands
-\donttest{healy.plot(fm1, calcCI = TRUE)
+\donttest{healy.plot(fm1, calcCI=TRUE)
 }
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

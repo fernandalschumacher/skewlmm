@@ -15,7 +15,7 @@
 }
 
 \arguments{
- \item{object}{an object inheriting from class \code{SMSN}, representing
+ \item{object}{An object inheriting from class \code{SMSN}, representing
    a fitted scale mixture skew-normal linear mixed model.}
   \item{\dots}{Additional arguments.}
    }
@@ -34,8 +34,8 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-fm1 <- smsn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar = "Subject",
-       control = lmmControl(tol = .0001))
+fm1 = smsn.lmm(distance ~ age+Sex, data=nlme::Orthodont, groupVar="Subject",
+               control=lmmControl(tol=.0001))
 fitted(fm1)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

@@ -19,10 +19,10 @@ smnCens.lmm(data, formFixed, groupVar, formRandom = ~1,
   \item{formFixed}{A two-sided linear formula object describing the fixed effects part of the model, with the response on the left of a \code{~} operator and the covariates, separated by \code{+} operators, on the right.}
   \item{groupVar}{A character containing the name of the variable which represents the subjects or groups in \code{data}.}
   \item{formRandom}{A one-sided linear formula object describing the random effects part of the model, with the covariates, separated by \code{+} operators, on the right of a \code{~} operator. By default, a model with random intercept is considered.}
-  \item{depStruct}{A character indicating which dependence structure should be used. \code{"UNC"} for conditionally uncorrelated (\code{"CI"} is also accepted), \code{"ARp"} for AR(p) -- p is \code{length(phi)}--, \code{"CS"} for compound symmetry, \code{"DEC"} for DEC, and \code{"MA1"} for moving average of order 1.}
-  \item{ci}{A character containing the name of the indicator variable in \code{data}. If \code{ci=NULL}, it is assumed no-censored observations.}
-  \item{lcl}{A character containing the name of the lower censoring limit in \code{data}. If \code{lcl=NULL}, it is assumed no-censored observations.}
-  \item{ucl}{A character containing the name of the upper censoring limit in \code{data}. If \code{ucl=NULL}, it is assumed no-censored observations.}
+  \item{depStruct}{A character indicating which dependence structure should be used. \code{"UNC"} for conditionally uncorrelated (\code{"CI"} is also accepted), \code{"ARp"} for AR(p) -- p is \code{length(phi)}--, \code{"CS"} for compound symmetry, \code{"DEC"} for DEC, \code{"CAR1"} for continuous-time AR(1), and \code{"MA1"} for moving average of order 1.}
+  \item{ci}{A character containing the name of the censoring indicator variable in \code{data}. If \code{ci=NULL}, it is assumed no-censored observations.}
+  \item{lcl}{A character containing the name of the lower censoring limit in \code{data}. If \code{lcl=NULL}, it is assumed \code{lcl=-Inf}.}
+  \item{ucl}{A character containing the name of the upper censoring limit in \code{data}. If \code{ucl=NULL}, it is assumed \code{ucl=Inf}.}
   \item{timeVar}{A character containing the name of the variable which represents the time in \code{data}. Meaningless if \code{depStruct="UNC"} or \code{depStruct="CS"}. For other structures, if \code{is.null(timeVar)} the observations are considered equally spaced and ordered. If \code{depStruct="ARp"}, timeVar must be an index, preferably starting at 1.}
   \item{distr}{A character indicating which distribution should be used. \code{"norm"} for normal and \code{"t"} for Student-t.}
   \item{nufix}{\code{TRUE} or \code{FALSE} indicating if \code{nu} should be estimated for t distribution. If \code{nufix=TRUE}, nu must be especified through \code{lmmControl()}.}
@@ -72,7 +72,7 @@ Matos, L. A., Prates, M. O., Chen, M. H., and Lachos, V. H. (2013). Likelihood-b
 Lachos, V. H., A. Matos, L., Castro, L. M., and Chen, M. H. (2019). Flexible longitudinal linear mixed models for multiple censored responses data. Statistics in medicine, 38(6), 1074-1102.
 }
 \author{
-Fernanda L. Schumacher, Larissa A. Matos, Katherine L. Valeriano, and Victor H. Lachos
+Fernanda L. Schumacher, Larissa A. Matos, Victor H. Lachos and Katherine L. Valeriano
 }
 
 \seealso{
@@ -93,6 +93,10 @@ dat1 = rsmnCens.lmm(time, groups, cbind(1,time), rep(1,m*nj1), sigma2=0.7,
 fm1 = smnCens.lmm(dat1, formFixed=y~x, groupVar="ind", depStruct="CS", ci="ci",
                   lcl="lcl", ucl="ucl", control=lmmControl(max.iter=30))
 fm1
+\donttest{
+# Fiting a model with t-distribution
+fm2 = update(fm1, distr="t")
+criteria(list(fm1=fm1, fm2=fm2))}
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

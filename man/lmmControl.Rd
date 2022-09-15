@@ -1,11 +1,11 @@
 \name{lmmControl}
 \alias{lmmControl}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Control options for \code{smsn.lmm()} and \code{smn.lmm()}
+\title{Control options for \code{smsn.lmm()}, \code{smn.lmm()} and \code{smnCens.lmm()}
 %%  ~~function to do ... ~~
 }
 \description{
-The values supplied in the function call replace the defaults and a list with all possible arguments is returned. The returned list has class \code{"lmmControl"} and is used as the control argument to the \code{smsn.lmm()} and \code{smn.lmm()} functions.
+The values supplied in the function call replace the defaults and a list with all possible arguments is returned. The returned list has class \code{"lmmControl"} and is used as the control argument to the \code{smsn.lmm()}, \code{smn.lmm()} and \code{smnCens.lmm()} functions.
 }
 \usage{
 lmmControl(tol = 1e-06, max.iter = 300, calc.se = TRUE, lb = NULL,
@@ -43,15 +43,14 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 
 
 \seealso{
-\code{\link{smsn.lmm}}, \code{\link{smn.lmm}}, \code{\link{update}}
+\code{\link{smsn.lmm}}, \code{\link{smn.lmm}}, \code{\link{smnCens.lmm}}, \code{\link{update}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
 lmmControl(algorithm = "EM")
 
-fm1<- smn.lmm(nlme::Orthodont, formFixed = distance ~ age+Sex,
-              groupVar = "Subject", control = lmmControl(tol = 1e-7))
-
+fm1 = smn.lmm(nlme::Orthodont, formFixed=distance ~ age+Sex,
+              groupVar="Subject", control=lmmControl(tol=1e-7))
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

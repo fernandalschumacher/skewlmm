@@ -12,9 +12,9 @@
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
- \item{object}{an object inheriting from class \code{SMSN}, representing
+ \item{object}{An object inheriting from class \code{SMSN}, representing
    a fitted scale mixture skew-normal linear mixed model.}
- \item{newData}{a data frame for which response variable should be predicted, including covariates, groupVar and possibly timeVar. If missing or \code{NULL}, fitted values are returned.}
+ \item{newData}{A data frame for which response variable should be predicted, including covariates, groupVar and possibly timeVar. If missing or \code{NULL}, fitted values are returned.}
   \item{\dots}{Additional arguments.}
    }
 
@@ -35,8 +35,8 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{\donttest{
-dat1 <- nlme::Orthodont
-fm1 <- smsn.lmm(distance ~ age + Sex, data = subset(dat1, age<14), groupVar = "Subject")
+dat1 = nlme::Orthodont
+fm1 = smsn.lmm(distance ~ age+Sex, data=subset(dat1, age<14), groupVar="Subject")
 predict(fm1, subset(dat1, age==14))
 }
 }

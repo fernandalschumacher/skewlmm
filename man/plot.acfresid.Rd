@@ -29,10 +29,10 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 \code{\link{ggplot}}, \code{\link{acfresid}}, \code{\link{smn.lmm}}, \code{\link{smsn.lmm}}, \code{\link{residuals.SMN}}, \code{\link{residuals.SMSN}}
 }
 \examples{
-fm1 <- smn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar="Subject")
+fm1 = smn.lmm(distance ~ age+Sex, data=nlme::Orthodont, groupVar="Subject")
 plot(acfresid(fm1))
 
-\donttest{acfCI <- acfresid(fm1, calcCI = TRUE)
+\donttest{acfCI = acfresid(fm1, calcCI=TRUE)
 plot(acfCI)
   }
 }

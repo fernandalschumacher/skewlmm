@@ -31,14 +31,14 @@
 Modified residuals are useful when the variance is not finite, such as when \eqn{\nu \le 2} for t or ST distributions, or when \eqn{\nu \le 1} for SL or SSL distributions.
 }
 \author{
-Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
+Fernanda L. Schumacher, Larissa A. Matos, Victor H. Lachos and Katherine L. Valeriano
 }
 
 \seealso{
 \code{\link{smn.lmm}}, \code{\link{smsn.lmm}}, \code{\link{smnCens.lmm}}, \code{\link{acfresid}}, \code{\link{mahalDist}}, \code{\link{healy.plot}}
 }
 \examples{
-fm1 = smn.lmm(distance ~ age + Sex, data=nlme::Orthodont, groupVar="Subject")
+fm1 = smn.lmm(distance ~ age+Sex, data=nlme::Orthodont, groupVar="Subject")
 residuals(fm1)
 plot(fm1, useweight=FALSE)
 }

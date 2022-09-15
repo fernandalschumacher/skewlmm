@@ -69,8 +69,8 @@ gendat = bind_rows(gendatList, .id="ind")
 ggplot(gendat, aes(x=x, y=y, group=ind)) + geom_line() +
   stat_summary(aes(group=1), geom="line", fun=mean, col="blue", size=2)
 #
-\donttest{fm1 <- smsn.lmm(y ~ x, data = gendat, groupVar = "ind", depStruct = "ARp",
-                pAR = 1)
+\donttest{fm1 = smsn.lmm(y ~ x, data=gendat, groupVar="ind", depStruct="ARp",
+                pAR=1)
 summary(fm1)
 }
 }

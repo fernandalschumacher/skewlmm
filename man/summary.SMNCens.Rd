@@ -13,16 +13,16 @@
 }
 
 \arguments{
-  \item{object}{an object inheriting from class \code{SMNCens},
+  \item{object}{An object inheriting from class \code{SMNCens},
   representing a fitted scale mixture normal linear mixed model with censored responses.}
   \item{confint.level}{Level of the approximate confidence intervals presented.}
   \item{\dots}{Additional arguments.}
 }
 \author{
-  Fernanda L. Schumacher, Larissa A. Matos, Katherine L. Valeriano, and Victor H. Lachos
+  Fernanda L. Schumacher, Larissa A. Matos, Victor H. Lachos and Katherine L. Valeriano
 }
 \seealso{
-  \code{\link{smnCens.lmm}}, \code{\link{plot.SMN}}, \code{\link{residuals.SMNCens}}
+  \code{\link{smnCens.lmm}}, \code{\link{plot.SMNCens}}, \code{\link{residuals.SMNCens}}
   %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 %\examples{}

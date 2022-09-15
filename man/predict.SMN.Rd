@@ -12,9 +12,9 @@
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
- \item{object}{an object inheriting from class \code{SMN}, representing
+ \item{object}{An object inheriting from class \code{SMN}, representing
    a fitted scale mixture normal linear mixed model.}
- \item{newData}{a data frame for which response variable should be predicted, including covariates, groupVar and possibly timeVar. If missing or \code{NULL}, fitted values are returned.}
+ \item{newData}{A data frame for which response variable should be predicted, including covariates, groupVar and possibly timeVar. If missing or \code{NULL}, fitted values are returned.}
   \item{\dots}{Additional arguments.}
    }
 
@@ -35,8 +35,8 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-dat1 <- nlme::Orthodont
-fm1 <- smn.lmm(distance ~ age + Sex, data = subset(dat1, age<14), groupVar = "Subject")
+dat1 = nlme::Orthodont
+fm1 = smn.lmm(distance ~ age+Sex, data=subset(dat1, age<14), groupVar="Subject")
 predict(fm1, subset(dat1, age==14))
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

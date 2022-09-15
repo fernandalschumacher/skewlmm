@@ -16,7 +16,7 @@
 }
 
 \arguments{
- \item{object}{an object inheriting from class \code{SMN}, representing
+ \item{object}{An object inheriting from class \code{SMN}, representing
    a fitted scale mixture normal linear mixed model.}
   \item{\dots}{Additional arguments.}
    }
@@ -34,7 +34,7 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 \code{\link{smn.lmm}}, \code{\link{predict.SMN}}
 }
 \examples{
-fm1 <- smn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar="Subject")
+fm1 = smn.lmm(distance ~ age+Sex, data=nlme::Orthodont, groupVar="Subject")
 fitted(fm1)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

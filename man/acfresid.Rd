@@ -42,13 +42,13 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 \code{\link{smn.lmm}}, \code{\link{smsn.lmm}}, \code{\link{plot.acfresid}}
 }
 \examples{
-fm1 <- smn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar="Subject")
-acf1<- acfresid(fm1)
+fm1 = smn.lmm(distance ~ age+Sex, data=nlme::Orthodont, groupVar="Subject")
+acf1 = acfresid(fm1)
 acf1
 plot(acf1)
 
 ## computing simulated bands
-\donttest{acfCI<- acfresid(fm1, calcCI = TRUE)
+\donttest{acfCI = acfresid(fm1, calcCI=TRUE)
 plot(acfCI)
   }
 }

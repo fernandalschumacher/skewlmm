@@ -34,7 +34,7 @@ Fitted values versus residuals plot.
 }
 
 \author{
-Fernanda L. Schumacher, Larissa A. Matos, Katherine L. Valeriano, and Victor H. Lachos
+Fernanda L. Schumacher, Larissa A. Matos, Victor H. Lachos and Katherine L. Valeriano
 }
 
 
@@ -43,14 +43,13 @@ Fernanda L. Schumacher, Larissa A. Matos, Katherine L. Valeriano, and Victor H. 
 \code{\link{fitted.SMSN}}, \code{\link{fitted.SMNCens}}, \code{\link{residuals.SMN}}, \code{\link{residuals.SMSN}}, \code{\link{residuals.SMNCens}}
 }
 \examples{
-fm1 = smn.lmm(distance ~ age + Sex, data = nlme::Orthodont,
+fm1 = smn.lmm(distance ~ age+Sex, data=nlme::Orthodont,
               groupVar="Subject", distr="t")
 plot(fm1)
-plot(fm1, useweight = FALSE)
+plot(fm1, useweight=FALSE)
 
 \donttest{library(ggplot2)
-plot(fm1) + ggtitle("t-LMM for orthodont data")
-  }
+plot(fm1) + ggtitle("t-LMM for orthodont data")}
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

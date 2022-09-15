@@ -81,27 +81,27 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 }
 \examples{
 #simple example
-dat1 <- as.data.frame(nlme::Orthodont)
-fm1 <- smn.lmm(dat1, formFixed = distance ~ age, groupVar = "Subject",
-                control = lmmControl(max.iter = 30))
+dat1 = as.data.frame(nlme::Orthodont)
+fm1 = smn.lmm(dat1, formFixed=distance ~ age, groupVar="Subject",
+                control=lmmControl(max.iter=30))
 fm1
 \donttest{
 #fitting for several distributions / dependence structures
-fm1 <- smn.lmm(dat1, formFixed = distance ~ age+Sex, groupVar = "Subject")
-fm2 <- smn.lmm(dat1, formFixed = distance ~ age+Sex, groupVar = "Subject",
-                distr = "t")
-fm3 <- smn.lmm(dat1, formFixed = distance ~ age+Sex, groupVar = "Subject",
-                distr = "sl")
-fm4 <- smn.lmm(dat1, formFixed = distance ~ age+Sex, groupVar = "Subject",
-                depStruct = "ARp", pAR=1)
-criteria(list(fm1 = fm1, fm2 = fm2, fm3 = fm3, fm4 = fm4))
+fm1 = smn.lmm(dat1, formFixed=distance ~ age+Sex, groupVar="Subject")
+fm2 = smn.lmm(dat1, formFixed=distance ~ age+Sex, groupVar="Subject",
+              distr="t")
+fm3 = smn.lmm(dat1, formFixed=distance ~ age+Sex, groupVar="Subject",
+              distr="sl")
+fm4 = smn.lmm(dat1, formFixed=distance ~ age+Sex, groupVar="Subject",
+              depStruct="ARp", pAR=1)
+criteria(list(fm1=fm1, fm2=fm2, fm3=fm3, fm4=fm4))
 summary(fm3)
 
 #some diagnostic tools
 plot(fm3)
-acf3<- acfresid(fm3, calcCI = TRUE, MCiter = 100)
+acf3 = acfresid(fm3, calcCI=TRUE, MCiter=100)
 plot(acf3)
-plot(mahalDist(fm3), nlabels = 2)
+plot(mahalDist(fm3), nlabels=2)
 healy.plot(fm3)
 }
 }

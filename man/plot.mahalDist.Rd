@@ -36,11 +36,11 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 \code{\link{ggplot}}, \code{\link{mahalDist}}, \code{\link{smn.lmm}}, \code{\link{smsn.lmm}}
 }
 \examples{
-fm1 <- smn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar = "Subject")
-plot(mahalDist(fm1), nlabels = 2)
+fm1 = smn.lmm(distance ~ age+Sex, data=nlme::Orthodont, groupVar="Subject")
+plot(mahalDist(fm1), nlabels=2)
 
 #the estimated quantile is stored at the attribute "info" of the plot object
-plotMD <- plot(mahalDist(fm1))
+plotMD = plot(mahalDist(fm1))
 attr(plotMD, "info")
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

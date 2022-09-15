@@ -13,7 +13,7 @@ Print a smsn.lmm object.
 }
 
 \arguments{
- \item{x}{an object inheriting from class \code{SMSN}, representing
+ \item{x}{An object inheriting from class \code{SMSN}, representing
    a fitted scale mixture skew-normal linear mixed model.}
   \item{\dots}{Additional print arguments.}
    }
@@ -28,7 +28,7 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{\donttest{
-fm1 <- smsn.lmm(distance ~ age + Sex, data = nlme::Orthodont, groupVar = "Subject")
+fm1 = smsn.lmm(distance ~ age+Sex, data=nlme::Orthodont, groupVar="Subject")
 fm1
   }
 }
