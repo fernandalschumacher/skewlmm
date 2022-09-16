@@ -1,11 +1,11 @@
 \name{lmmControl}
 \alias{lmmControl}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Control options for \code{smsn.lmm()}, \code{smn.lmm()} and \code{smnCens.lmm()}
+\title{Control options for \code{smsn.lmm()}, \code{smn.lmm()} and \code{smn.clmm()}
 %%  ~~function to do ... ~~
 }
 \description{
-The values supplied in the function call replace the defaults and a list with all possible arguments is returned. The returned list has class \code{"lmmControl"} and is used as the control argument to the \code{smsn.lmm()}, \code{smn.lmm()} and \code{smnCens.lmm()} functions.
+The values supplied in the function call replace the defaults and a list with all possible arguments is returned. The returned list has class \code{"lmmControl"} and is used as the control argument to the \code{smsn.lmm()}, \code{smn.lmm()} and \code{smn.clmm()} functions.
 }
 \usage{
 lmmControl(tol = 1e-06, max.iter = 300, calc.se = TRUE, lb = NULL,
@@ -43,7 +43,7 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 
 
 \seealso{
-\code{\link{smsn.lmm}}, \code{\link{smn.lmm}}, \code{\link{smnCens.lmm}}, \code{\link{update}}
+\code{\link{smsn.lmm}}, \code{\link{smn.lmm}}, \code{\link{smn.clmm}}, \code{\link{update}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{

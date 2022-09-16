@@ -311,7 +311,7 @@ acfresid <- function(object,maxLag,resLevel="marginal",resType="normalized",
   out
 }
 
-mahalDist<- function(object,decomposed=FALSE,dataPlus=NULL){
+mahalDist <- function(object,decomposed=FALSE,dataPlus=NULL){
   if(!inherits(object,c("SMSN","SMN"))) stop("object must inherit from class SMSN or SMN")
   formFixed <- object$formula$formFixed
   formRandom <- object$formula$formRandom

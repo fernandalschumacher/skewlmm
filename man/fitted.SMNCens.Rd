@@ -1,7 +1,7 @@
 \name{fitted.SMNCens}
 \alias{fitted.SMNCens}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Extract smnCens.lmm fitted values
+\title{Extract smn.clmm fitted values
   %%  ~~function to do ... ~~
 }
 \description{
@@ -29,19 +29,18 @@
 }
 
 \seealso{
-  \code{\link{smnCens.lmm}}, \code{\link{predict.SMNCens}}
+  \code{\link{smn.clmm}}, \code{\link{predict.SMNCens}}
 }
 \examples{
 nj1 = 5
 m = 30
 time = rep(1:nj1, times=m)
 groups = as.factor(rep(1:m, each=nj1))
-dat1 = rsmnCens.lmm(time, groups, cbind(1,time), rep(1,m*nj1),
-                    sigma2=0.7, D=diag(1), beta=c(1,2), depStruct="UNC")
+dat1 = rsmn.clmm(time, groups, cbind(1,time), rep(1,m*nj1), sigma2=0.7,
+                 D=diag(1), beta=c(1,2), depStruct="UNC")
 
-fm1 = smnCens.lmm(dat1, formFixed=y~x, groupVar="ind",
-                  depStruct="UNC", ci="ci", lcl="lcl", ucl="ucl",
-                  control=lmmControl(max.iter=30))
+fm1 = smn.clmm(dat1, formFixed=y~x, groupVar="ind", depStruct="UNC",
+               ci="ci", lcl="lcl", ucl="ucl", control=lmmControl(max.iter=30))
 fitted(fm1)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

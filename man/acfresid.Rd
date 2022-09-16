@@ -5,7 +5,7 @@
 %%  ~~function to do ... ~~
 }
 \description{
-This function calculates the empirical autocorrelation function for the within-subject residuals from a smn.lmm or smsn.lmm  fit. The autocorrelation values are calculated using pairs of residuals within-subjects. The autocorrelation function is useful for investigating serial correlation models for discrete-time data, preferably equally spaced.}
+This function calculates the empirical autocorrelation function for the within-subject residuals from a smn.lmm or smsn.lmm fit. The autocorrelation values are calculated using pairs of residuals within-subjects. The autocorrelation function is useful for investigating serial correlation models for discrete-time data, preferably equally spaced.}
 
 \usage{
 acfresid(object, maxLag, resLevel = "marginal", resType = "normalized",

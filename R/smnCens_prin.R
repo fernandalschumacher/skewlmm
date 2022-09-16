@@ -4,9 +4,9 @@
 
 # Censored mixed-effects models for irregularly observed repeated measures
 # ------------------------------------------------------------------------------
-smnCens.lmm = function(data, formFixed, groupVar, formRandom=~1, depStruct="UNC",
-                       ci=NULL, lcl=NULL, ucl=NULL, timeVar=NULL, distr="norm", nufix=FALSE,
-                       pAR=NULL, control=lmmControl()){
+smn.clmm = function(data, formFixed, groupVar, formRandom=~1, depStruct="UNC",
+                    ci=NULL, lcl=NULL, ucl=NULL, timeVar=NULL, distr="norm", nufix=FALSE,
+                    pAR=NULL, control=lmmControl()){
 
   if (!is(formFixed,"formula")) stop("formFixed must be a formula")
   if (!is(formRandom,"formula")) stop("formRandom must be a formula")
@@ -202,42 +202,54 @@ fitted.SMNCens = function(object,...) object$fitted
 
 # Summary and print functions
 # ------------------------------------------------------------------------------
-print.SMNCens = function(x,...){
+print.SMNCens = function(x, confint.level=0.95, ...){
   cat("Linear mixed models with distribution", x$distr, "and dependency structure", x$depStruct,"\n")
   cat("Call:\n")
   print(x$call)
-  cat("\nFixed: ")
-  print(x$formula$formFixed)
-  cat("Random:\n")
+  cat("\nDistribution", x$distr)
+  if (x$distr!="norm") cat(" with nu =", x$estimates$nu)
+  cat("\n")
+  cat("\nRandom effects:\n")
   cat("  Formula: ")
   print(x$formula$formRandom)
   cat("  Structure:", ifelse(x$covRandom=='pdSymm','General positive-definite',
-                            'Diagonal'),'\n')
+                             'Diagonal'),'\n')
   cat("  Estimated variance (D):\n")
   D1 = x$estimates$D
   colnames(D1)=row.names(D1)= colnames(model.matrix(x$formula$formRandom,data=x$data))
   print(D1)
-  cat("\nEstimated parameters:\n")
-  if (!is.null(x$std.error)) {
-    tab = as.table(rbind(x$theta, c(x$std.error, rep(NA, length(x$theta)-length(x$std.error)))))
-    colnames(tab) = names(x$theta)
-    rownames(tab) = c("","s.e.")
-    tab = Format(tab, digits=4, na.form="--")
+  cat("\nFixed effects: ")
+  print(x$formula$formFixed)
+  p = length(c(x$estimates$beta))
+  if (!is.null(x$std.error)){
+    cat("with approximate confidence intervals\n")
+    qIC = qnorm(.5+confint.level/2)
+    ICtab = cbind(x$estimates$beta - qIC*x$std.error[1:p],
+                  x$estimates$beta + qIC*x$std.error[1:p])
+    tab = (cbind(x$estimates$beta, x$std.error[1:p], ICtab))
+    rownames(tab) = names(x$theta[1:p])
+    colnames(tab) = c("Value", "Std.error", paste0("CI ",confint.level*100,"% lower"), paste0("CI ",confint.level*100,"% upper"))
   } else {
-    tab = round(rbind(x$theta),4)
-    colnames(tab) = names(x$theta)
-    rownames(tab) = c("")
+    cat(" (std errors not estimated)\n")
+    tab = matrix(x$estimates$beta, nrow=1)
+    colnames(tab) = names(x$theta[1:p])
+    rownames(tab) = c("Value")
   }
   print(tab)
+  cat("\nDependency structure: ", x$depStruct, "\n")
+  cat("  Estimate(s):\n")
+  covParam = c(x$estimates$sigma2, x$estimates$phi)
+  if (x$depStruct=="UNC") names(covParam) = "sigma2"
+  else names(covParam) = c("sigma2", paste0("phi",1:(length(covParam)-1)))
+  print(covParam)
+  cat("\nModel selection criteria:\n")
+  criteria = c(x$loglik, x$criteria$AIC, x$criteria$BIC)
+  criteria = round(t(as.matrix(criteria)), digits=3)
+  dimnames(criteria) = list(c(""),c("logLik", "AIC", "BIC"))
+  print(criteria)
   cat('\n')
-  cat('Model selection criteria:\n')
-  critFin = c(x$loglik, x$criteria$AIC, x$criteria$BIC)
-  critFin = round(t(as.matrix(critFin)),digits=3)
-  dimnames(critFin) = list(c(""),c("logLik", "AIC", "BIC"))
-  print(critFin)
-  cat('\n')
-  cat('Number of observations:',x$N,'\n')
-  cat('Number of groups:',x$n,'\n')
+  cat('Number of observations:', x$N,'\n')
+  cat('Number of groups:', x$n,'\n')
 }
 
 summary.SMNCens = function(object, confint.level=0.95, ...){
@@ -290,6 +302,110 @@ summary.SMNCens = function(object, confint.level=0.95, ...){
   cat('Number of groups:', object$n,'\n')
 }
 
+# Mahalanobis distance
+# ------------------------------------------------------------------------------
+mahalDist.SMNCens = function(object){
+  if(!is(object, "SMNCens")) stop("object must inherit from class SMNCens")
+  formFixed  = object$formula$formFixed
+  formRandom = object$formula$formRandom
+  groupVar = object$groupVar
+  timeVar  = object$timeVar
+  data = object$data
+  x = model.matrix(formFixed, data=model.frame(formFixed,data,na.action=NULL))
+  y = object$yest
+  z = model.matrix(formRandom, data=data)
+  ind = data[,groupVar]
+  if (!is.null(timeVar)) {
+    time = data[,timeVar]
+  } else{
+    time = numeric(length = length(ind))
+    for (indi in levels(ind)) time[ind==indi] = seq_len(sum(ind==indi))
+  }
+  p  = ncol(x)
+  q1 = ncol(z)
+  N  = nrow(data)
+  ind_levels = levels(ind)
+  #
+  distr <- object$distr
+  mahaldist = distbi = distei = numeric(length(ind_levels))
+  Dest = object$estimates$D
+  for (i in seq_along(ind_levels)) {
+    seqi = (ind==ind_levels[i])
+    xfiti = x[seqi,]
+    zfiti = z[seqi,]
+    timei = time[seqi]
+    Sigmaest = object$estimates$sigma2*MatDec(timei, object$estimates$phi, object$depStruct)
+    Psiy = Sigmaest + (zfiti)%*%Dest%*%t(zfiti)
+    #
+    ytil = y[seqi] - xfiti%*%object$estimates$beta
+    mahaldist[i] = t(ytil)%*%solve(Psiy)%*%ytil
+  }
+  #
+  out = mahaldist
+  names(out) = row.names(object$random.effects)
+  class(out) = c("mahalDist.SMNCens","numeric")
+  attr(out,'call') = match.call()
+  out
+}
+
+plot.mahalDist.SMNCens = function(x, fitobject, level=.99, nlabels=3,...){
+  if (missing(fitobject)) fitobject = eval(str2lang(as.character(attr(x,'call')[2])))
+  if (!is(x, "mahalDist.SMNCens")) stop("x must inherit from class mahalDist.SMNCens")
+  if (!is.data.frame(x)) x = data.frame(md=x)
+  if (level>=1|level<=0) stop("0<level<1 needed")
+  #
+  if(!is(fitobject,"SMNCens")) stop("fitobject must inherit from class SMNCens")
+  data = fitobject$data
+  timeVar = fitobject$timeVar
+  ind = data[,fitobject$groupVar]
+  if (!is.null(timeVar)) {
+    time = data[,timeVar]
+  } else{
+    time = numeric(length = length(ind))
+    for (indi in levels(ind)) time[ind==indi] = seq_len(sum(ind==indi))
+  }
+  distr = fitobject$distr
+  nu = fitobject$estimates$nu
+  #
+  x$nj = tapply(time, ind, length)
+  x$index = seq_along(x$nj)
+  x$ind = levels(ind)
+  #
+  distrp = toupper(distr)
+  if (distrp=='NORM') distrp = "N"
+  depStructp = fitobject$depStruct
+  if (depStructp=="ARp") depStructp = paste0("AR(",length(fitobject$estimates$phi),")")
+  #
+  if (n_distinct(x$nj) == 1) {
+    nj1 = x$nj[1]
+    if (distr=="norm") mdquantile = qchisq(level, nj1)
+    if (distr=="t") mdquantile = nj1*qf(level,nj1,nu)
+    plotout = ggplot(x, aes_string("index","md")) +
+      geom_point(shape=1) + ylab("Mahalanobis distance") +
+      geom_text_repel(aes_string(label="ind"),data=subset(x,rank(x$md)>length(x$nj)-nlabels),
+                      nudge_x=1.5, nudge_y=.5, size=3) +
+      geom_hline(yintercept=mdquantile, col=4, linetype="dashed")
+    attr(plotout,"info") = data.frame(nj=nj1, quantile=c(mdquantile))
+  } else {
+    njvec = sort(unique(x$nj))
+    if (distr=="norm") mdquantile = qchisq(level,njvec)
+    if (distr=="t") mdquantile = njvec*qf(level,njvec,nu)
+    datline = data.frame(nj=c(njvec,max(njvec)+1), quantile=c(mdquantile,max(mdquantile)))
+    datline$nj2 = datline$nj-.5
+    plotout = ggplot(x,aes_string("nj","md")) +
+      geom_point(position=position_jitter(width=.25, height=0),
+                 shape=1) + ylab("Mahalanobis distance") + xlab("number of observations") +
+      geom_text(aes_string(label="ind"), data=subset(x,rank(x$md)>length(x$nj)-nlabels),
+                nudge_x=0, nudge_y=0, size=3) +
+      geom_step(aes_string(x="nj2",y="quantile"), data=datline, color=4, linetype="dashed") +
+      scale_x_continuous(breaks=njvec)
+    attr(plotout,"info") = data.frame(nj=c(njvec), quantile=c(mdquantile))
+  }
+  plotout + theme_minimal() + ggtitle(paste0(depStructp,'-',distrp,'-CLMM')) +
+    theme(plot.title=element_text(face="italic", size=10))
+}
+
+
 # Prediction
 # ------------------------------------------------------------------------------
 predict.SMNCens = function(object, newData,...){
@@ -318,9 +434,8 @@ predict.SMNCens = function(object, newData,...){
 
 # Residuals
 # ------------------------------------------------------------------------------
-residuals.SMNCens = function(object, level="conditional", type="response",...){
+residuals.SMNCens = function(object, level="conditional",...){
   if (!(level %in% c("marginal","conditional"))) stop("Accepted levels: marginal, conditional")
-  if (!(type %in% c("response","modified","normalized"))) stop("Accepted types: response, normalized or modified")
   data = object$data
   formFixed = object$formula$formFixed
   formRandom = object$formula$formRandom
@@ -344,91 +459,29 @@ residuals.SMNCens = function(object, level="conditional", type="response",...){
   sigmae = object$estimates$sigma2
   #
   res = numeric(N)
-  if (type=="response") {
-    if (level=="marginal") {
-      lab = "marginal raw residuals"
-      for (i in seq_along(ind_levels)) {
-        seqi = ind==ind_levels[i]
-        xfiti = matrix(x[seqi,], ncol=p)
-        res[seqi] = y[seqi] - xfiti%*%object$estimates$beta
-      }
-    } else {
-      lab = "conditional raw residuals"
-      for (i in seq_along(ind_levels)) {
-        seqi = ind==ind_levels[i]
-        xfiti = matrix(x[seqi,],ncol=p)
-        zfiti = matrix(z[seqi,],ncol=q1)
-        res[seqi] = y[seqi] - (xfiti%*%object$estimates$beta + zfiti%*%object$random.effects[i,])
-      }
+  if (level=="marginal") {
+    lab = "marginal raw residuals"
+    for (i in seq_along(ind_levels)) {
+      seqi = ind==ind_levels[i]
+      xfiti = matrix(x[seqi,], ncol=p)
+      res[seqi] = y[seqi] - xfiti%*%object$estimates$beta
     }
-  } # End response
-
-  if (type=="modified"){
-    if (level=="marginal") {
-      lab = "marginal modified residuals"
-      Dest = object$estimates$D
-      for (i in seq_along(ind_levels)) {
-        seqi = ind==ind_levels[i]
-        xfiti = matrix(x[seqi,],ncol=p)
-        zfiti = matrix(z[seqi,],ncol=q1)
-        timei = time[seqi]
-        Sigmaest = sigmae*MatDec(timei, object$estimates$phi, object$depStruct)
-        vary = Sigmaest + (zfiti)%*%Dest%*%t(zfiti)
-        sigFitinv = matrix.sqrt(solve(vary))
-        res[seqi] = sigFitinv%*%(y[seqi] - xfiti%*%object$estimates$beta)
-      }
-    } else {
-      lab = "conditional modified residuals"
-      for (i in seq_along(ind_levels)) {
-        seqi = ind==ind_levels[i]
-        xfiti = matrix(x[seqi,],ncol=p)
-        zfiti = matrix(z[seqi,],ncol=q1)
-        timei = time[seqi]
-        Sigmaest = sigmae*MatDec(timei, object$estimates$phi, object$depStruct)
-        sigeFitinv = matrix.sqrt(solve(Sigmaest))
-        res[seqi]  = sigeFitinv%*%(y[seqi] - (xfiti%*%object$estimates$beta + zfiti%*%object$random.effects[i,]))
-      }
+  } else {
+    lab = "conditional raw residuals"
+    for (i in seq_along(ind_levels)) {
+      seqi = ind==ind_levels[i]
+      xfiti = matrix(x[seqi,],ncol=p)
+      zfiti = matrix(z[seqi,],ncol=q1)
+      res[seqi] = y[seqi] - (xfiti%*%object$estimates$beta + zfiti%*%object$random.effects[i,])
     }
-  } # End modified
-
-  if (type=="normalized"){
-    if (distr=="t") if (object$estimates$nu<=2) stop("normalized residual not defined for nu<=2")
-    if (distr=="norm") { k2 = 1 }
-    if (distr=="t") { k2 = object$estimates$nu/(object$estimates$nu-2) }
-
-    if (level=="marginal") {
-      Dest = object$estimates$D
-      lab = "marginal standardized residuals"
-      for (i in seq_along(ind_levels)) {
-        seqi = ind==ind_levels[i]
-        xfiti = matrix(x[seqi,],ncol=p)
-        zfiti = matrix(z[seqi,],ncol=q1)
-        timei = time[seqi]
-        Sigmaest = sigmae*MatDec(timei, object$estimates$phi, object$depStruct)
-        vary = Sigmaest + (zfiti)%*%Dest%*%t(zfiti)
-        sigFitinv = matrix.sqrt(solve(k2*vary))
-        res[seqi] = sigFitinv%*%(y[seqi]- xfiti%*%object$estimates$beta)
-      }
-    } else{
-      lab = "conditional standardized residuals"
-      for (i in seq_along(ind_levels)) {
-        seqi = ind==ind_levels[i]
-        xfiti = matrix(x[seqi,],ncol=p)
-        zfiti = matrix(z[seqi,],ncol=q1)
-        timei = time[seqi]
-        Sigmaest = sigmae*MatDec(timei, object$estimates$phi, object$depStruct)
-        sigeFitinv = matrix.sqrt(solve(k2*Sigmaest))
-        res[seqi] = sigeFitinv%*%(y[seqi] - (xfiti%*%object$estimates$beta + zfiti%*%object$random.effects[i,]))
-      }
-    }
-  } # End normalized
+  }
   attr(res, "label") = lab
   res
 }
 
 ## Plot residuals
-plot.SMNCens = function(x, type="response", level="conditional", useweight=TRUE, alpha=.3,...) {
-  resid = residuals(x, type=type, level=level)
+plot.SMNCens = function(x, level="conditional", useweight=TRUE, alpha=.3,...) {
+  resid = residuals(x, level=level)
   distrp = toupper(x$distr)
   if (distrp=='NORM') distrp = "N"
   depStructp = x$depStruct
@@ -439,27 +492,48 @@ plot.SMNCens = function(x, type="response", level="conditional", useweight=TRUE,
     peso = left_join(x$data,peso,by='ind')
     peso$fitted = fitted(x)
     peso$resid = resid
-    ggplot(peso, aes_string(x="fitted",y="resid",color="weight"))+geom_point()+theme_minimal() +
-      geom_hline(yintercept = 0,linetype="dashed") + ylab(attr(resid,"label")) +
+    ggplot(peso, aes_string(x="fitted",y="resid",color="weight")) + geom_point() + theme_minimal() +
+      geom_hline(yintercept=0, linetype="dashed") + ylab(attr(resid,"label")) +
       xlab("fitted values") +
-      scale_color_continuous(high = "#132B43", low = "#56B1F7") +
-      ggtitle(paste0(depStructp,'-',distrp,'Cens-LMM')) +
-      theme(plot.title = element_text( face="italic", size=10))
+      scale_color_continuous(high="#132B43", low="#56B1F7") +
+      ggtitle(paste0(depStructp, '-', distrp, '-CLMM')) +
+      theme(plot.title=element_text( face="italic", size=10))
   } else {
-    qplot(fitted(x),resid,alpha=I(alpha),...=...) +theme_minimal() +
-      geom_hline(yintercept = 0,linetype="dashed") + ylab(attr(resid,"label")) +
-      xlab("fitted values") + ggtitle(paste0(depStructp,'-',distrp,'Cens-LMM')) +
-      theme(plot.title = element_text( face="italic", size=10))
+    qplot(fitted(x),resid,alpha=I(alpha),...=...) + theme_minimal() +
+      geom_hline(yintercept=0,linetype="dashed") + ylab(attr(resid,"label")) +
+      xlab("fitted values") + ggtitle(paste0(depStructp, '-', distrp, '-CLMM')) +
+      theme(plot.title=element_text( face="italic", size=10))
   }
+}
+
+
+# Update function: based on nlme update.lme
+# ------------------------------------------------------------------------------
+update.SMNCens = function (object, ..., evaluate=TRUE){
+  call = object$call
+  if (is.null(call))
+    stop("need an object with call component")
+  extras = match.call(expand.dots = FALSE)$...
+  if(length(extras) > 0) {
+    existing = !is.na(match(names(extras), names(call)))
+    ## do these individually to allow NULL to remove entries.
+    for (a in names(extras)[existing]) call[[a]] = extras[[a]]
+    if(any(!existing)) {
+      call = c(as.list(call), extras[!existing])
+      call = as.call(call)
+    }
+  }
+  if(evaluate) eval(call, parent.frame())
+  else call
 }
 
 
 ###########################################################
 ##     Random generator from LMEM with Censored Data     ##
 ###########################################################
-rsmnCens.lmm = function(time, ind, x, z, sigma2, D, beta, depStruct="UNC",
-                        phi=NULL, distr="norm", nu=NULL, type="left", pcens=0.10,
-                        LOD=NULL) {
+rsmn.clmm = function(time, ind, x, z, sigma2, D, beta, depStruct="UNC",
+                     phi=NULL, distr="norm", nu=NULL, type="left", pcens=0.10,
+                     LOD=NULL) {
   if (length(D)==1 && !is.matrix(D)) D = as.matrix(D)
   if (!is.matrix(D)) stop("D must be a matrix")
   if (!is.matrix(x)) x = as.matrix(x)
@@ -520,24 +594,4 @@ rsmnCens.lmm = function(time, ind, x, z, sigma2, D, beta, depStruct="UNC",
   #
   sample = randomCens.lmm(time,ind,x,z,sigma2,D,beta,depStruct,phi,distr,nu,pcens,LOD,type)
   return (sample)
-}
-
-
-# Update function: based on nlme update.lme
-update.SMNCens = function (object, ..., evaluate=TRUE){
-  call = object$call
-  if (is.null(call))
-    stop("need an object with call component")
-  extras = match.call(expand.dots = FALSE)$...
-  if(length(extras) > 0) {
-    existing = !is.na(match(names(extras), names(call)))
-    ## do these individually to allow NULL to remove entries.
-    for (a in names(extras)[existing]) call[[a]] = extras[[a]]
-    if(any(!existing)) {
-      call = c(as.list(call), extras[!existing])
-      call = as.call(call)
-    }
-  }
-  if(evaluate) eval(call, parent.frame())
-  else call
 }

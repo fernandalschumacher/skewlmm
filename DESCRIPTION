@@ -16,7 +16,7 @@ Description: It fits scale mixture of skew-normal linear mixed models using an e
 License: MIT + file LICENSE
 Depends: R (>= 4.0), optimParallel
 Encoding: UTF-8
-Imports: DescTools, dplyr, furrr, future, ggplot2, ggrepel, haven, matrixcalc, methods, moments, MomTrunc, mvtnorm, nlme, numDeriv, purrr, relliptical, TruncatedNormal
+Imports: dplyr, furrr, future, ggplot2, ggrepel, haven, matrixcalc, methods, moments, MomTrunc, mvtnorm, nlme, numDeriv, purrr, relliptical, TruncatedNormal
 URL: https://github.com/fernandalschumacher/skewlmm
 BugReports: https://github.com/fernandalschumacher/skewlmm/issues
 RoxygenNote: 7.1.1

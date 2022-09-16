@@ -1,5 +1,5 @@
-\name{smnCens.lmm}
-\alias{smnCens.lmm}
+\name{smn.clmm}
+\alias{smn.clmm}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{ML estimation of scale mixture of normal linear mixed models with censored responses
 }
@@ -8,10 +8,9 @@ It fits left, right, or interval censored scale mixture of normal linear mixed m
 It provides estimates and standard errors of parameters.
 }
 \usage{
-smnCens.lmm(data, formFixed, groupVar, formRandom = ~1,
-            depStruct = "UNC", ci = NULL, lcl = NULL,
-            ucl = NULL, timeVar = NULL, distr = "norm",
-            nufix = FALSE, pAR = NULL, control = lmmControl())
+smn.clmm(data, formFixed, groupVar, formRandom = ~1, depStruct = "UNC",
+         ci = NULL, lcl = NULL, ucl = NULL, timeVar = NULL, distr = "norm",
+         nufix = FALSE, pAR = NULL, control = lmmControl())
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -35,7 +34,7 @@ smnCens.lmm(data, formFixed, groupVar, formRandom = ~1,
   For details see Matos, et. al (2013) and Lachos, et. al (2019).
 }
 \value{
-  An object of class "SMNCens" representing the SMNCens-LMM fit. Generic functions such as print and summary have methods to show the results of the fit. The functions fitted and ranef can be used to extract some of its components.
+  An object of class "SMNCens" representing the SMN-CLMM fit. Generic functions such as print and summary have methods to show the results of the fit. The functions fitted and ranef can be used to extract some of its components.
 
   Specifically, the following components are returned:
   \item{theta}{Named vector with parameter estimates.}
@@ -76,7 +75,7 @@ Fernanda L. Schumacher, Larissa A. Matos, Victor H. Lachos and Katherine L. Vale
 }
 
 \seealso{
-%\code{\link{lmmControl}}, \code{\link{update}}, \code{\link{predict.SMN}}, \code{\link{residuals.SMN}}, \code{\link{plot.SMN}},
+\code{\link{lmmControl}}, \code{\link{update}}, \code{\link{predict.SMNCens}}, \code{\link{residuals.SMNCens}}, \code{\link{plot.SMNCens}},
 \code{\link{smn.lmm}}, \code{\link{smsn.lmm}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
@@ -87,11 +86,11 @@ nj1 = 5
 m = 30
 time = rep(1:nj1, times=m)
 groups = as.factor(rep(1:m, each=nj1))
-dat1 = rsmnCens.lmm(time, groups, cbind(1,time), rep(1,m*nj1), sigma2=0.7,
-                    D=diag(1), beta=c(1,2), depStruct="CS", phi=0.4)
+dat1 = rsmn.clmm(time, groups, cbind(1,time), rep(1,m*nj1), sigma2=0.7,
+                 D=diag(1), beta=c(1,2), depStruct="CS", phi=0.4)
 # Estimation
-fm1 = smnCens.lmm(dat1, formFixed=y~x, groupVar="ind", depStruct="CS", ci="ci",
-                  lcl="lcl", ucl="ucl", control=lmmControl(max.iter=30))
+fm1 = smn.clmm(dat1, formFixed=y~x, groupVar="ind", depStruct="CS", ci="ci",
+               lcl="lcl", ucl="ucl", control=lmmControl(max.iter=30))
 fm1
 \donttest{
 # Fiting a model with t-distribution

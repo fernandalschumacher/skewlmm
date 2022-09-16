@@ -1,16 +1,15 @@
-\name{rsmnCens.lmm}
-\alias{rsmnCens.lmm}
+\name{rsmn.clmm}
+\alias{rsmn.clmm}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Generate data from SMN-LMM with censored responses
+\title{Generate data from SMN-CLMM with censored responses
   %%  ~~function to do ... ~~
 }
 \description{
-  It creates a simulated data set from SMN-LMM with several possible dependence structures, with an established censoring rate or limit of detectation (LOD).
+  It creates a simulated data set from SMN-CLMM with several possible dependence structures, with an established censoring rate or limit of detectation (LOD).
 }
 \usage{
-  rsmnCens.lmm(time, ind, x, z, sigma2, D, beta, depStruct="UNC",
-               phi=NULL, distr="norm", nu=NULL, type="left",
-               pcens=0.10, LOD=NULL)
+  rsmn.clmm(time, ind, x, z, sigma2, D, beta, depStruct="UNC", phi=NULL,
+            distr="norm", nu=NULL, type="left", pcens=0.10, LOD=NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -38,10 +37,10 @@ Matos, L. A., Prates, M. O., Chen, M. H., and Lachos, V. H. (2013). Likelihood-b
 Lachos, V. H., A. Matos, L., Castro, L. M., and Chen, M. H. (2019). Flexible longitudinal linear mixed models for multiple censored responses data. Statistics in medicine, 38(6), 1074-1102.
 }
 \author{
-  Fernanda L. Schumacher, Larissa A. Matos, Katherine L. Valeriano, and Victor H. Lachos
+  Fernanda L. Schumacher, Larissa A. Matos, Victor H. Lachos and Katherine L. Valeriano
 }
 \seealso{
-  \code{\link{smnCens.lmm}}
+  \code{\link{smn.clmm}}
   %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
@@ -54,18 +53,18 @@ time = rep(1:nj1, times=m)
 groups = as.factor(rep(1:m, each=nj1))
 
 # Considering 10\% of right censoring responses and normal distribution
-dat1 = rsmnCens.lmm(time, groups, cbind(1,time), rep(1,m*nj1), sigma2=.25,
-                    D=diag(1), beta=c(1,2), depStruct="ARp", phi=0.5,
-                    type="right")
+dat1 = rsmn.clmm(time, groups, cbind(1,time), rep(1,m*nj1), sigma2=.25,
+                 D=diag(1), beta=c(1,2), depStruct="ARp", phi=0.5,
+                 type="right")
 head(dat1)
 ggplot(dat1, aes(x=x, y=y, group=ind)) + geom_line() +
   stat_summary(aes(group=1), geom="line", fun=mean, col="blue", size=1.5) +
   geom_line(aes(x=x,y=lcl), color="red", linetype="dashed")
 
 # Considering LOD=4, left censoring, and Student-t distribution
-dat2 = rsmnCens.lmm(time, groups, cbind(1,time), rep(1,m*nj1), sigma2=.25,
-                    D=diag(1), beta=c(1,2), depStruct="CS", phi=0.2,
-                    distr="t", nu=4, LOD=4)
+dat2 = rsmn.clmm(time, groups, cbind(1,time), rep(1,m*nj1), sigma2=.25,
+                 D=diag(1), beta=c(1,2), depStruct="CS", phi=0.2,
+                 distr="t", nu=4, LOD=4)
 mean(dat2$ci) #censoring rate
 ggplot(dat2, aes(x=x, y=y, group=ind)) + geom_line() +
   stat_summary(aes(group=1), geom="line", fun=mean, col="blue", size=1.5) +

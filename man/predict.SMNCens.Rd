@@ -1,7 +1,7 @@
 \name{predict.SMNCens}
 \alias{predict.SMNCens}
 
-\title{Prediction of future observations from an smnCens.lmm object
+\title{Prediction of future observations from an smn.clmm object
 }
 \description{
   Predicted values are obtained through conditional expectation. For details, see Schumacher, Lachos, and Matos (2021).
@@ -26,12 +26,12 @@
   Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Statistics in Medicine 40(7), 1790-1810.
 }
 \author{
-  Fernanda L. Schumacher, Larissa A. Matos, Katherine L. Valeriano, and Victor H. Lachos
+  Fernanda L. Schumacher, Larissa A. Matos, Victor H. Lachos and Katherine L. Valeriano
 }
 
 
 \seealso{
-  \code{\link{smnCens.lmm}}, \code{\link{fitted.SMNCens}}
+  \code{\link{smn.clmm}}, \code{\link{fitted.SMNCens}}
   %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
@@ -42,12 +42,12 @@ nj1 = 6
 m = 20
 time = rep(1:nj1, times=m)
 groups = as.factor(rep(1:m, each=nj1))
-dat1 = rsmnCens.lmm(time, groups, cbind(1,time), rep(1,m*nj1), sigma2=0.4,
-                    D=diag(1), beta=c(1,2), depStruct="CS", phi=0.25)
+dat1 = rsmn.clmm(time, groups, cbind(1,time), rep(1,m*nj1), sigma2=0.4,
+                 D=diag(1), beta=c(1,2), depStruct="CS", phi=0.25)
 # Estimation
-fm1 = smnCens.lmm(subset(dat1,time<6), formFixed=y~x, groupVar="ind",
-                  depStruct="CS", ci="ci", lcl="lcl", ucl="ucl",
-                  control=lmmControl(max.iter=30, tol=1e-4))
+fm1 = smn.clmm(subset(dat1,time<6), formFixed=y~x, groupVar="ind",
+               depStruct="CS", ci="ci", lcl="lcl", ucl="ucl",
+               control=lmmControl(max.iter=30, tol=1e-4))
 # Prediction
 pred = predict(fm1, subset(dat1,time==6))
 # MSPE

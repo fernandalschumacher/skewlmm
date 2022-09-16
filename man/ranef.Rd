@@ -1,11 +1,11 @@
 \name{ranef}
 \alias{ranef}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Extract random effects from smsn.lmm, smn.lmm and smnCens.lmm objects
+\title{Extract random effects from smsn.lmm, smn.lmm and smn.clmm objects
 %%  ~~function to do ... ~~
 }
 \description{
-  It extracts random effects from smsn.lmm, smn.lmm and smnCens.lmm objects.}
+  It extracts random effects from smsn.lmm, smn.lmm and smn.clmm objects.}
 
 \usage{
 ranef(object)
@@ -29,7 +29,7 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 
 
 \seealso{
-\code{\link{smsn.lmm}}, \code{\link{smn.lmm}}, \code{\link{smnCens.lmm}}, \code{\link{fitted.SMSN}}, \code{\link{fitted.SMN}}, \code{\link{fitted.SMNCens}}
+\code{\link{smsn.lmm}}, \code{\link{smn.lmm}}, \code{\link{smn.clmm}}, \code{\link{fitted.SMSN}}, \code{\link{fitted.SMN}}, \code{\link{fitted.SMNCens}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
