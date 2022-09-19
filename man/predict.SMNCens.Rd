@@ -1,5 +1,5 @@
-\name{predict.SMNCens}
-\alias{predict.SMNCens}
+\name{predict.SMNclmm}
+\alias{predict.SMNclmm}
 
 \title{Prediction of future observations from an smn.clmm object
 }
@@ -8,11 +8,11 @@
   %%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
 \usage{
-  \method{predict}{SMNCens}(object, newData, \dots)
+  \method{predict}{SMNclmm}(object, newData, \dots)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{object}{An object inheriting from class \code{SMNCens}, representing
+  \item{object}{An object inheriting from class \code{SMNclmm}, representing
     a fitted scale mixture normal linear mixed model.}
   \item{newData}{A data frame for which response variable should be predicted, including covariates, groupVar and possibly timeVar. If missing or \code{NULL}, fitted values are returned.}
   \item{\dots}{Additional arguments.}
@@ -31,19 +31,18 @@
 
 
 \seealso{
-  \code{\link{smn.clmm}}, \code{\link{fitted.SMNCens}}
+  \code{\link{smn.clmm}}, \code{\link{fitted.SMNclmm}}
   %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
 # Simulated example: 20 individuals with 5 times for estimation and
 # 1 time for prediction
 set.seed(963)
-nj1 = 6
-m = 20
+nj1 = 6; m = 20
 time = rep(1:nj1, times=m)
 groups = as.factor(rep(1:m, each=nj1))
-dat1 = rsmn.clmm(time, groups, cbind(1,time), rep(1,m*nj1), sigma2=0.4,
-                 D=diag(1), beta=c(1,2), depStruct="CS", phi=0.25)
+dat1 = rsmsn.clmm(time, groups, cbind(1,time), rep(1,m*nj1), sigma2=0.4,
+                  D=0.6*diag(1), beta=c(1,2), depStruct="CS", phi=0.25)
 # Estimation
 fm1 = smn.clmm(subset(dat1,time<6), formFixed=y~x, groupVar="ind",
                depStruct="CS", ci="ci", lcl="lcl", ucl="ucl",

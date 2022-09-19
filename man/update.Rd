@@ -1,7 +1,7 @@
 \name{update}
-\alias{update.SMN}\alias{update.SMSN}\alias{update.SMNCens}
+\alias{update.SMN}\alias{update.SMSN}\alias{update.SMNclmm}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Update for SMSN/SMN/SMNCens objects
+\title{Update for SMSN/SMN/SMNclmm objects
 %%  ~~function to do ... ~~
 }
 \description{
@@ -12,7 +12,7 @@
 
 \method{update}{SMSN}(object, \dots, evaluate = TRUE)
 
-\method{update}{SMNCens}(object, \dots, evaluate = TRUE)
+\method{update}{SMNclmm}(object, \dots, evaluate = TRUE)
 }
 \arguments{
   \item{object}{A smsn.lmm, smn.lmm or smn.clmm object containing the fitted model to be updated.}

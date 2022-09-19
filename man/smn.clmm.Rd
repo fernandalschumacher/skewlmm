@@ -4,7 +4,7 @@
 \title{ML estimation of scale mixture of normal linear mixed models with censored responses
 }
 \description{
-It fits left, right, or interval censored scale mixture of normal linear mixed model with possible within-subject dependence structure, using an EM-type algorithm.
+It fits left, right, or interval censored scale mixture of normal linear mixed model with possible within-subject dependence structure, using the EM algorithm.
 It provides estimates and standard errors of parameters.
 }
 \usage{
@@ -34,7 +34,7 @@ smn.clmm(data, formFixed, groupVar, formRandom = ~1, depStruct = "UNC",
   For details see Matos, et. al (2013) and Lachos, et. al (2019).
 }
 \value{
-  An object of class "SMNCens" representing the SMN-CLMM fit. Generic functions such as print and summary have methods to show the results of the fit. The functions fitted and ranef can be used to extract some of its components.
+  An object of class "SMNclmm" representing the SMN-CLMM fit. Generic functions such as print and summary have methods to show the results of the fit. The functions fitted and ranef can be used to extract some of its components.
 
   Specifically, the following components are returned:
   \item{theta}{Named vector with parameter estimates.}
@@ -49,9 +49,9 @@ smn.clmm(data, formFixed, groupVar, formRandom = ~1, depStruct = "UNC",
   \item{elapsedTime}{Time elapsed in processing, in seconds.}
   \item{error}{Convergence criterion at last iteration.}
   \item{criteria}{A list with AIC, BIC, and SIC criterion.}
-  \item{call}{The \code{smn.lmm} call that produced the object.}
-  \item{data}{The data frame used on \code{smn.lmm} call.}
-  \item{formula}{A list containing the formulas used on \code{smn.lmm} call.}
+  \item{call}{The \code{smn.clmm} call that produced the object.}
+  \item{data}{The data frame used on \code{smn.clmm} call.}
+  \item{formula}{A list containing the formulas used on \code{smn.clmm} call.}
   \item{depStruct}{A character indicating which dependence structure was used.}
   \item{covRandom}{A character indicating which structure was used for the random effects scale matrix.}
   \item{distr}{A character indicating which distribution was used.}
@@ -75,7 +75,7 @@ Fernanda L. Schumacher, Larissa A. Matos, Victor H. Lachos and Katherine L. Vale
 }
 
 \seealso{
-\code{\link{lmmControl}}, \code{\link{update}}, \code{\link{predict.SMNCens}}, \code{\link{residuals.SMNCens}}, \code{\link{plot.SMNCens}},
+\code{\link{lmmControl}}, \code{\link{update}}, \code{\link{predict.SMNclmm}}, \code{\link{residuals.SMNclmm}}, \code{\link{plot.SMNclmm}},
 \code{\link{smn.lmm}}, \code{\link{smsn.lmm}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
@@ -86,8 +86,8 @@ nj1 = 5
 m = 30
 time = rep(1:nj1, times=m)
 groups = as.factor(rep(1:m, each=nj1))
-dat1 = rsmn.clmm(time, groups, cbind(1,time), rep(1,m*nj1), sigma2=0.7,
-                 D=diag(1), beta=c(1,2), depStruct="CS", phi=0.4)
+dat1 = rsmsn.clmm(time, groups, cbind(1,time), rep(1,m*nj1), sigma2=0.7,
+                  D=0.5*diag(1), beta=c(1,2), depStruct="CS", phi=0.4)
 # Estimation
 fm1 = smn.clmm(dat1, formFixed=y~x, groupVar="ind", depStruct="CS", ci="ci",
                lcl="lcl", ucl="ucl", control=lmmControl(max.iter=30))

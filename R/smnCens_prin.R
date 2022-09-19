@@ -192,17 +192,17 @@ smn.clmm = function(data, formFixed, groupVar, formRandom=~1, depStruct="UNC",
   }
   obj.out$fitted = fitted
   #
-  class(obj.out) = c("SMNCens","list")
+  class(obj.out) = c("SMNclmm","list")
   obj.out
 }
 
 # Fitted values
 # ------------------------------------------------------------------------------
-fitted.SMNCens = function(object,...) object$fitted
+fitted.SMNclmm = function(object,...) object$fitted
 
 # Summary and print functions
 # ------------------------------------------------------------------------------
-print.SMNCens = function(x, confint.level=0.95, ...){
+print.SMNclmm = function(x, confint.level=0.95, ...){
   cat("Linear mixed models with distribution", x$distr, "and dependency structure", x$depStruct,"\n")
   cat("Call:\n")
   print(x$call)
@@ -252,7 +252,7 @@ print.SMNCens = function(x, confint.level=0.95, ...){
   cat('Number of groups:', x$n,'\n')
 }
 
-summary.SMNCens = function(object, confint.level=0.95, ...){
+summary.SMNclmm = function(object, confint.level=0.95, ...){
   cat("Linear mixed models with distribution", object$distr, "and dependency structure", object$depStruct,"\n")
   cat("Call:\n")
   print(object$call)
@@ -304,8 +304,8 @@ summary.SMNCens = function(object, confint.level=0.95, ...){
 
 # Mahalanobis distance
 # ------------------------------------------------------------------------------
-mahalDist.SMNCens = function(object){
-  if(!is(object, "SMNCens")) stop("object must inherit from class SMNCens")
+mahalDist.SMNclmm = function(object){
+  if(!is(object, "SMNclmm")) stop("object must inherit from class SMNclmm")
   formFixed  = object$formula$formFixed
   formRandom = object$formula$formRandom
   groupVar = object$groupVar
@@ -343,18 +343,18 @@ mahalDist.SMNCens = function(object){
   #
   out = mahaldist
   names(out) = row.names(object$random.effects)
-  class(out) = c("mahalDist.SMNCens","numeric")
+  class(out) = c("mahalDist.SMNclmm","numeric")
   attr(out,'call') = match.call()
   out
 }
 
-plot.mahalDist.SMNCens = function(x, fitobject, level=.99, nlabels=3,...){
+plot.mahalDist.SMNclmm = function(x, fitobject, level=.99, nlabels=3,...){
   if (missing(fitobject)) fitobject = eval(str2lang(as.character(attr(x,'call')[2])))
-  if (!is(x, "mahalDist.SMNCens")) stop("x must inherit from class mahalDist.SMNCens")
+  if (!is(x, "mahalDist.SMNclmm")) stop("x must inherit from class mahalDist.SMNclmm")
   if (!is.data.frame(x)) x = data.frame(md=x)
   if (level>=1|level<=0) stop("0<level<1 needed")
   #
-  if(!is(fitobject,"SMNCens")) stop("fitobject must inherit from class SMNCens")
+  if(!is(fitobject,"SMNclmm")) stop("fitobject must inherit from class SMNclmm")
   data = fitobject$data
   timeVar = fitobject$timeVar
   ind = data[,fitobject$groupVar]
@@ -383,7 +383,7 @@ plot.mahalDist.SMNCens = function(x, fitobject, level=.99, nlabels=3,...){
     plotout = ggplot(x, aes_string("index","md")) +
       geom_point(shape=1) + ylab("Mahalanobis distance") +
       geom_text_repel(aes_string(label="ind"),data=subset(x,rank(x$md)>length(x$nj)-nlabels),
-                      nudge_x=1.5, nudge_y=.5, size=3) +
+                      nudge_x=.5, nudge_y=.5, size=3) +
       geom_hline(yintercept=mdquantile, col=4, linetype="dashed")
     attr(plotout,"info") = data.frame(nj=nj1, quantile=c(mdquantile))
   } else {
@@ -408,7 +408,7 @@ plot.mahalDist.SMNCens = function(x, fitobject, level=.99, nlabels=3,...){
 
 # Prediction
 # ------------------------------------------------------------------------------
-predict.SMNCens = function(object, newData,...){
+predict.SMNclmm = function(object, newData,...){
   if (missing(newData)||is.null(newData)) return(fitted(object))
   if (!is.data.frame(newData)) stop("newData must be a data.frame object")
   if (nrow(newData)==0) stop("newData can not be an empty dataset")
@@ -434,7 +434,7 @@ predict.SMNCens = function(object, newData,...){
 
 # Residuals
 # ------------------------------------------------------------------------------
-residuals.SMNCens = function(object, level="conditional",...){
+residuals.SMNclmm = function(object, level="conditional",...){
   if (!(level %in% c("marginal","conditional"))) stop("Accepted levels: marginal, conditional")
   data = object$data
   formFixed = object$formula$formFixed
@@ -480,7 +480,7 @@ residuals.SMNCens = function(object, level="conditional",...){
 }
 
 ## Plot residuals
-plot.SMNCens = function(x, level="conditional", useweight=TRUE, alpha=.3,...) {
+plot.SMNclmm = function(x, level="conditional", useweight=TRUE, alpha=.3,...) {
   resid = residuals(x, level=level)
   distrp = toupper(x$distr)
   if (distrp=='NORM') distrp = "N"
@@ -509,7 +509,7 @@ plot.SMNCens = function(x, level="conditional", useweight=TRUE, alpha=.3,...) {
 
 # Update function: based on nlme update.lme
 # ------------------------------------------------------------------------------
-update.SMNCens = function (object, ..., evaluate=TRUE){
+update.SMNclmm = function (object, ..., evaluate=TRUE){
   call = object$call
   if (is.null(call))
     stop("need an object with call component")
@@ -531,9 +531,9 @@ update.SMNCens = function (object, ..., evaluate=TRUE){
 ###########################################################
 ##     Random generator from LMEM with Censored Data     ##
 ###########################################################
-rsmn.clmm = function(time, ind, x, z, sigma2, D, beta, depStruct="UNC",
-                     phi=NULL, distr="norm", nu=NULL, type="left", pcens=0.10,
-                     LOD=NULL) {
+rsmsn.clmm = function(time, ind, x, z, sigma2, D, beta, lambda=rep(0, nrow(D)),
+                      depStruct="UNC", phi=NULL, distr="norm", nu=NULL, type="left",
+                      pcens=0.10, LOD=NULL) {
   if (length(D)==1 && !is.matrix(D)) D = as.matrix(D)
   if (!is.matrix(D)) stop("D must be a matrix")
   if (!is.matrix(x)) x = as.matrix(x)
@@ -547,6 +547,7 @@ rsmn.clmm = function(time, ind, x, z, sigma2, D, beta, depStruct="UNC",
   if (nrow(z)!=N) stop("incompatible dimension of z/time")
   if (ncol(x)!=p) stop("incompatible dimension of x/beta")
   if (ncol(z)!=q) stop("incompatible dimension of z/D")
+  if (length(lambda)!=q) stop ("incompatible dimension of lambda/D")
   if (ncol(D)!=q) stop("D must be a square numeric matrix")
   if (!is.symmetric.matrix(D)) stop("D must be a symmetric matrix")
   if (!is.positive.definite(D)) stop("D must be a positive-definite matrix")
@@ -554,8 +555,9 @@ rsmn.clmm = function(time, ind, x, z, sigma2, D, beta, depStruct="UNC",
   #
   if (length(sigma2)!=1) stop ("wrong dimension of sigma2")
   if (sigma2<=0) stop("sigma2 must be positive")
-  if (!(distr %in% c("norm","t"))) stop("Accepted distributions: norm and t")
-  if (distr=="t"){
+  if (!(distr %in% c("norm","t","sn","st"))) stop("Accepted distributions: norm, t, sn, and st")
+  if (distr%in%c("t", "st")){
+    if (is.null(nu)) stop ("nu must be provided for t and st distributions")
     if (length(c(nu))>1) stop ("wrong dimension of nu")
     if (nu <=2 ) stop ("nu must be greater than 2")
   }
@@ -572,10 +574,7 @@ rsmn.clmm = function(time, ind, x, z, sigma2, D, beta, depStruct="UNC",
     } else if (depStruct=="DEC"){
       if (length(c(phi))!=2) stop ("phi must be a bi-dimensional vector")
       if (any(phi<=0 | phi>=1)) stop ("phi elements must be in (0, 1)")
-    } else if (depStruct=="CS"){
-      if (length(c(phi))>1) stop ("phi must be a number in (0, 1)")
-      if (phi<=0 | phi>=1) stop ("phi must be a number in (0, 1)")
-    } else if (depStruct=="CAR1"){
+    } else if (depStruct%in%c("CS", "CAR1")){
       if (length(c(phi))>1) stop ("phi must be a number in (0, 1)")
       if (phi<=0 | phi>=1) stop ("phi must be a number in (0, 1)")
     } else if (depStruct=="MA1"){
@@ -592,6 +591,6 @@ rsmn.clmm = function(time, ind, x, z, sigma2, D, beta, depStruct="UNC",
     if (pcens<0 | pcens>=1) stop("pcens must be a number in [0,1]")
   } else { stop("pcens or LOD must be provided") }
   #
-  sample = randomCens.lmm(time,ind,x,z,sigma2,D,beta,depStruct,phi,distr,nu,pcens,LOD,type)
+  sample = randomCens.lmm(time,ind,x,z,sigma2,D,beta,lambda,depStruct,phi,distr,nu,pcens,LOD,type)
   return (sample)
 }

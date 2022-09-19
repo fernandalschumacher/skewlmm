@@ -1,7 +1,7 @@
 \name{criteria}
 \alias{criteria}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Extracts criteria for model comparison of SMSN/SMN/SMNCens objects
+\title{Extracts criteria for model comparison of SMSN/SMN/SMNclmm objects
 %%  ~~function to do ... ~~
 }
 \description{

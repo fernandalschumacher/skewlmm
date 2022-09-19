@@ -50,30 +50,35 @@ MatDec = function(tt, phi, struc){
 ###########################################################
 ##     Random generator from LMEM with Censored Data     ##
 ###########################################################
-randomCens.lmm = function(time, ind, x, z, sigmae, D1, beta, struc, phi, distr, nu,
+randomCens.lmm = function(time, ind, x, z, sigmae, D1, beta, lambda, struc, phi, distr, nu,
                           pcens, lod, type){
   N  = length(c(time))
-  nj = tapply(ind, ind, length)[unique(ind)]
-  m  = length(c(nj))
   q1 = ncol(z)
   p  = ncol(x)
+  niveis = levels(ind)
+  m = length(niveis)
   yobs = numeric(N)
   #
-  for (j in 1:m){
-    a1 = sum(nj[1:j-1])+1; b1 = sum(nj[1:j])
-    x1  = matrix(x[a1:b1, ], ncol=p)
-    z1  = matrix(z[a1:b1, ], ncol=q1)
-    tt1 = time[a1:b1]
+  if (distr%in%c("norm", "t")){ lambda = rep(0,nrow(D1)); kappa = 0 }
+  if (distr=="sn") kappa = -sqrt(2/pi)
+  if (distr=="st") kappa = -sqrt(nu/pi)*gamma((nu-1)/2)/gamma(nu/2)
+  ui = 1
+  delta = lambda/sqrt(1 + sum(lambda^2))
+  Delta = matrix.sqrt(D1)%*%delta
+  Gammab = D1 - Delta%*%t(Delta)
+  #
+  for (j in niveis){
+    tempos = (ind==j)
+    x1  = matrix(x[tempos, ], nrow=sum(tempos), ncol=p)
+    z1  = matrix(z[tempos, ], nrow=sum(tempos), ncol=q1)
+    tt1 = time[tempos]
     #
-    Gamma = sigmae*MatDec(tt1, phi, struc)
-    if (distr=="norm"){
-      bi  = matrix(rmvnorm(n=1, mean=rep(0,q1), sigma=D1), nrow=q1)
-      xii = matrix(rmvnorm(n=1, mean=rep(0,nj[j], sigma=Gamma)), nrow=nj[j])
-    } else if (distr=="t"){
-      bi  = matrix(rmvt(n=1, sigma=D1, df=nu, delta=rep(0,q1), type="shifted"), nrow=q1)
-      xii = matrix(rmvt(n=1, sigma=Gamma, df=nu, delta=rep(0,nj[j]), type="shifted"), nrow=nj[j])
-    }
-    yobs[a1:b1] = x1%*%beta + z1%*%bi + xii
+    Sig = sigmae*MatDec(tt1, phi, struc)
+    if (distr%in%c("t", "st")) { ui = rgamma(1,nu/2,nu/2) }
+    ti = kappa + abs(rnorm(1, 0, sqrt(1/ui)))
+    bi = t(rmvnorm(1, Delta*ti, sigma=Gammab/ui))
+    Yi = t(rmvnorm(1, x1%*%beta+z1%*%bi, sigma=Sig/ui))
+    yobs[tempos] = Yi
   }
   #
   if (all(x[,1]==1)) Xi = x[,-1]

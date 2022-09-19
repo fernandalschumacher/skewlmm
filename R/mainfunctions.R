@@ -458,8 +458,8 @@ print.lmmLRT <- function(x, ...) {
 }
 
 criteria = function(lobjects) {
-  if (!is(lobjects,"list")) stop("lobjects must be a list of SMN, SMSN, or SMNCens objects")
-  if (!all(sapply(lobjects,function(x) class(x)[1] %in% c("SMN","SMSN", "SMNCens")))) stop("lobjects must be a list of SMN, SMSN, or SMNCens objects")
+  if (!is(lobjects,"list")) stop("lobjects must be a list of SMN, SMSN, or SMNclmm objects")
+  if (!all(sapply(lobjects,function(x) class(x)[1] %in% c("SMN","SMSN", "SMNclmm")))) stop("lobjects must be a list of SMN, SMSN, or SMNclmm objects")
   #
   crit.out = t(sapply(lobjects, function(x) c(x$loglik, length(x$theta),
                                              x$criteria$AIC, x$criteria$BIC)))

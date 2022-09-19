@@ -1,5 +1,5 @@
-\name{mahalDist.SMNCens}
-\alias{mahalDist.SMNCens}
+\name{mahalDist.SMNclmm}
+\alias{mahalDist.SMNclmm}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Mahalanobis distance from a smn.clmm object
   %%  ~~function to do ... ~~
@@ -8,16 +8,16 @@
   Returns the squared Mahalanobis distance from a fitted SMN-CLMM.}
 
 \usage{
-  mahalDist.SMNCens(object)
+  mahalDist.SMNclmm(object)
 }
 
 \arguments{
-  \item{object}{An object inheriting from class \code{SMNCens}, representing
+  \item{object}{An object inheriting from class \code{SMNclmm}, representing
     a fitted scale mixture of normal censored linear mixed model.}
 }
 
 \value{
-  An object of class \code{mahalDist.SMNCens} containing the Mahalanobis distance.
+  An object of class \code{mahalDist.SMNclmm} containing the Mahalanobis distance.
 }
 
 \references{
@@ -31,19 +31,18 @@ Fernanda L. Schumacher, Larissa A. Matos, Victor H. Lachos and Katherine L. Vale
 
 
 \seealso{
-\code{\link{smn.clmm}}, \code{\link{plot.mahalDist.SMNCens}}
+\code{\link{smn.clmm}}, \code{\link{plot.mahalDist.SMNclmm}}
 }
 \examples{
-nj1 = 5
-m = 30
+nj1 = 5; m = 30
 time = rep(1:nj1, times=m)
 groups = as.factor(rep(1:m, each=nj1))
-dat1 = rsmn.clmm(time, groups, cbind(1,time), rep(1,m*nj1), sigma2=0.7,
-                 D=diag(1), beta=c(1,2), depStruct="CS", phi=0.4)
+dat1 = rsmsn.clmm(time, groups, cbind(1,time), rep(1,m*nj1), sigma2=0.7,
+                  D=0.5*diag(1), beta=c(1,2), depStruct="CS", phi=0.4)
 # Estimation
 fm1 = smn.clmm(dat1, formFixed=y~x, groupVar="ind", depStruct="CS", ci="ci",
                lcl="lcl", ucl="ucl", control=lmmControl(max.iter=30))
-distance = mahalDist.SMNCens(fm1)
+distance = mahalDist.SMNclmm(fm1)
 plot(distance, level=0.95, nlabels=2)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

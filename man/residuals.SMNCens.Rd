@@ -1,5 +1,5 @@
-\name{residuals.SMNCens}
-\alias{residuals.SMNCens}
+\name{residuals.SMNclmm}
+\alias{residuals.SMNclmm}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Extract model residuals from smn.clmm objects
   %%  ~~function to do ... ~~
@@ -8,11 +8,11 @@
   The conditional residuals are obtained by subtracting the fitted values from the response vector, while the marginal residuals are obtained by subtracting only the fixed effects from the response vector.}
 
 \usage{
-  \method{residuals}{SMNCens}(object, level = "conditional", \dots)
+  \method{residuals}{SMNclmm}(object, level = "conditional", \dots)
 }
 
 \arguments{
-  \item{object}{An object inheriting from class \code{SMNCens}, representing
+  \item{object}{An object inheriting from class \code{SMNclmm}, representing
     a fitted scale mixture of normal censored linear mixed model.}
   \item{level}{Either \code{"conditional"}, for obtaining conditional residuals, or \code{"marginal"}, for marginal residuals.}
   \item{\dots}{Additional arguments.}
@@ -28,15 +28,14 @@ The residuals are computed after imputing the censored observations.}
 }
 
 \seealso{
-  \code{\link{smn.clmm}}, \code{\link{mahalDist}}
+  \code{\link{smn.clmm}}, \code{\link{mahalDist.SMNclmm}}
 }
 \examples{
-nj1 = 5
-m = 30
+nj1 = 5; m = 30
 time = rep(1:nj1, times=m)
 groups = as.factor(rep(1:m, each=nj1))
-dat1 = rsmn.clmm(time, groups, cbind(1,time), rep(1,m*nj1), sigma2=0.7,
-                 D=diag(1), beta=c(1,2), depStruct="CS", phi=0.4)
+dat1 = rsmsn.clmm(time, groups, cbind(1,time), rep(1,m*nj1), sigma2=0.7,
+                  D=0.6*diag(1), beta=c(1,2), depStruct="CS", phi=0.4)
 
 fm1 = smn.clmm(dat1, formFixed=y~x, groupVar="ind", depStruct="CS", ci="ci",
                lcl="lcl", ucl="ucl", control=lmmControl(max.iter=30))
