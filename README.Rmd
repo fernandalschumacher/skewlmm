@@ -2,7 +2,7 @@
 output: github_document
 ---
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
+<!--  README.md is generated from README.Rmd. Please edit that file -->
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
@@ -99,3 +99,9 @@ criteria(list(`ST-LMM` = fm1, `t-LMM` = fm2, `t-LMM(EM)` = fm2EM, `t-LMM-diag` =
 ```
 
 For more examples, see `help(smsn.lmm)` and `help(smn.lmm)`.
+
+## Handling censored/missing observations
+
+An extension of the methods to account for censoring in SMSN-LMM is under development. Tools for accommodating left, right, or interval censored observations in the symmetrical family SMN-LMM are now available using the function `smn.clmm`. 
+
+For more information on censored models, we refer to Matos, L. A., Prates, M. O., Chen, M. H., and Lachos, V. H. (2013). Likelihood-based inference for mixed-effects models with censored response using the multivariate-t distribution. *Statistica Sinica*. DOI: [10.5705/ss.2012.043](http://dx.doi.org/10.5705/ss.2012.043).

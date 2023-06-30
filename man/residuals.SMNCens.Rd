@@ -5,7 +5,9 @@
   %%  ~~function to do ... ~~
 }
 \description{
-  The conditional residuals are obtained by subtracting the fitted values from the response vector, while the marginal residuals are obtained by subtracting only the fixed effects from the response vector.}
+  The conditional residuals are obtained by subtracting the fitted values from the response vector, while the marginal residuals are obtained by subtracting only the fixed effects from the response vector.
+
+  Censored values are imputed using their conditional expectation from the fitting algorithm.}
 
 \usage{
   \method{residuals}{SMNclmm}(object, level = "conditional", \dots)
@@ -28,7 +30,7 @@ The residuals are computed after imputing the censored observations.}
 }
 
 \seealso{
-  \code{\link{smn.clmm}}, \code{\link{mahalDist.SMNclmm}}
+  \code{\link{smn.clmm}}, \code{\link{mahalDistCens}}
 }
 \examples{
 nj1 = 5; m = 30

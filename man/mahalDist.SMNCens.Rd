@@ -1,14 +1,14 @@
-\name{mahalDist.SMNclmm}
-\alias{mahalDist.SMNclmm}
+\name{mahalDistCens}
+\alias{mahalDistCens}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Mahalanobis distance from a smn.clmm object
   %%  ~~function to do ... ~~
 }
 \description{
-  Returns the squared Mahalanobis distance from a fitted SMN-CLMM.}
+Returns the squared Mahalanobis distance from a fitted SMN-CLMM. Censored values are imputed using their conditional expectation from the fitting algorithm.}
 
 \usage{
-  mahalDist.SMNclmm(object)
+  mahalDistCens(object)
 }
 
 \arguments{
@@ -17,7 +17,7 @@
 }
 
 \value{
-  An object of class \code{mahalDist.SMNclmm} containing the Mahalanobis distance.
+  An object of class \code{mahalDistCens} containing the Mahalanobis distance.
 }
 
 \references{
@@ -31,7 +31,7 @@ Fernanda L. Schumacher, Larissa A. Matos, Victor H. Lachos and Katherine L. Vale
 
 
 \seealso{
-\code{\link{smn.clmm}}, \code{\link{plot.mahalDist.SMNclmm}}
+\code{\link{smn.clmm}}, \code{\link{plot.mahalDistCens}}
 }
 \examples{
 nj1 = 5; m = 30
@@ -42,7 +42,7 @@ dat1 = rsmsn.clmm(time, groups, cbind(1,time), rep(1,m*nj1), sigma2=0.7,
 # Estimation
 fm1 = smn.clmm(dat1, formFixed=y~x, groupVar="ind", depStruct="CS", ci="ci",
                lcl="lcl", ucl="ucl", control=lmmControl(max.iter=30))
-distance = mahalDist.SMNclmm(fm1)
+distance = mahalDistCens(fm1)
 plot(distance, level=0.95, nlabels=2)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

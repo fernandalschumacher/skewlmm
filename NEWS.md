@@ -7,7 +7,7 @@
 
 ## skewlmm 1.0.0 _(2021-09-17)_
 
-* The main functions `smn.lmm()` and `smnn.lmm()` were changed to pass control options through the `lmmControl` function.
+* The main functions `smn.lmm()` and `smsn.lmm()` were changed to pass control options through the `lmmControl` function.
 * The default estimation method was changed to the DAAREM method, to improve the general performance.
 * A parallel optimization was added using optimParallel.
 * Some options of the diagnostic tools were adjusted.

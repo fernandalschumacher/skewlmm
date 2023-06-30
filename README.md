@@ -1,5 +1,5 @@
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
+<!--  README.md is generated from README.Rmd. Please edit that file -->
 
 # skewlmm
 
@@ -58,13 +58,13 @@ summary(fm1)
 #>   Structure:  
 #>   Estimated variance (D):
 #>             (Intercept)         age
-#> (Intercept)   6.5378405 -0.55063271
-#> age          -0.5506327  0.07893263
+#> (Intercept)   6.5378399 -0.55063265
+#> age          -0.5506326  0.07893262
 #> 
 #> Fixed effects: distance ~ age
 #> with approximate confidence intervals
 #>                  Value Std.error CI 95% lower CI 95% upper
-#> (Intercept) 17.0163263 0.9456853   15.1628172   18.8698354
+#> (Intercept) 17.0163263 0.9456852   15.1628173   18.8698353
 #> age          0.6248518 0.1242525    0.3813214    0.8683822
 #> 
 #> Dependency structure: UNC
@@ -153,8 +153,7 @@ summary(fm2)
 ```
 
 Now, for performing a LRT for testing if the skewness parameter is 0
-(H<sub>0</sub> : *λ*<sub>*i*</sub> = 0, ∀*i*), one can use the
-following:
+($\text{H}_0: \lambda_i=0, \forall i$), one can use the following:
 
 ``` r
 lr.test(fm1,fm2)
@@ -260,3 +259,16 @@ criteria(list(`ST-LMM` = fm1, `t-LMM` = fm2, `t-LMM(EM)` = fm2EM, `t-LMM-diag` =
 ```
 
 For more examples, see `help(smsn.lmm)` and `help(smn.lmm)`.
+
+## Handling censored/missing observations
+
+An extension of the methods to account for censoring in SMSN-LMM is
+under development. Tools for accommodating left, right, or interval
+censored observations in the symmetrical family SMN-LMM are now
+available using the function `smn.clmm`.
+
+For more information on censored models, we refer to Matos, L. A.,
+Prates, M. O., Chen, M. H., and Lachos, V. H. (2013). Likelihood-based
+inference for mixed-effects models with censored response using the
+multivariate-t distribution. *Statistica Sinica*. DOI:
+[10.5705/ss.2012.043](http://dx.doi.org/10.5705/ss.2012.043).

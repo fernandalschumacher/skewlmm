@@ -5,7 +5,7 @@
   %%  ~~function to do ... ~~
 }
 \description{
-  Fitted values versus residuals plot.
+  Fitted values versus residuals plot. Censored values are imputed using their conditional expectation from the fitting algorithm.
 }
 
 \usage{

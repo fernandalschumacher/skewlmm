@@ -5,8 +5,8 @@
 # Censored mixed-effects models for irregularly observed repeated measures
 # ------------------------------------------------------------------------------
 smn.clmm = function(data, formFixed, groupVar, formRandom=~1, depStruct="UNC",
-                    ci=NULL, lcl=NULL, ucl=NULL, timeVar=NULL, distr="norm", nufix=FALSE,
-                    pAR=NULL, control=lmmControl()){
+                    ci, lcl, ucl, timeVar=NULL, distr="norm", nufix=FALSE,
+                    pAR=1, control=lmmControl()){
 
   if (!is(formFixed,"formula")) stop("formFixed must be a formula")
   if (!is(formRandom,"formula")) stop("formRandom must be a formula")
@@ -15,12 +15,17 @@ smn.clmm = function(data, formFixed, groupVar, formRandom=~1, depStruct="UNC",
   #
   if (!is.character(groupVar)) stop("groupVar must be a character containing the name of the grouping variable in data")
   if (!is.null(timeVar)&&!is.character(timeVar)) stop("timeVar must be a character containing the name of the time variable in data")
-  if (!is.null(ci)&&!is.character(ci)) stop("ci must be a character containing the name of the censoring indicator in data")
-  if (!is.null(lcl)&&!is.character(lcl)) stop("lcl must be a character containing the name of the lower censoring limit in data")
-  if (!is.null(ucl)&&!is.character(ucl)) stop("ucl must be a character containing the name of the upper censoring limit in data")
+  if (!missing(ci)&&!is.character(ci)) stop("ci must be a character containing the name of the censoring indicator in data")
+  if (!missing(lcl)&&!is.character(lcl)) stop("lcl must be a character containing the name of the lower censoring limit in data")
+  if (!missing(ucl)&&!is.character(ucl)) stop("ucl must be a character containing the name of the upper censoring limit in data")
+  if (missing(ci)&&!missing(lcl)) stop("ci must be specified when lcl or ucl is used")
+  if (missing(ci)&&!missing(ucl)) stop("ci must be specified when lcl or ucl is used")
   if (length(formFixed)!=3) stop("formFixed must be a two-sided linear formula object")
   if (!is.data.frame(data)) stop("data must be a data.frame")
   if (length(class(data))>1) data=as.data.frame(data)
+  if (missing(ci)) ci = NULL
+  if (missing(lcl)) lcl = NULL
+  if (missing(ucl)) ucl = NULL
   vars_used = unique(c(all.vars(formFixed), all.vars(formRandom), groupVar, timeVar, ci, lcl, ucl))
   vars_miss = which(!(vars_used %in% names(data)))
   if (length(vars_miss)>0) stop(paste(vars_used[vars_miss],"not found in data"))
@@ -38,7 +43,7 @@ smn.clmm = function(data, formFixed, groupVar, formRandom=~1, depStruct="UNC",
   if (is.null(lcl)){ lcl = rep(-Inf, N)} else { lcl = data[,lcl] }
   if (is.null(ucl)){ ucl = rep(Inf, N) } else { ucl = data[,ucl] }
   yna = which(is.na(y))
-  if (sum(cc%in%c(0,1)) < length(cc)) stop("The elements of ci must be 0 or 1")
+  if (sum(cc%in%c(0,1)) < length(cc)) stop("The elements of ci must contain only 0 or 1")
   if (sum(cc[yna])!=length(yna)) stop("NA values in the response must be specified through arguments ci, lcl, and ucl")
   if (sum(cc) > 0){
     if (length(yna)>0){
@@ -179,6 +184,7 @@ smn.clmm = function(data, formFixed, groupVar, formRandom=~1, depStruct="UNC",
   obj.out$distr = distr
   obj.out$N = N
   obj.out$n = m
+  obj.out$ncens = sum(cc)
   obj.out$groupVar = groupVar
   obj.out$timeVar = timeVar
   #
@@ -203,7 +209,7 @@ fitted.SMNclmm = function(object,...) object$fitted
 # Summary and print functions
 # ------------------------------------------------------------------------------
 print.SMNclmm = function(x, confint.level=0.95, ...){
-  cat("Linear mixed models with distribution", x$distr, "and dependency structure", x$depStruct,"\n")
+  cat("Censored linear mixed models with distribution", x$distr, "and dependency structure", x$depStruct,"\n")
   cat("Call:\n")
   print(x$call)
   cat("\nDistribution", x$distr)
@@ -249,62 +255,130 @@ print.SMNclmm = function(x, confint.level=0.95, ...){
   print(criteria)
   cat('\n')
   cat('Number of observations:', x$N,'\n')
+  cat('Number of censored/missing observations:', x$ncens,'\n')
   cat('Number of groups:', x$n,'\n')
 }
 
-summary.SMNclmm = function(object, confint.level=0.95, ...){
-  cat("Linear mixed models with distribution", object$distr, "and dependency structure", object$depStruct,"\n")
-  cat("Call:\n")
-  print(object$call)
-  cat("\nDistribution", object$distr)
-  if (object$distr!="norm") cat(" with nu =", object$estimates$nu)
-  cat("\n")
-  cat("\nRandom effects:\n")
-  cat("  Formula: ")
-  print(object$formula$formRandom)
-  cat("  Structure:", ifelse(object$covRandom=='pdSymm','General positive-definite',
-                             'Diagonal'),'\n')
-  cat("  Estimated variance (D):\n")
+# summary.SMNclmm = function(object, confint.level=0.95, ...){
+#   cat("Censored linear mixed models with distribution", object$distr, "and dependency structure", object$depStruct,"\n")
+#   cat("Call:\n")
+#   print(object$call)
+#   cat("\nDistribution", object$distr)
+#   if (object$distr!="norm") cat(" with nu =", object$estimates$nu)
+#   cat("\n")
+#   cat("\nRandom effects:\n")
+#   cat("  Formula: ")
+#   print(object$formula$formRandom)
+#   cat("  Structure:", ifelse(object$covRandom=='pdSymm','General positive-definite',
+#                              'Diagonal'),'\n')
+#   cat("  Estimated variance (D):\n")
+#   D1 = object$estimates$D
+#   colnames(D1)=row.names(D1)= colnames(model.matrix(object$formula$formRandom,data=object$data))
+#   print(D1)
+#   cat("\nFixed effects: ")
+#   print(object$formula$formFixed)
+#   p = length(c(object$estimates$beta))
+#   if (!is.null(object$std.error)){
+#     cat("with approximate confidence intervals\n")
+#     qIC = qnorm(.5+confint.level/2)
+#     ICtab = cbind(object$estimates$beta-qIC*object$std.error[1:p],
+#                   object$estimates$beta+qIC*object$std.error[1:p])
+#     tab = (cbind(object$estimates$beta, object$std.error[1:p], ICtab))
+#     rownames(tab) = names(object$theta[1:p])
+#     colnames(tab) = c("Value", "Std.error", paste0("CI ",confint.level*100,"% lower"), paste0("CI ",confint.level*100,"% upper"))
+#   } else {
+#     cat(" (std errors not estimated)\n")
+#     tab = matrix(object$estimates$beta, nrow=1)
+#     colnames(tab) = names(object$theta[1:p])
+#     rownames(tab) = c("Value")
+#   }
+#   print(tab)
+#   cat("\nDependency structure: ", object$depStruct, "\n")
+#   cat("  Estimate(s):\n")
+#   covParam = c(object$estimates$sigma2, object$estimates$phi)
+#   if (object$depStruct=="UNC") names(covParam) = "sigma2"
+#   else names(covParam) = c("sigma2", paste0("phi",1:(length(covParam)-1)))
+#   print(covParam)
+#   cat("\nModel selection criteria:\n")
+#   criteria = c(object$loglik, object$criteria$AIC, object$criteria$BIC)
+#   criteria = round(t(as.matrix(criteria)), digits=3)
+#   dimnames(criteria) = list(c(""),c("logLik", "AIC", "BIC"))
+#   print(criteria)
+#   cat('\n')
+#   cat('Number of observations:', object$N,'\n')
+#   cat('Number of censored/missing observations:', object$ncens,'\n')
+#   cat('Number of groups:', object$n,'\n')
+# }
+summary.SMNclmm <- function(object, confint.level=.95, ...){
   D1 = object$estimates$D
   colnames(D1)=row.names(D1)= colnames(model.matrix(object$formula$formRandom,data=object$data))
-  print(D1)
-  cat("\nFixed effects: ")
-  print(object$formula$formFixed)
-  p = length(c(object$estimates$beta))
-  if (!is.null(object$std.error)){
-    cat("with approximate confidence intervals\n")
-    qIC = qnorm(.5+confint.level/2)
-    ICtab = cbind(object$estimates$beta-qIC*object$std.error[1:p],
-                  object$estimates$beta+qIC*object$std.error[1:p])
-    tab = (cbind(object$estimates$beta, object$std.error[1:p], ICtab))
+  p<-length(object$estimates$beta)
+  if (!is.null(object$std.error)) {
+    qIC <- qnorm(.5+confint.level/2)
+    ICtab <- cbind(object$estimates$beta-qIC*object$std.error[1:p],
+                   object$estimates$beta+qIC*object$std.error[1:p])
+    tab = (cbind(object$estimates$beta,object$std.error[1:p],
+                 ICtab))
     rownames(tab) = names(object$theta[1:p])
-    colnames(tab) = c("Value", "Std.error", paste0("CI ",confint.level*100,"% lower"), paste0("CI ",confint.level*100,"% upper"))
-  } else {
-    cat(" (std errors not estimated)\n")
-    tab = matrix(object$estimates$beta, nrow=1)
+    colnames(tab) = c("Value","Std.error",paste0("CI ",confint.level*100,"% lower"),
+                      paste0("CI ",confint.level*100,"% upper"))
+  }
+  else {
+    tab = rbind(object$estimates$beta)
     colnames(tab) = names(object$theta[1:p])
     rownames(tab) = c("Value")
   }
-  print(tab)
-  cat("\nDependency structure: ", object$depStruct, "\n")
-  cat("  Estimate(s):\n")
-  covParam = c(object$estimates$sigma2, object$estimates$phi)
-  if (object$depStruct=="UNC") names(covParam) = "sigma2"
-  else names(covParam) = c("sigma2", paste0("phi",1:(length(covParam)-1)))
-  print(covParam)
-  cat("\nModel selection criteria:\n")
-  criteria = c(object$loglik, object$criteria$AIC, object$criteria$BIC)
-  criteria = round(t(as.matrix(criteria)), digits=3)
-  dimnames(criteria) = list(c(""),c("logLik", "AIC", "BIC"))
-  print(criteria)
-  cat('\n')
-  cat('Number of observations:', object$N,'\n')
-  cat('Number of groups:', object$n,'\n')
+  covParam <- c(object$estimates$sigma2, object$estimates$phi)
+  if (object$depStruct=="UNC") names(covParam) <- "sigma2"
+  else names(covParam) <- c("sigma2",paste0("phi",1:(length(covParam)-1)))
+  criteria <- c(object$loglik, object$criteria$AIC, object$criteria$BIC)
+  criteria <- round(t(as.matrix(criteria)),digits=3)
+  dimnames(criteria) <- list(c(""),c("logLik", "AIC", "BIC"))
+  outobj<- list(varRandom=D1,varFixed=covParam,tableFixed=tab,criteria=criteria,
+                call = object$call, distr = object$distr, formula = object$formula,
+                D = D1, depStruct = object$depStruct,
+                estimates = object$estimates, n = object$n, N = object$N, ncens = object$ncens,
+                covParam = covParam)
+  class(outobj) <- c("SMNcenssumm","list")
+  outobj
 }
+
+print.SMNcenssumm <- function(x,...){
+  cat("Censored linear mixed models with distribution", x$distr, "and dependency structure", x$depStruct,"\n")
+  cat("Call:\n")
+  print(x$call)
+  cat("\nDistribution", x$distr)
+  if (x$distr!="sn") cat(" with nu =", x$estimates$nu,"\n")
+  cat("\nRandom effects: \n")
+  cat("  Formula: ")
+  print(x$formula$formRandom)
+  cat("  Structure:",ifelse(x$covRandom=='pdSymm','General positive-definite',
+                            'Diagonal'),'\n')
+  cat("  Estimated variance (D):\n")
+  D1 = x$D
+  print(D1)
+  cat("\nFixed effects: ")
+  print(x$formula$formFixed)
+  if (nrow(x$tab)>1) cat("with approximate confidence intervals\n")
+  else cat(" (std errors not estimated)\n")
+  print(x$tab)
+  cat("\nDependency structure:", x$depStruct)
+  cat("\n  Estimate(s):\n")
+  print(x$covParam)
+  cat("\nSkewness parameter estimate:", x$estimates$lambda)
+  cat('\n')
+  cat('\nModel selection criteria:\n')
+  print(x$criteria)
+  cat('\n')
+  cat('Number of observations:',x$N,'\n')
+  cat('Number of censored/missing observations:', x$ncens,'\n')
+  cat('Number of groups:',x$n,'\n')
+}
+
 
 # Mahalanobis distance
 # ------------------------------------------------------------------------------
-mahalDist.SMNclmm = function(object){
+mahalDistCens = function(object){
   if(!is(object, "SMNclmm")) stop("object must inherit from class SMNclmm")
   formFixed  = object$formula$formFixed
   formRandom = object$formula$formRandom
@@ -343,14 +417,14 @@ mahalDist.SMNclmm = function(object){
   #
   out = mahaldist
   names(out) = row.names(object$random.effects)
-  class(out) = c("mahalDist.SMNclmm","numeric")
+  class(out) = c("mahalDistCens","numeric")
   attr(out,'call') = match.call()
   out
 }
 
-plot.mahalDist.SMNclmm = function(x, fitobject, level=.99, nlabels=3,...){
+plot.mahalDistCens = function(x, fitobject, level=.99, nlabels=3,...){
   if (missing(fitobject)) fitobject = eval(str2lang(as.character(attr(x,'call')[2])))
-  if (!is(x, "mahalDist.SMNclmm")) stop("x must inherit from class mahalDist.SMNclmm")
+  if (!is(x, "mahalDistCens")) stop("x must inherit from class mahalDistCens")
   if (!is.data.frame(x)) x = data.frame(md=x)
   if (level>=1|level<=0) stop("0<level<1 needed")
   #

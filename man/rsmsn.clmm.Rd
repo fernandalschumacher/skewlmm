@@ -5,7 +5,7 @@
   %%  ~~function to do ... ~~
 }
 \description{
-  It creates a simulated data set from SMSN-CLMM with several possible dependence structures, with an established censoring rate or limit of detectation (LOD).
+  It creates a simulated data set from SMSN-CLMM with several possible dependence structures, with an established censoring rate or a fixed limit of detectation (LOD).
 }
 \usage{
   rsmsn.clmm(time, ind, x, z, sigma2, D, beta, lambda=rep(0, nrow(D)),

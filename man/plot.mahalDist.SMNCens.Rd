@@ -1,19 +1,19 @@
-\name{plot.mahalDist.SMNclmm}
-\alias{plot.mahalDist.SMNclmm}
+\name{plot.mahalDistCens}
+\alias{plot.mahalDistCens}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Plot Mahalanobis distance for a fitted smn.clmm
   %%  ~~function to do ... ~~
 }
 \description{
-  Plot method for objects of class "mahalDist.SMNclmm". It also gives a quantile for outlier detection, based on the Mahalanobis distance theoretical distribution.
+  Plot method for objects of class "mahalDistCens". It also gives a quantile for outlier detection, based on the Mahalanobis distance theoretical distribution.
 }
 
 \usage{
-  \method{plot}{mahalDist.SMNclmm}(x, fitobject, level = 0.99, nlabels = 3, \dots)
+  \method{plot}{mahalDistCens}(x, fitobject, level = 0.99, nlabels = 3, \dots)
 }
 
 \arguments{
-  \item{x}{An object inheriting from class \code{mahalDist.SMNclmm}, representing
+  \item{x}{An object inheriting from class \code{mahalDistCens}, representing
     the Mahalanobis distance from a fitted scale mixture of normal censored linear mixed model.}
   \item{fitobject}{Optional. An object inheriting from class \code{SMNclmm}, representing
     the fitted scale mixture of normal linear mixed model that was used for calculating the Mahalanobis distance.}
@@ -32,7 +32,7 @@
 
 
 \seealso{
-  \code{\link{ggplot}}, \code{\link{mahalDist.SMNclmm}}, \code{\link{smn.clmm}}
+  \code{\link{ggplot}}, \code{\link{mahalDistCens}}, \code{\link{smn.clmm}}
 }
 \examples{
 nj1 = 5; m = 30
@@ -43,7 +43,7 @@ dat1 = rsmsn.clmm(time, groups, cbind(1,time), rep(1,m*nj1), sigma2=0.7,
 # Estimation
 fm1 = smn.clmm(dat1, formFixed=y~x, groupVar="ind", depStruct="CS", ci="ci",
                lcl="lcl", ucl="ucl", control=lmmControl(max.iter=30))
-distance = mahalDist.SMNclmm(fm1)
+distance = mahalDistCens(fm1)
 plot(distance, level=0.95, nlabels=2)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
