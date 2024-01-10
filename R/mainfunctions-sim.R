@@ -161,6 +161,7 @@ smn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "UNC",
   obj.out$data <- data
   obj.out$formula$formFixed <- formFixed
   obj.out$formula$formRandom <- formRandom
+  obj.out$formula$groupVar <- groupVar
   obj.out$depStruct <- depStruct
   obj.out$covRandom <- covRandom
   obj.out$distr <- distr
@@ -180,6 +181,8 @@ smn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "UNC",
     fitted[seqi]<- xfiti%*%obj.out$estimates$beta + zfiti%*%obj.out$random.effects[i,]
   }
   obj.out$fitted <- fitted
+  names(obj.out$estimates$beta) <- colnames(x)
+  colnames(obj.out$estimates$D)<- row.names(obj.out$estimates$D) <- colnames(z)
 
   class(obj.out)<- c("SMN","list")
   obj.out
@@ -287,9 +290,19 @@ print.SMNsumm <- function(x,...){
 }
 
 fitted.SMN <- function(object,...) object$fitted
-#ranef.SMN <- function(object,...) object$random.effects
+#
+ranef <- function(object, ...) UseMethod("ranef")
+nobs <- function(object, ...) UseMethod("nobs")
+fixef <- function(object, ...) UseMethod("fixef")
+#
+ranef.SMN <- ranef.SMSN <- function(object,...) object$random.effects
+logLik.SMN <- logLik.SMSN <- function(object,...) object$loglik
+fixef.SMN <- fixef.SMSN <- function(object,...) object$estimates$beta
+formula.SMN <- formula.SMSN <- function(x,...) x$formula
+nobs.SMN <- nobs.SMSN <- function(object,...) object$N
+sigma.SMN <- sigma.SMSN <- function(object,...) sqrt(object$estimates$sigma2)
 
-#colocar if subj not in data
+
 predict.SMN <- function(object,newData,...){
   if (missing(newData)||is.null(newData)) return(fitted(object))
   if (!is.data.frame(newData)) stop("newData must be a data.frame object")
