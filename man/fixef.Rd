@@ -1,18 +1,16 @@
-\name{ranef}
-\alias{ranef.SMN}
-\alias{ranef.SMSN}
-\alias{ranef.SMNCens}
+\name{fixef}
+\alias{fixef.SMN}
+\alias{fixef.SMSN}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Extract random effects from smsn.lmm, smn.lmm and smn.clmm objects
+\title{Extract estimated fixed effects from smsn.lmm, smn.lmm and smn.clmm objects
 %%  ~~function to do ... ~~
 }
 \description{
-  It extracts random effects from smsn.lmm, smn.lmm and smn.clmm objects.}
+  It extracts fixed effects from smsn.lmm and smn.lmm objects.}
 
 \usage{
-\method{ranef}{SMN}(object, \dots)
-\method{ranef}{SMSN}(object, \dots)
-\method{ranef}{SMNCens}(object, \dots)
+\method{fixef}{SMN}(object, \dots)
+\method{fixef}{SMSN}(object, \dots)
 }
 
 \arguments{
@@ -39,7 +37,7 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 }
 \examples{
 fm1 = smn.lmm(distance ~ age+Sex, data=nlme::Orthodont, groupVar="Subject")
-ranef(fm1)
+fixef(fm1)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

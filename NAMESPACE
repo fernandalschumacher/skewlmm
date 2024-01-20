@@ -78,6 +78,7 @@ S3method(print,SMNcenssumm)
 #
 S3method(ranef, SMSN)
 S3method(ranef, SMN)
+S3method(ranef, SMNCens)
 S3method(logLik, SMSN)
 S3method(logLik, SMN)
 S3method(fixef, SMSN)

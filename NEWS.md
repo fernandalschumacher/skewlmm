@@ -1,3 +1,7 @@
+## skewlmm 1.1.1 _(2023-01-20)_
+
+* ranef, nobs, fixef, logLik, formula, sigma methods for SMN and SMSN classes were added.
+
 ## skewlmm 1.1.0 _(2022-09-27)_
 
 * `rsmsn.clmm` was added to simulate data from SMSN-CLMM with censored responses.

@@ -295,7 +295,7 @@ ranef <- function(object, ...) UseMethod("ranef")
 nobs <- function(object, ...) UseMethod("nobs")
 fixef <- function(object, ...) UseMethod("fixef")
 #
-ranef.SMN <- ranef.SMSN <- function(object,...) object$random.effects
+ranef.SMN <- ranef.SMSN <- ranef.SMNCens <- function(object,...) object$random.effects
 logLik.SMN <- logLik.SMSN <- function(object,...) object$loglik
 fixef.SMN <- fixef.SMSN <- function(object,...) object$estimates$beta
 formula.SMN <- formula.SMSN <- function(x,...) x$formula
