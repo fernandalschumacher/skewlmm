@@ -1,4 +1,5 @@
 \name{fixef}
+\alias{fixef}
 \alias{fixef.SMN}
 \alias{fixef.SMSN}
 %- Also NEED an '\alias' for EACH other topic documented here.

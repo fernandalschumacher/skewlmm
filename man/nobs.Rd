@@ -1,4 +1,5 @@
 \name{nobs}
+\alias{nobs}
 \alias{nobs.SMN}
 \alias{nobs.SMSN}
 %- Also NEED an '\alias' for EACH other topic documented here.

@@ -1,4 +1,5 @@
 \name{ranef}
+\alias{ranef}
 \alias{ranef.SMN}
 \alias{ranef.SMSN}
 \alias{ranef.SMNCens}

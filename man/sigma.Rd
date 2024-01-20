@@ -1,4 +1,5 @@
 \name{sigma}
+\alias{sigma}
 \alias{sigma.SMN}
 \alias{sigma.SMSN}
 %- Also NEED an '\alias' for EACH other topic documented here.

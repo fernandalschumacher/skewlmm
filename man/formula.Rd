@@ -1,4 +1,5 @@
 \name{formula}
+\alias{formula}
 \alias{formula.SMN}
 \alias{formula.SMSN}
 %- Also NEED an '\alias' for EACH other topic documented here.
