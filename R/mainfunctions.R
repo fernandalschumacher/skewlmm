@@ -176,6 +176,7 @@ smsn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "UNC", ti
   obj.out$data <- data
   obj.out$formula$formFixed <- formFixed
   obj.out$formula$formRandom <- formRandom
+  obj.out$formula$groupVar <- groupVar
   obj.out$depStruct <- depStruct
   obj.out$covRandom <- covRandom
   if (distr=="ss") distr<-"ssl"
@@ -197,6 +198,8 @@ smsn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "UNC", ti
     fitted[seqi]<- xfiti%*%obj.out$estimates$beta + zfiti%*%obj.out$random.effects[i,]
   }
   obj.out$fitted <- fitted
+  names(obj.out$estimates$beta) <- colnames(x)
+  colnames(obj.out$estimates$D)<- row.names(obj.out$estimates$D) <- colnames(z)
 
   class(obj.out)<- c("SMSN","list")
   obj.out
@@ -452,9 +455,9 @@ print.lmmLRT <- function(x, ...) {
     cat("chi-square statistics = ",x$statistic,"\n")
     cat("df = ",x$df,"\n")
     cat("p-value = ",x$p.value,"\n")
-    if (x$p.value<=x$level) cat("\nThe null hypothesis that both models represent the \ndata equally well is rejected at level ",x$level)
-    else cat("\nThe null hypothesis that both models represent the \ndata equally well is not rejected at level ",x$level)
-  } #else cat("LR test could not be performed")
+    if (x$p.value<=x$level) cat("\nThe null hypothesis that both models represent the \ndata equally well is rejected at level ",x$level,'\n')
+    else cat("\nThe null hypothesis that both models represent the \ndata equally well is not rejected at level ",x$level,'\n')
+  }
 }
 
 criteria = function(lobjects) {
