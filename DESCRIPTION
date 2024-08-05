@@ -21,3 +21,5 @@ Encoding: UTF-8
 Imports: dplyr, ggplot2, methods, stats, future, ggrepel, haven, mvtnorm, nlme, purrr, furrr, matrixcalc, moments, numDeriv, relliptical, MomTrunc, TruncatedNormal
 URL: https://github.com/fernandalschumacher/skewlmm
 BugReports: https://github.com/fernandalschumacher/skewlmm/issues
+LazyData: true
+RoxygenNote: 7.2.0
