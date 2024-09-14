@@ -474,7 +474,7 @@ lmmControl <- function(tol=1e-6,max.iter=300,calc.se=TRUE,
                        lb=NULL,lu=NULL,luDEC=10,
                        initialValues =list(beta=NULL,sigma2=NULL,D=NULL,
                                            lambda=NULL,phi=NULL,nu=NULL),
-                       quiet=FALSE,showCriterium=FALSE,algorithm="DAAREM",
+                       quiet=!interactive(),showCriterium=FALSE,algorithm="DAAREM",
                        parallelphi=NULL, parallelnu=NULL, ncores=NULL,
                        control.daarem=list()) {
   if ((!is.numeric(tol))||(length(tol)>1)) stop("tol must be a small number")
