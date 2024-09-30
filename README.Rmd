@@ -33,7 +33,7 @@ Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale mixture of skew
 You can install skewlmm from GitHub with:
 
 ```r
-devtools::install_github("fernandalschumacher/skewlmm")
+remotes::install_github("fernandalschumacher/skewlmm")
 ```
 Or you can install the released version of skewlmm from [CRAN](https://CRAN.R-project.org) with:
 ```r

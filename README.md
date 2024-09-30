@@ -23,7 +23,7 @@ dependence. *Statistics in Medicine*. DOI:
 You can install skewlmm from GitHub with:
 
 ``` r
-devtools::install_github("fernandalschumacher/skewlmm")
+remotes::install_github("fernandalschumacher/skewlmm")
 ```
 
 Or you can install the released version of skewlmm from
@@ -40,7 +40,16 @@ This is a basic example which shows you how to fit a SMSN-LMM:
 ``` r
 library(skewlmm)
 #> Loading required package: optimParallel
+#> Warning: package 'optimParallel' was built under R version 4.4.1
 #> Loading required package: parallel
+#> 
+#> Attaching package: 'skewlmm'
+#> The following object is masked from 'package:stats':
+#> 
+#>     nobs
+```
+
+``` r
 dat1 <- as.data.frame(nlme::Orthodont)
 fm1 <- smsn.lmm(dat1, formFixed = distance ~ age, formRandom = ~ age,
                 groupVar = "Subject", distr = "st",
@@ -58,13 +67,13 @@ summary(fm1)
 #>   Structure:  
 #>   Estimated variance (D):
 #>             (Intercept)         age
-#> (Intercept)   6.5378399 -0.55063265
-#> age          -0.5506326  0.07893262
+#> (Intercept)   6.5378401 -0.55063267
+#> age          -0.5506327  0.07893262
 #> 
 #> Fixed effects: distance ~ age
 #> with approximate confidence intervals
 #>                  Value Std.error CI 95% lower CI 95% upper
-#> (Intercept) 17.0163263 0.9456852   15.1628173   18.8698353
+#> (Intercept) 17.0163263 0.9456852   15.1628173   18.8698354
 #> age          0.6248518 0.1242525    0.3813214    0.8683822
 #> 
 #> Dependency structure: UNC
@@ -80,6 +89,9 @@ summary(fm1)
 #> 
 #> Number of observations: 108 
 #> Number of groups: 27
+```
+
+``` r
 plot(fm1)
 ```
 
