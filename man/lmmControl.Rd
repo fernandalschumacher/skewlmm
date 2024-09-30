@@ -12,7 +12,7 @@ lmmControl(tol = 1e-06, max.iter = 300, calc.se = TRUE, lb = NULL,
            lu = NULL, luDEC = 10,
            initialValues = list(beta = NULL, sigma2 = NULL, D = NULL,
                                 lambda = NULL, phi = NULL, nu = NULL),
-           quiet = FALSE, showCriterium = FALSE, algorithm = "DAAREM",
+           quiet = !interactive(), showCriterium = FALSE, algorithm = "DAAREM",
            parallelphi = NULL, parallelnu = NULL, ncores = NULL,
            control.daarem = list())
 }
