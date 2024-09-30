@@ -1,19 +1,19 @@
-\name{ranef}
-\alias{ranef}
-\alias{ranef.SMN}
-\alias{ranef.SMSN}
-\alias{ranef.SMNclmm}
+\name{coef}
+\alias{coef}
+\alias{coef.SMN}
+\alias{coef.SMSN}
+\alias{coef.SMNclmm}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Extract random effects from smsn.lmm, smn.lmm and smn.clmm objects
+\title{Extract coefficients from smsn.lmm, smn.lmm and smn.clmm objects
 %%  ~~function to do ... ~~
 }
 \description{
-  It extracts random effects from smsn.lmm, smn.lmm and smn.clmm objects.}
+  It extracts estimated coefficients from smsn.lmm, smn.lmm and smn.clmm objects. The estimated coefficients are obtained by adding together the fixed and random effects estimates.}
 
 \usage{
-\method{ranef}{SMN}(object, \dots)
-\method{ranef}{SMSN}(object, \dots)
-\method{ranef}{SMNclmm}(object, \dots)
+\method{coef}{SMN}(object, \dots)
+\method{coef}{SMSN}(object, \dots)
+\method{coef}{SMNclmm}(object, \dots)
 }
 
 \arguments{
@@ -23,7 +23,7 @@
    }
 
 \value{
-  Matrix of estimated random effects.
+  Matrix of coefficients.
 }
 
 \references{
@@ -40,7 +40,7 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 }
 \examples{
 fm1 = smn.lmm(distance ~ age+Sex, data=nlme::Orthodont, groupVar="Subject")
-ranef(fm1)
+coef(fm1)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

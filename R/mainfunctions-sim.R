@@ -291,18 +291,6 @@ print.SMNsumm <- function(x,...){
 
 fitted.SMN <- function(object,...) object$fitted
 #
-ranef <- function(object, ...) UseMethod("ranef")
-nobs <- function(object, ...) UseMethod("nobs")
-fixef <- function(object, ...) UseMethod("fixef")
-#
-ranef.SMN <- ranef.SMSN <- ranef.SMNCens <- function(object,...) object$random.effects
-logLik.SMN <- logLik.SMSN <- function(object,...) object$loglik
-fixef.SMN <- fixef.SMSN <- function(object,...) object$estimates$beta
-formula.SMN <- formula.SMSN <- function(x,...) x$formula
-nobs.SMN <- nobs.SMSN <- function(object,...) object$N
-sigma.SMN <- sigma.SMSN <- function(object,...) sqrt(object$estimates$sigma2)
-
-
 predict.SMN <- function(object,newData,...){
   if (missing(newData)||is.null(newData)) return(fitted(object))
   if (!is.data.frame(newData)) stop("newData must be a data.frame object")

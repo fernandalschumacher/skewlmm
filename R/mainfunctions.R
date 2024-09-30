@@ -310,7 +310,19 @@ print.SMSNsumm <- function(x,...){
 
 fitted.SMSN <- function(object,...) object$fitted
 ranef <- function(object) object$random.effects
-
+#
+ranef <- function(object, ...) UseMethod("ranef")
+nobs <- function(object, ...) UseMethod("nobs")
+fixef <- function(object, ...) UseMethod("fixef")
+coef <- function(object, ...) UseMethod("coef")
+#
+ranef.SMN <- ranef.SMSN <- ranef.SMNclmm <- function(object,...) object$random.effects
+logLik.SMN <- logLik.SMSN <- logLik.SMNclmm <- function(object,...) object$loglik
+fixef.SMN <- fixef.SMSN <- fixef.SMNclmm <- function(object,...) object$estimates$beta
+formula.SMN <- formula.SMSN <- formula.SMNclmm <- function(x,...) x$formula
+nobs.SMN <- nobs.SMSN <- nobs.SMNclmm <- function(object,...) object$N
+sigma.SMN <- sigma.SMSN <- sigma.SMNclmm <- function(object,...) sqrt(object$estimates$sigma2)
+#
 predict.SMSN <- function(object,newData,...){
   if (missing(newData)||is.null(newData)) return(fitted(object))
     #stop("newData must be a dataset containing the covariates, groupVar and timeVar (when used) from data that should be predicted")
@@ -524,3 +536,21 @@ update.SMSN <- update.SMN <- function (object, ..., evaluate = TRUE){
   if(evaluate) eval(call, parent.frame())
   else call
 }
+
+# adding coef function
+coef.SMSN <- coef.SMN <- coef.SMNclmm <- function(object, ...){
+  fef <- data.frame(matrix(object$estimates$beta, ncol=length(object$estimates$beta),
+                           nrow=object$n, byrow=T), check.names = FALSE)
+  names(fef) <- names(object$estimates$beta)
+  ref <- data.frame(skewlmm::ranef(object), check.names = FALSE)
+  ##
+  varsnames <- union(colnames(fef), colnames(ref))
+  fef[,setdiff(varsnames, colnames(fef))] <- 0
+  ref[,setdiff(varsnames, colnames(ref))] <- 0
+  ##
+  common_cols <- intersect(colnames(fef), colnames(ref))
+  coef <- data.frame(sapply(common_cols, function(col) fef[[col]] + ref[[col]]), check.names = FALSE)
+  class(coef) <- c("coef", "data.frame")
+  coef
+}
+

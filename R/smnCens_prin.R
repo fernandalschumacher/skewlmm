@@ -197,6 +197,8 @@ smn.clmm = function(data, formFixed, groupVar, formRandom=~1, depStruct="UNC",
     fitted[seqi] = xfiti%*%obj.out$estimates$beta + zfiti%*%obj.out$random.effects[i,]
   }
   obj.out$fitted = fitted
+  obj.out$estimates$beta <- as.numeric(obj.out$estimates$beta)
+  names(obj.out$estimates$beta) <- colnames(x)
   #
   class(obj.out) = c("SMNclmm","list")
   obj.out
