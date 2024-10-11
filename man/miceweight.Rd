@@ -6,7 +6,7 @@ Data set for clinical trial measuring mice weight
 }
 \description{
 Sintetic longitudinal data set based on a clinical trial designed to test two diet treatments in comparison to a control group.
-The weight of 52 mice (reported in ounces) is measured weekly from baseline until week 10 of treatment.
+The weight of 52 mice (reported in grams) is measured weekly from baseline until week 10 of treatment.
 }
 \usage{
 data(miceweight)
@@ -17,11 +17,13 @@ This data frame contains the following columns:
     \item{\code{treat}}{Treatment received (treatment 1 (T1), treatment 2 (T2), or control (C))}
     \item{\code{mouseID}}{Mouse ID}
     \item{\code{week}}{Week since treatment started}
-    \item{\code{weight}}{Mouse weight in ounces}
+    \item{\code{weight}}{Mouse weight in grams}
 }
 }
 \details{
-This dataset was created using minor perturbations from a real study for which the original data is not publicly available. Data features such as variance and skewness were preserved.
+Dietary supplementations were administered for groups T1 and T2 starting at week 5.
+
+This dataset was created using minor perturbations from a real study for which the original data is not publicly available. Data features such as covariances and skewness were preserved.
 }
 \examples{
 library(ggplot2)
