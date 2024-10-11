@@ -660,7 +660,15 @@ healy.plot <- function(object,dataPlus=NULL,dotsize=0.4,calcCI = FALSE,
   } else data <- object$data
   groupVar<-object$groupVar
   ind <-data[,groupVar]
-  data <- data[order(data[,object$groupVar]),]
+  timeVar <- object$timeVar
+  if (!is.null(timeVar)) {
+    time<-data[,timeVar]
+  } else{
+    time <- numeric(length = length(ind))
+    for (indi in levels(ind)) time[ind==indi] <- seq_len(sum(ind==indi))
+    #time<- flatten_int(tapply(ind,ind,function(x.) seq_along(x.)))
+  }
+  data <- data[order(ind, time),]
   njvec <- tapply(ind,ind,length)
   nj1 <- as.numeric(njvec[1])
   if (!all(njvec==nj1)) stop("for this plot all subjects must have the same number of observations, you can predict the missing values and enter the full dataset using the dataPlus argument")
@@ -704,14 +712,6 @@ healy.plot <- function(object,dataPlus=NULL,dotsize=0.4,calcCI = FALSE,
     theme(plot.title = element_text( face="italic", size=10))
   #
   if (calcCI){
-    timeVar <- object$timeVar
-    if (!is.null(timeVar)) {
-      time<-data[,timeVar]
-    } else{
-      time <- numeric(length = length(ind))
-      for (indi in levels(ind)) time[ind==indi] <- seq_len(sum(ind==indi))
-      #time<- flatten_int(tapply(ind,ind,function(x.) seq_along(x.)))
-    }
     x <- model.matrix(object$formula$formFixed,data=data)
     z<-model.matrix(object$formula$formRandom,data=data)
     p<-ncol(x)
