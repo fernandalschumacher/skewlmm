@@ -460,12 +460,12 @@ plot.SMSN <- function(x,type="response",level="conditional",useweight=TRUE,alpha
   depStructp <- x$depStruct
   if (depStructp=="ARp") depStructp <- paste0("AR(",length(x$estimates$phi),")")
   if (useweight){
-    peso <-data.frame(weight=x$uhat)
+    peso <-data.frame(u_weight=x$uhat)
     peso$ind <- row.names(peso)
     peso <- left_join(x$data,peso,by='ind')
     peso$fitted <- fitted(x)
     peso$resid <- resid
-    ggplot(peso, aes_string(x="fitted",y="resid",color="weight"))+geom_point()+theme_minimal() +
+    ggplot(peso, aes_string(x="fitted",y="resid",color="u_weight"))+geom_point()+theme_minimal() +
       geom_hline(yintercept = 0,linetype="dashed") + ylab(attr(resid,"label")) +
       xlab("fitted values") +
       scale_color_continuous(high = "#132B43", low = "#56B1F7") +
