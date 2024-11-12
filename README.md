@@ -1,7 +1,7 @@
 
 <!--  README.md is generated from README.Rmd. Please edit that file -->
 
-# skewlmm
+# skewlmm <a href="https://github.com/fernandalschumacher/skewlmm"><img src="man/figures/skewlmm_hex.png" align="right" height="138" alt="skewlmm GitHub link" /></a>
 
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/skewlmm)](https://cran.r-project.org/package=skewlmm)
 
@@ -40,7 +40,6 @@ This is a basic example which shows you how to fit a SMSN-LMM:
 ``` r
 library(skewlmm)
 #> Loading required package: optimParallel
-#> Warning: package 'optimParallel' was built under R version 4.4.1
 #> Loading required package: parallel
 #> 
 #> Attaching package: 'skewlmm'
@@ -67,13 +66,13 @@ summary(fm1)
 #>   Structure:  
 #>   Estimated variance (D):
 #>             (Intercept)         age
-#> (Intercept)   6.5378401 -0.55063267
-#> age          -0.5506327  0.07893262
+#> (Intercept)   6.5378399 -0.55063265
+#> age          -0.5506326  0.07893262
 #> 
 #> Fixed effects: distance ~ age
 #> with approximate confidence intervals
 #>                  Value Std.error CI 95% lower CI 95% upper
-#> (Intercept) 17.0163263 0.9456852   15.1628173   18.8698354
+#> (Intercept) 17.0163263 0.9456852   15.1628173   18.8698353
 #> age          0.6248518 0.1242525    0.3813214    0.8683822
 #> 
 #> Dependency structure: UNC
