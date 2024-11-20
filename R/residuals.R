@@ -1076,7 +1076,7 @@ boot_par <- function(object, B=100, seed = 123) {#method
 boot_ci <- function(object, conf = 0.95){
   if (!inherits(object, "lmmBoot")) stop("object must inherit from class lmmBoot")
   if (nrow(object)==0) stop("boot_par did not return a valid sample")
-  objout<-apply(object,2,quantile,probs=c((1-conf)/2,1-(1-conf)/2))
+  objout<-apply(object,2,quantile,probs=c((1-conf)/2,1-(1-conf)/2), na.rm=T)
   attr(objout,'nsamples') <- nrow(object)
   return(objout)
 }
