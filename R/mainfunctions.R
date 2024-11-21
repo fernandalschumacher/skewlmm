@@ -392,6 +392,7 @@ rsmsn.lmm <- function(time1,x1,z1,sigma2,D1,beta,lambda,depStruct="UNC",phi=NULL
   #
   if (distr=="ssl") distr<-"ss"
   if (!(distr %in% c("sn","st","ss","scn"))) stop("Invalid distribution")
+  if (dist!="sn"&is.null(nu)) stop("nu must be provided")
   if (distr=="sn") {ui=1; c.=-sqrt(2/pi)}
   if (distr=="st") {ui=rgamma(1,nu/2,nu/2); c.=-sqrt(nu/pi)*gamma((nu-1)/2)/gamma(nu/2)}
   if (distr=="ss") {ui=rbeta(1,nu,1); c.=-sqrt(2/pi)*nu/(nu-.5)}
