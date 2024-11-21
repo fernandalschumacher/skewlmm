@@ -33,7 +33,8 @@ smsn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "UNC", ti
   if (!is.null(timeVar) && sum(is.na(data[,timeVar]))) stop ("NAs not allowed")
   #
   if (distr=="ssl") distr<-"ss"
-  if (!(distr %in% c("sn","st","ss","scn"))) stop("Accepted distributions: sn, st, ssl, scn")
+  distr <- match.arg(distr,c("sn","st","ss","scn"))
+  #if (!(distr %in% c("sn","st","ss","scn"))) stop("Accepted distributions: sn, st, ssl, scn")
   if ((!is.null(control$lb))&&distr!="sn") if((distr=="st"&&(control$lb<=1))||(distr=="ss"&&(control$lb<=.5))) stop("Invalid lb")
   if (is.null(control$lb)&&distr!="sn") control$lb = ifelse(distr=="scn",rep(.01,2),ifelse(distr=="st",1.01,.51))
   if (is.null(control$lu)&&distr!="sn") control$lu = ifelse(distr=="scn",rep(.99,2),ifelse(distr=="st",100,50))
@@ -42,9 +43,11 @@ smsn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "UNC", ti
       ((sum(!is.wholenumber(data[,timeVar]))>0)||(sum(data[,timeVar]<=0)>0))) stop("timeVar must contain positive integer numbers when using ARp dependency")
   if (depStruct=="ARp" && !is.null(timeVar)) if (min(data[,timeVar])!=1) warning("consider using a transformation such that timeVar starts at 1")
   if (depStruct=="CI") depStruct = "UNC"
-  if (!(depStruct %in% c("UNC","ARp","CS","DEC","CAR1"))) stop("accepted depStruct: UNC, ARp, CS, DEC or CAR1")
+  depStruct <- match.arg(depStruct,c("UNC","ARp","CS","DEC","CAR1"))
+  #if (!(depStruct %in% c("UNC","ARp","CS","DEC","CAR1"))) stop("accepted depStruct: UNC, ARp, CS, DEC or CAR1")
   #
-  if (!(covRandom %in% c('pdSymm','pdDiag'))) stop("accepted covRandom: pdSymm or pdDiag")
+  covRandom <- match.arg(covRandom, c('pdSymm','pdDiag'))
+  #if (!(covRandom %in% c('pdSymm','pdDiag'))) stop("accepted covRandom: pdSymm or pdDiag")
   diagD <- covRandom=='pdDiag'
   if (q1==1) diagD=FALSE
   #
@@ -363,7 +366,8 @@ errorVar<- function(times,object=NULL,sigma2=NULL,depStruct=NULL,phi=NULL) {
   if (is.null(depStruct)) depStruct<-object$depStruct
   if (depStruct=="CI") depStruct = "UNC"
   if (depStruct!="UNC" && is.null(object)&is.null(phi)) stop("object or phi must be provided")
-  if (!(depStruct %in% c("UNC","ARp","CS","DEC","CAR1"))) stop("accepted depStruct: UNC, ARp, CS, DEC or CAR1")
+  depStruct <- match.arg(depStruct, c("UNC","ARp","CS","DEC","CAR1"))
+  #if (!(depStruct %in% c("UNC","ARp","CS","DEC","CAR1"))) stop("accepted depStruct: UNC, ARp, CS, DEC or CAR1")
   if (is.null(sigma2)) sigma2<-object$estimates$sigma2
   if (is.null(phi)&&depStruct!="UNC") phi<-object$estimates$phi
   if (depStruct=="ARp" && (any(!is.wholenumber(times))|any(times<=0))) stop("times must contain positive integer numbers when using ARp dependency")
@@ -391,7 +395,8 @@ rsmsn.lmm <- function(time1,x1,z1,sigma2,D1,beta,lambda,depStruct="UNC",phi=NULL
   Sig <- errorVar(time1,depStruct = depStruct,sigma2=sigma2,phi=phi)
   #
   if (distr=="ssl") distr<-"ss"
-  if (!(distr %in% c("sn","st","ss","scn"))) stop("Invalid distribution")
+  distr <- match.arg(distr, c("sn","st","ss","scn"))
+  #if (!(distr %in% c("sn","st","ss","scn"))) stop("Invalid distribution")
   if (distr!="sn"&is.null(nu)) stop("nu must be provided")
   if (distr=="sn") {ui=1; c.=-sqrt(2/pi)}
   if (distr=="st") {ui=rgamma(1,nu/2,nu/2); c.=-sqrt(nu/pi)*gamma((nu-1)/2)/gamma(nu/2)}
@@ -501,7 +506,7 @@ lmmControl <- function(tol=1e-6,max.iter=300,calc.se=TRUE,
   if (all(c("D","dsqrt") %in% names(initialValues))) initialValues$dsqrt<-NULL
   if (any(!(names(initialValues) %in% c("beta","sigma2","lambda","D","phi","nu")))) warning("initialValues must be a list with named elements beta, sigma2, D, phi and/or nu, elements with other names are ignored")
   if (!is.list(control.daarem)) stop("control.daarem must be a list")
-  if (!(algorithm%in%c("DAAREM","EM"))) stop("algorithm must be either 'EM' or 'DAAREM'")
+  if (!(algorithm%in%c("DAAREM","EM"))) algorithm = match.arg(algorithm, c("DAAREM","EM"))#stop("algorithm must be either 'EM' or 'DAAREM'")
   if (!is.logical(quiet)) stop("quiet must be TRUE or FALSE")
   if (!is.logical(showCriterium)) stop("showCriterium must be TRUE or FALSE")
   if (!is.null(parallelphi)) if (!is.logical(parallelphi)) stop("parallelphi must be TRUE or FALSE")
@@ -560,10 +565,10 @@ confint.SMSN <- confint.SMN <- function(object, param, level = 0.95, method, ...
   if (is.null(object$std.error)) stop("A numerical error prevented calculation of standard errors. Please consider changing the model, the algorithm, or the initial values")
   if (missing(param)) {
     param = "all"
-  } else if (!(param %in% c("beta","all"))) stop("param must be either beta (for fixed effects only) or all")
+  } else param <- match.arg(param, c("beta","all"))
   if (missing(method)) {
     method = "asymptotic"
-  } else if (!(method %in% c("asymptotic","bootstrap"))) stop("method must be either asymptotic or bootstrap")
+  } else method <- match.arg(method, c("asymptotic","bootstrap"))
   if (level>=1|level<=0) stop("level must be a number between 0 and 1")
   p <- length(object$estimates$beta)
   if (method == "asymptotic") {

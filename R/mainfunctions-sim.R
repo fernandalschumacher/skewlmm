@@ -33,7 +33,8 @@ smn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "UNC",
   if ((sum(is.na(x))+sum(is.na(z))+sum(is.na(y))+sum(is.na(ind)))>0) stop ("NAs not allowed")
   if (!is.null(timeVar) && sum(is.na(data[,timeVar]))) stop ("NAs not allowed")
   #
-  if (!(distr %in% c("norm","t","sl","cn"))) stop("Accepted distributions: norm, t, sl, cn")
+  distr <- match.arg(distr, c("norm","t","sl","cn"))
+  #if (!(distr %in% c("norm","t","sl","cn"))) stop("Accepted distributions: norm, t, sl, cn")
   if ((!is.null(control$lb))&&distr!="norm") if((distr=="t"&&(control$lb<=1))||(distr=="sl"&&(control$lb<=.5))) stop("Invalid lb")
   if (is.null(control$lb)&&distr!="norm") control$lb = ifelse(distr=="cn",rep(.01,2),ifelse(distr=="t",1.01,.51))
   if (is.null(control$lu)&&distr!="norm") control$lu = ifelse(distr=="cn",rep(.99,2),ifelse(distr=="t",100,50))
@@ -42,9 +43,11 @@ smn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "UNC",
       ((sum(!is.wholenumber(data[,timeVar]))>0)||(sum(data[,timeVar]<=0)>0))) stop("timeVar must contain positive integer numbers when using ARp dependency")
   if (depStruct=="ARp" && !is.null(timeVar)) if (min(data[,timeVar])!=1) warning("consider using a transformation such that timeVar starts at 1")
   if (depStruct=="CI") depStruct = "UNC"
-  if (!(depStruct %in% c("UNC","ARp","CS","DEC","CAR1"))) stop("accepted depStruct: UNC, ARp, CS, DEC or CAR1")
+  depStruct <- match.arg(depStruct, c("UNC","ARp","CS","DEC","CAR1"))
+  #if (!(depStruct %in% c("UNC","ARp","CS","DEC","CAR1"))) stop("accepted depStruct: UNC, ARp, CS, DEC or CAR1")
   #
-  if (!(covRandom %in% c('pdSymm','pdDiag'))) stop("accepted covRandom: pdSymm or pdDiag")
+  covRandom <- match.arg(covRandom, c('pdSymm','pdDiag'))
+  #if (!(covRandom %in% c('pdSymm','pdDiag'))) stop("accepted covRandom: pdSymm or pdDiag")
   diagD <- covRandom=='pdDiag'
   if (q1==1) diagD=FALSE
   #

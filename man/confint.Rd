@@ -19,6 +19,7 @@ Computes either asymptotical (based on normality from maximum likelihood estimat
  \item{object}{An object inheriting from class \code{SMN} or \code{SMSN}}
  \item{param}{A character indicating for which parameter the intervals should be returned. Available options: "beta" for fixed effects, or "all" for all parameters. Default is "all".}
  \item{level}{Confidence level to be used.}
+ \item{method}{A character indicating with method should be used. "asymptotic" refers to traditional confidence intervals based on asymptotical normality from maximum likelihood estimators; "bootstrap" performs a parametric bootstrap method based on B samples (100 by default), and is only recommended to small to moderate sample sizes.}
   \item{\dots}{Additional arguments to be passed to \code{boot_par}.}
    }
 

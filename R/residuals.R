@@ -1,6 +1,8 @@
 residuals.SMSN<- function(object,level="conditional",type="response",...){
-  if (!(level %in% c("marginal","conditional"))) stop("Accepted levels: marginal, conditional")
-  if (!(type %in% c("response","modified","normalized"))) stop("Accepted types: response, normalized or modified")
+  level <- match.arg(level, c("marginal","conditional"))
+  type <- match.arg(type,c("response","modified","normalized"))
+  #if (!(level %in% c("marginal","conditional"))) stop("Accepted levels: marginal, conditional")
+  #if (!(type %in% c("response","modified","normalized"))) stop("Accepted types: response, normalized or modified")
   data <- object$data
   formFixed <- object$formula$formFixed
   formRandom <- object$formula$formRandom
