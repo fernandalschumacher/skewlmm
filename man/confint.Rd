@@ -11,8 +11,8 @@ Computes either asymptotical (based on normality from maximum likelihood estimat
 
 
 \usage{
-\method{confint}{SMN}(object, param, level = 0.95, \dots)
-\method{confint}{SMSN}(object, param, level = 0.95, \dots)
+\method{confint}{SMN}(object, param, level = 0.95, method, \dots)
+\method{confint}{SMSN}(object, param, level = 0.95, method, \dots)
 }
 
 \arguments{
