@@ -18,6 +18,7 @@ export(fixef)
 export(nobs)
 export(sigma)
 export(formula)
+export(weight_plot)
 #
 import("ggplot2")
 importFrom("optimParallel", "optimParallel")
