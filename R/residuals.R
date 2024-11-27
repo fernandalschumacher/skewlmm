@@ -1091,7 +1091,7 @@ weight_plot <- function(object) {
   if (depStructp=="ARp") depStructp <- paste0("AR(",length(object$estimates$phi),")")
   ggplot(data = data.frame(x = mahalDist(object), y = object$uhat),
          aes(x = x, y = y)) + geom_hline(yintercept = 1, linetype=2, color = 4)+
-    geom_point(shape = 1) + theme_minimal(base_size=9) +
+    geom_point(shape = 1) + theme_minimal() +
     ylab("weight") + xlab("Mahalanobis distance") +
     ggtitle(paste0(depStructp,'-',distrp,'-LMM')) +
     theme(plot.title = element_text( face="italic", size=10))
