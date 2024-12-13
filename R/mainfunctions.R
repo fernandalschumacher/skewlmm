@@ -561,19 +561,17 @@ coef.SMSN <- coef.SMN <- coef.SMNclmm <- function(object, ...){
 }
 
 # adding confint method
-confint.SMSN <- confint.SMN <- function(object, param, level = 0.95, method, ...){
+confint.SMSN <- confint.SMN <- function(object, parm, level = 0.95, method = "asymptotic", ...){
   if (is.null(object$std.error)) stop("A numerical error prevented calculation of standard errors. Please consider changing the model, the algorithm, or the initial values")
-  if (missing(param)) {
-    param = "all"
-  } else param <- match.arg(param, c("beta","all"))
-  if (missing(method)) {
-    method = "asymptotic"
-  } else method <- match.arg(method, c("asymptotic","bootstrap"))
+  if (missing(parm)) {
+    parm = "all"
+  } else parm <- match.arg(parm, c("beta","all"))
+  method <- match.arg(method, c("asymptotic","bootstrap"))
   if (level>=1|level<=0) stop("level must be a number between 0 and 1")
   p <- length(object$estimates$beta)
   if (method == "asymptotic") {
     qIC <- qnorm(.5+level/2)
-    if (param == "beta") {
+    if (parm == "beta") {
       ICtab <- cbind(object$estimates$beta-qIC*object$std.error[1:p],
                      object$estimates$beta+qIC*object$std.error[1:p])
       tab = (cbind(object$estimates$beta, ICtab))
@@ -594,7 +592,7 @@ confint.SMSN <- confint.SMN <- function(object, param, level = 0.95, method, ...
     boot_sample <- boot_par(object, ...)
     tab <- cbind(object$theta, t(boot_ci(boot_sample)))
     colnames(tab)[1] <- "Estimate"
-    if (param == "beta") {
+    if (parm == "beta") {
       tab <- tab[1:p,]
     }
   }

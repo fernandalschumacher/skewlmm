@@ -18,7 +18,7 @@ weight_plot(object)
    }
 
 \value{
-  A ggplot object.
+  A \link[ggplot2:ggplot]{ggplot} object.
 }
 
 \author{
@@ -27,7 +27,7 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 
 
 \seealso{
-\link{ggplot}, \link{smn.lmm}, \link{smsn.lmm}, \link{fitted.SMN}, \link{fitted.SMSN},
+\link[ggplot2:ggplot]{ggplot}, \link{smn.lmm}, \link{smsn.lmm}, \link{fitted.SMN}, \link{fitted.SMSN},
 \link{residuals.SMN}, \link{residuals.SMSN}
 }
 \examples{

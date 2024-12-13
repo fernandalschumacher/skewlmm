@@ -27,7 +27,7 @@ healy.plot(object, dataPlus = NULL, dotsize = 0.4, calcCI = FALSE,
    }
 
 \value{
-  A ggplot object.
+  A \link[ggplot2:ggplot]{ggplot} object.
 }
 
 \details{It constructs a Healy-type plot (Healy, 1968) by plotting the nominal probability values \eqn{1/n,2/n,...,n/n} against the theoretical cumulative probabilities of the ordered observed Mahalanobis distances. If the fitted model is appropriate, the plot
@@ -44,7 +44,7 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 }
 
 \seealso{
-\link{ggplot}, \link{smn.lmm}, \link{smsn.lmm},
+\link[ggplot2:ggplot]{ggplot}, \link{smn.lmm}, \link{smsn.lmm},
 \link{mahalDist}, \link{acfresid}
 }
 \examples{

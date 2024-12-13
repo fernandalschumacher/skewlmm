@@ -18,7 +18,7 @@ Plot method for objects of class "acfresid".
    }
 
 \value{
-  A ggplot object.
+  A \link[ggplot2:ggplot]{ggplot} object.
 }
 \author{
 Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
@@ -26,7 +26,7 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 
 
 \seealso{
-\link{ggplot}, \link{acfresid}, \link{smn.lmm}, \link{smsn.lmm}, \link{residuals.SMN},
+\link[ggplot2:ggplot]{ggplot}, \link{acfresid}, \link{smn.lmm}, \link{smsn.lmm}, \link{residuals.SMN},
 \link{residuals.SMSN}
 }
 \examples{

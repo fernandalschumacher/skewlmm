@@ -24,7 +24,7 @@ Plot method for objects of class "mahalDist". For the total Mahalanobis distance
    }
 
 \value{
-  A ggplot object, plotting the index versus the Mahalanobis distance, if all subject have the same number of observations; or plotting the number of observations per subject versus the Mahalanobis, otherwise.
+  A \link[ggplot2:ggplot]{ggplot} object, plotting the index versus the Mahalanobis distance, if all subject have the same number of observations; or plotting the number of observations per subject versus the Mahalanobis, otherwise.
 }
 
 \author{
@@ -33,7 +33,7 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 
 
 \seealso{
-\code{\link{ggplot}}, \code{\link{mahalDist}}, \code{\link{smn.lmm}}, \code{\link{smsn.lmm}}
+\link[ggplot2:ggplot]{ggplot}, \link{mahalDist}, \link{smn.lmm}, \link{smsn.lmm}
 }
 \examples{
 fm1 = smn.lmm(distance ~ age+Sex, data=nlme::Orthodont, groupVar="Subject")

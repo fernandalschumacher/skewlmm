@@ -23,7 +23,7 @@
 }
 
 \value{
-  A ggplot object, plotting the index versus the Mahalanobis distance, if all subject have the same number of observations; or plotting the number of observations per subject versus the Mahalanobis, otherwise.
+  A \link[ggplot2:ggplot]{ggplot} object, plotting the index versus the Mahalanobis distance, if all subject have the same number of observations; or plotting the number of observations per subject versus the Mahalanobis, otherwise.
 }
 
 \author{
@@ -32,7 +32,7 @@
 
 
 \seealso{
-  \link{ggplot}, \link{mahalDistCens}, \link{smn.clmm}
+\link[ggplot2:ggplot]{ggplot}, \link{mahalDistCens}, \link{smn.clmm}
 }
 \examples{
 nj1 = 5; m = 30
