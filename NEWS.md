@@ -1,3 +1,12 @@
+## skewlmm 1.1.2 _(2024-01-20)_
+
+* miceweight and UTI datasets were added
+* Functions were edited to allow for partial matching of arguments
+* General function `confint` to extract confidence interval of fitted objects was added 
+* `weight_plot` function was added 
+* Logo was added
+* Method `coef` was added
+
 ## skewlmm 1.1.1 _(2023-01-20)_
 
 * ranef, nobs, fixef, logLik, formula, sigma methods for SMN and SMSN classes were added.

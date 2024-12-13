@@ -1089,8 +1089,9 @@ weight_plot <- function(object) {
   if (distrp=='NORM') distrp<-"N"
   depStructp <- object$depStruct
   if (depStructp=="ARp") depStructp <- paste0("AR(",length(object$estimates$phi),")")
-  ggplot(data = data.frame(x = mahalDist(object), y = object$uhat),
-         aes(x = x, y = y)) + geom_hline(yintercept = 1, linetype=2, color = 4)+
+  dat_plot <- data.frame(x = mahalDist(object), y = object$uhat)
+  ggplot(data = dat_plot, mapping = aes(x = x, y = y)) +
+    geom_hline(yintercept = 1, linetype=2, color = 4)+
     geom_point(shape = 1) + theme_minimal() +
     ylab("weight") + xlab("Mahalanobis distance") +
     ggtitle(paste0(depStructp,'-',distrp,'-LMM')) +
