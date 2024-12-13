@@ -26,7 +26,8 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 
 
 \seealso{
-\code{\link{ggplot}}, \code{\link{acfresid}}, \code{\link{smn.lmm}}, \code{\link{smsn.lmm}}, \code{\link{residuals.SMN}}, \code{\link{residuals.SMSN}}
+\link{ggplot}, \link{acfresid}, \link{smn.lmm}, \link{smsn.lmm}, \link{residuals.SMN},
+\link{residuals.SMSN}
 }
 \examples{
 fm1 = smn.lmm(distance ~ age+Sex, data=nlme::Orthodont, groupVar="Subject")

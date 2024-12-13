@@ -32,7 +32,7 @@
 
 
 \seealso{
-\code{\link{ggplot}}, \code{\link{smn.clmm}}, \code{\link{fitted.SMNclmm}}, \code{\link{residuals.SMNclmm}}
+\link{ggplot}, \link{smn.clmm}, \link{fitted.SMNclmm}, \link{residuals.SMNclmm}
 }
 \examples{\donttest{nj1 = 5; m = 30
 time = rep(1:nj1, times=m)

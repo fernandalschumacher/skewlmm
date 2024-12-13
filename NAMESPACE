@@ -33,7 +33,7 @@ importFrom("stats","ARMAacf","dgamma","dnorm","fitted","formula","integrate","ma
 importFrom("haven","as_factor")
 importFrom("nlme","corARMA","lme","corCAR1","random.effects","ranef","fixef")
 importFrom("purrr","flatten_int","map")
-importFrom("future","plan","multisession","sequential")
+importFrom("future","plan","multisession","sequential","availableCores")
 importFrom("mvtnorm","dmvt","dmvnorm","pmvnorm","rmvnorm")
 importFrom("ggrepel","geom_text_repel")
 importFrom("matrixcalc","is.positive.definite","is.symmetric.matrix")

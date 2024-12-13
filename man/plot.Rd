@@ -36,7 +36,8 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 
 
 \seealso{
-\code{\link{ggplot}}, \code{\link{smn.lmm}}, \code{\link{smsn.lmm}}, \code{\link{fitted.SMN}}, \code{\link{fitted.SMSN}}, \code{\link{residuals.SMN}}, \code{\link{residuals.SMSN}}
+\link{ggplot}, \link{smn.lmm}, \link{smsn.lmm}, \link{fitted.SMN},
+\link{fitted.SMSN}, \link{residuals.SMN}, \link{residuals.SMSN}
 }
 \examples{
 fm1 = smn.lmm(distance ~ age+Sex, data=nlme::Orthodont,

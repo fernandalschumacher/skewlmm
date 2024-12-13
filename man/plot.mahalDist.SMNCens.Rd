@@ -32,7 +32,7 @@
 
 
 \seealso{
-  \code{\link{ggplot}}, \code{\link{mahalDistCens}}, \code{\link{smn.clmm}}
+  \link{ggplot}, \link{mahalDistCens}, \link{smn.clmm}
 }
 \examples{
 nj1 = 5; m = 30

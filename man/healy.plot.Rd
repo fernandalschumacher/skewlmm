@@ -44,8 +44,8 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 }
 
 \seealso{
-\code{\link{ggplot}}, \code{\link{smn.lmm}}, \code{\link{smsn.lmm}},
-\code{\link{mahalDist}}, \code{\link{acfresid}}
+\link{ggplot}, \link{smn.lmm}, \link{smsn.lmm},
+\link{mahalDist}, \link{acfresid}
 }
 \examples{
 fm1 = smn.lmm(distance ~ age+Sex, data=nlme::Orthodont, groupVar="Subject")
