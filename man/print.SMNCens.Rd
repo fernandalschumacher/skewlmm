@@ -15,7 +15,6 @@
 \arguments{
   \item{x}{An object inheriting from class \code{SMNclmm}, representing
     a fitted scale mixture normal linear mixed model with censored responses.}
-  \item{confint.level}{Level of the approximate confidence intervals presented.}
   \item{\dots}{Additional print arguments.}
 }
 
