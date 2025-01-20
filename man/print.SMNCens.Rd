@@ -9,7 +9,7 @@
   %%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
 \usage{
-  \method{print}{SMNclmm}(x, confint.level = 0.95, \dots)
+  \method{print}{SMNclmm}(x, \dots)
 }
 
 \arguments{
