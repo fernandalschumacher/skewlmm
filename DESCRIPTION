@@ -1,7 +1,7 @@
 Package: skewlmm
 Type: Package
 Title: Scale Mixture of Skew-Normal Linear Mixed Models
-Version: 1.1.2
+Version: 1.1.3
 Authors@R: c(person("Fernanda L.", "Schumacher", role = c("aut", "cre"),
                      email = "fernandalschumacher@gmail.com",
                      comment = c(ORCID = "0000-0002-5724-8918")),

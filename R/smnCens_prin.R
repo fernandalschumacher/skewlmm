@@ -70,7 +70,7 @@ smn.clmm = function(data, formFixed, groupVar, formRandom=~1, depStruct="UNC",
   #
   if (!(distr %in% c("norm","t"))) stop("Accepted distributions: norm and t")
   if (depStruct=="ARp" && !is.null(timeVar) &&
-      ((sum(!is.wholenumber(data[,timeVar]))>0)||(sum(data[,timeVar]<=0)>0))) stop("timeVar must contain positive integer numbers when using ARp dependency")
+      ((sum(!is.wholenumber(data[,timeVar]))>0)||(sum(data[,timeVar]<=0)>0))) stop("timeVar must contain positive integer numbers when using ARp dependence")
   if (depStruct=="ARp" && !is.null(timeVar)) if (min(data[,timeVar])!=1) warning("consider using a transformation such that timeVar starts at 1")
   if (depStruct=="CI") depStruct = "UNC"
   if (!(depStruct %in% c("UNC","ARp","CS","DEC","MA1", "CAR1"))) stop("accepted depStruct: UNC, ARp, CS, DEC, CAR1 or MA1")
@@ -210,107 +210,34 @@ fitted.SMNclmm = function(object,...) object$fitted
 
 # Summary and print functions
 # ------------------------------------------------------------------------------
-print.SMNclmm = function(x, confint.level=0.95, ...){
-  cat("Censored linear mixed models with distribution", x$distr, "and dependency structure", x$depStruct,"\n")
-  cat("Call:\n")
-  print(x$call)
+print.SMNclmm = function(x, ...){
+  cat("Censored linear mixed models with distribution", x$distr, "and dependence structure", x$depStruct,"\n")
+  cat("Log-likelihood value at convergence:", x$loglik)
   cat("\nDistribution", x$distr)
   if (x$distr!="norm") cat(" with nu =", x$estimates$nu)
-  cat("\n")
-  cat("\nRandom effects:\n")
+  cat("\nFixed: ")
+  print(x$formula$formFixed)
+  print(x$estimates$beta)
+  cat("Random effects:\n")
   cat("  Formula: ")
-  print(x$formula$formRandom)
+  cat(as.character(x$formula$formRandom), "by", x$groupVar,"\n")
   cat("  Structure:", ifelse(x$covRandom=='pdSymm','General positive-definite',
                              'Diagonal'),'\n')
   cat("  Estimated variance (D):\n")
   D1 = x$estimates$D
   colnames(D1)=row.names(D1)= colnames(model.matrix(x$formula$formRandom,data=x$data))
   print(D1)
-  cat("\nFixed effects: ")
-  print(x$formula$formFixed)
-  p = length(c(x$estimates$beta))
-  if (!is.null(x$std.error)){
-    cat("with approximate confidence intervals\n")
-    qIC = qnorm(.5+confint.level/2)
-    ICtab = cbind(x$estimates$beta - qIC*x$std.error[1:p],
-                  x$estimates$beta + qIC*x$std.error[1:p])
-    tab = (cbind(x$estimates$beta, x$std.error[1:p], ICtab))
-    rownames(tab) = names(x$theta[1:p])
-    colnames(tab) = c("Value", "Std.error", paste0("CI ",confint.level*100,"% lower"), paste0("CI ",confint.level*100,"% upper"))
-  } else {
-    cat(" (std errors not estimated)\n")
-    tab = matrix(x$estimates$beta, nrow=1)
-    colnames(tab) = names(x$theta[1:p])
-    rownames(tab) = c("Value")
-  }
-  print(tab)
-  cat("\nDependency structure: ", x$depStruct, "\n")
-  cat("  Estimate(s):\n")
-  covParam = c(x$estimates$sigma2, x$estimates$phi)
-  if (x$depStruct=="UNC") names(covParam) = "sigma2"
-  else names(covParam) = c("sigma2", paste0("phi",1:(length(covParam)-1)))
+  cat("Error dependence structure:", x$depStruct)
+  cat("\n  Estimate(s):\n")
+  covParam <- c(x$estimates$sigma2, x$estimates$phi)
+  if (x$depStruct=="UNC") names(covParam) <- "sigma2"
+  else names(covParam) <- c("sigma2",paste0("phi",1:(length(covParam)-1)))
   print(covParam)
-  cat("\nModel selection criteria:\n")
-  criteria = c(x$loglik, x$criteria$AIC, x$criteria$BIC)
-  criteria = round(t(as.matrix(criteria)), digits=3)
-  dimnames(criteria) = list(c(""),c("logLik", "AIC", "BIC"))
-  print(criteria)
-  cat('\n')
   cat('Number of observations:', x$N,'\n')
   cat('Number of censored/missing observations:', x$ncens,'\n')
   cat('Number of groups:', x$n,'\n')
 }
 
-# summary.SMNclmm = function(object, confint.level=0.95, ...){
-#   cat("Censored linear mixed models with distribution", object$distr, "and dependency structure", object$depStruct,"\n")
-#   cat("Call:\n")
-#   print(object$call)
-#   cat("\nDistribution", object$distr)
-#   if (object$distr!="norm") cat(" with nu =", object$estimates$nu)
-#   cat("\n")
-#   cat("\nRandom effects:\n")
-#   cat("  Formula: ")
-#   print(object$formula$formRandom)
-#   cat("  Structure:", ifelse(object$covRandom=='pdSymm','General positive-definite',
-#                              'Diagonal'),'\n')
-#   cat("  Estimated variance (D):\n")
-#   D1 = object$estimates$D
-#   colnames(D1)=row.names(D1)= colnames(model.matrix(object$formula$formRandom,data=object$data))
-#   print(D1)
-#   cat("\nFixed effects: ")
-#   print(object$formula$formFixed)
-#   p = length(c(object$estimates$beta))
-#   if (!is.null(object$std.error)){
-#     cat("with approximate confidence intervals\n")
-#     qIC = qnorm(.5+confint.level/2)
-#     ICtab = cbind(object$estimates$beta-qIC*object$std.error[1:p],
-#                   object$estimates$beta+qIC*object$std.error[1:p])
-#     tab = (cbind(object$estimates$beta, object$std.error[1:p], ICtab))
-#     rownames(tab) = names(object$theta[1:p])
-#     colnames(tab) = c("Value", "Std.error", paste0("CI ",confint.level*100,"% lower"), paste0("CI ",confint.level*100,"% upper"))
-#   } else {
-#     cat(" (std errors not estimated)\n")
-#     tab = matrix(object$estimates$beta, nrow=1)
-#     colnames(tab) = names(object$theta[1:p])
-#     rownames(tab) = c("Value")
-#   }
-#   print(tab)
-#   cat("\nDependency structure: ", object$depStruct, "\n")
-#   cat("  Estimate(s):\n")
-#   covParam = c(object$estimates$sigma2, object$estimates$phi)
-#   if (object$depStruct=="UNC") names(covParam) = "sigma2"
-#   else names(covParam) = c("sigma2", paste0("phi",1:(length(covParam)-1)))
-#   print(covParam)
-#   cat("\nModel selection criteria:\n")
-#   criteria = c(object$loglik, object$criteria$AIC, object$criteria$BIC)
-#   criteria = round(t(as.matrix(criteria)), digits=3)
-#   dimnames(criteria) = list(c(""),c("logLik", "AIC", "BIC"))
-#   print(criteria)
-#   cat('\n')
-#   cat('Number of observations:', object$N,'\n')
-#   cat('Number of censored/missing observations:', object$ncens,'\n')
-#   cat('Number of groups:', object$n,'\n')
-# }
 summary.SMNclmm <- function(object, confint.level=.95, ...){
   D1 = object$estimates$D
   colnames(D1)=row.names(D1)= colnames(model.matrix(object$formula$formRandom,data=object$data))
@@ -346,16 +273,15 @@ summary.SMNclmm <- function(object, confint.level=.95, ...){
 }
 
 print.SMNcenssumm <- function(x,...){
-  cat("Censored linear mixed models with distribution", x$distr, "and dependency structure", x$depStruct,"\n")
+  cat("Censored linear mixed models with distribution", x$distr, "and dependence structure", x$depStruct,"\n")
   cat("Call:\n")
   print(x$call)
-  cat("\nDistribution", x$distr)
-  if (x$distr!="sn") cat(" with nu =", x$estimates$nu,"\n")
+  cat("\nDistribution", x$distr,"\n")
+  if (x$distr!="norm") cat(" with nu =", x$estimates$nu,"\n")
   cat("\nRandom effects: \n")
-  cat("  Formula: ")
-  print(x$formula$formRandom)
-  cat("  Structure:",ifelse(x$covRandom=='pdSymm','General positive-definite',
-                            'Diagonal'),'\n')
+  cat("  Formula: ", as.character(x$formula$formRandom),"\n")
+  #cat("  Structure:",ifelse(x$covRandom=='pdSymm','General positive-definite',
+ #                           'Diagonal'),'\n')
   cat("  Estimated variance (D):\n")
   D1 = x$D
   print(D1)
@@ -364,12 +290,12 @@ print.SMNcenssumm <- function(x,...){
   if (nrow(x$tab)>1) cat("with approximate confidence intervals\n")
   else cat(" (std errors not estimated)\n")
   print(x$tab)
-  cat("\nDependency structure:", x$depStruct)
+  cat("\nDependence structure:", x$depStruct)
   cat("\n  Estimate(s):\n")
   print(x$covParam)
-  cat("\nSkewness parameter estimate:", x$estimates$lambda)
+  #cat("\nSkewness parameter estimate:", x$estimates$lambda)
   cat('\n')
-  cat('\nModel selection criteria:\n')
+  cat('Model selection criteria:\n')
   print(x$criteria)
   cat('\n')
   cat('Number of observations:',x$N,'\n')
@@ -640,10 +566,10 @@ rsmsn.clmm = function(time, ind, x, z, sigma2, D, beta, lambda=rep(0, nrow(D)),
   #
   if (!(depStruct %in% c("UNC","ARp","CS", "CI","DEC","MA1", "CAR1"))) stop("accepted depStruct: UNC, ARp, CS, DEC, CAR1 or MA1")
   if (depStruct=="CI") depStruct = "UNC"
-  if (depStruct=="ARp" && ((sum(!is.wholenumber(time))>0)||(sum(time<=0)>0))) stop("time must contain positive integer numbers when using ARp dependency")
+  if (depStruct=="ARp" && ((sum(!is.wholenumber(time))>0)||(sum(time<=0)>0))) stop("time must contain positive integer numbers when using ARp dependence")
   if (depStruct=="ARp") if (min(time)!=1) warning("consider using a transformation such that time starts at 1")
   if (depStruct%in%c("ARp", "CS", "DEC", "MA1", "CAR1")){
-    if (is.null(phi)) stop("phi must be provided for ARp, CS, DEC, CAR1 and MA1 dependency")
+    if (is.null(phi)) stop("phi must be provided for ARp, CS, DEC, CAR1 and MA1 dependence")
     if (depStruct=="ARp"){
       piis = tphitopi(phi)
       if (any(piis<(-1)|piis>1)) stop ("invalid value for phi")

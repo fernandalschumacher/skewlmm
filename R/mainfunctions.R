@@ -40,7 +40,7 @@ smsn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "UNC", ti
   if (is.null(control$lu)&&distr!="sn") control$lu = ifelse(distr=="scn",rep(.99,2),ifelse(distr=="st",100,50))
   #
   if (depStruct=="ARp" && !is.null(timeVar) &&
-      ((sum(!is.wholenumber(data[,timeVar]))>0)||(sum(data[,timeVar]<=0)>0))) stop("timeVar must contain positive integer numbers when using ARp dependency")
+      ((sum(!is.wholenumber(data[,timeVar]))>0)||(sum(data[,timeVar]<=0)>0))) stop("timeVar must contain positive integer numbers when using ARp dependence")
   if (depStruct=="ARp" && !is.null(timeVar)) if (min(data[,timeVar])!=1) warning("consider using a transformation such that timeVar starts at 1")
   if (depStruct=="CI") depStruct = "UNC"
   depStruct <- match.arg(depStruct,c("UNC","ARp","CS","DEC","CAR1"))
@@ -209,39 +209,29 @@ smsn.lmm <- function(data,formFixed,groupVar,formRandom=~1,depStruct = "UNC", ti
 }
 
 print.SMSN <- function(x,...){
-  cat("Linear mixed models with distribution", x$distr, "and dependency structure",x$depStruct,"\n")
-  cat("Call:\n")
-  print(x$call)
+  cat("Linear mixed models with distribution", x$distr, "and dependence structure",x$depStruct,"\n")
+  cat("Log-likelihood value at convergence:", x$loglik)
+  cat("\nDistribution", x$distr)
+  if (x$distr!="sn") cat(" with nu =", x$estimates$nu)
   cat("\nFixed: ")
   print(x$formula$formFixed)
-  cat("Random:\n")
+  print(x$estimates$beta)
+  cat("Random effects:\n")
   cat("  Formula: ")
-  print(x$formula$formRandom)
+  cat(as.character(x$formula$formRandom), "by", x$groupVar,"\n")
   cat("  Structure:",ifelse(x$covRandom=='pdSymm','General positive-definite',
                              'Diagonal'),'\n')
   cat("  Estimated variance (D):\n")
   D1 = x$estimates$D
   colnames(D1)=row.names(D1)= colnames(model.matrix(x$formula$formRandom,data=x$data))
   print(D1)
-  cat("\nEstimated parameters:\n")
-  if (!is.null(x$std.error)) {
-    tab = round(rbind(x$theta,x$std.error),4)
-    colnames(tab) = names(x$theta)
-    rownames(tab) = c("","s.e.")
-  }
-  else {
-    tab = round(rbind(x$theta),4)
-    colnames(tab) = names(x$theta)
-    rownames(tab) = c("")
-  }
-  print(tab)
-  cat('\n')
-  cat('Model selection criteria:\n')
-  critFin <- c(x$loglik, x$criteria$AIC, x$criteria$BIC)
-  critFin <- round(t(as.matrix(critFin)),digits=3)
-  dimnames(critFin) <- list(c(""),c("logLik", "AIC", "BIC"))
-  print(critFin)
-  cat('\n')
+  cat("  Skewness parameter:", x$estimates$lambda,"\n")
+  cat("Error dependence structure:", x$depStruct)
+  cat("\n  Estimate(s):\n")
+  covParam <- c(x$estimates$sigma2, x$estimates$phi)
+  if (x$depStruct=="UNC") names(covParam) <- "sigma2"
+  else names(covParam) <- c("sigma2",paste0("phi",1:(length(covParam)-1)))
+  print(covParam)
   cat('Number of observations:',x$N,'\n')
   cat('Number of groups:',x$n,'\n')
 }
@@ -281,7 +271,7 @@ summary.SMSN <- function(object, confint.level=.95, ...){
 }
 
 print.SMSNsumm <- function(x,...){
-  cat("Linear mixed models with distribution", x$distr, "and dependency structure",x$depStruct,"\n")
+  cat("Linear mixed models with distribution", x$distr, "and dependence structure",x$depStruct,"\n")
   cat("Call:\n")
   print(x$call)
   cat("\nDistribution", x$distr)
@@ -299,7 +289,7 @@ print.SMSNsumm <- function(x,...){
   if (nrow(x$tab)>1) cat("with approximate confidence intervals\n")
   else cat(" (std errors not estimated)\n")
   print(x$tab)
-  cat("\nDependency structure:", x$depStruct)
+  cat("\nDependence structure:", x$depStruct)
   cat("\n  Estimate(s):\n")
   print(x$covParam)
   cat("\nSkewness parameter estimate:", x$estimates$lambda)
@@ -370,7 +360,7 @@ errorVar<- function(times,object=NULL,sigma2=NULL,depStruct=NULL,phi=NULL) {
   #if (!(depStruct %in% c("UNC","ARp","CS","DEC","CAR1"))) stop("accepted depStruct: UNC, ARp, CS, DEC or CAR1")
   if (is.null(sigma2)) sigma2<-object$estimates$sigma2
   if (is.null(phi)&&depStruct!="UNC") phi<-object$estimates$phi
-  if (depStruct=="ARp" && (any(!is.wholenumber(times))|any(times<=0))) stop("times must contain positive integer numbers when using ARp dependency")
+  if (depStruct=="ARp" && (any(!is.wholenumber(times))|any(times<=0))) stop("times must contain positive integer numbers when using ARp dependence")
   if (depStruct=="ARp" && any(tphitopi(phi)< -1|tphitopi(phi)>1)) stop("AR(p) non stationary, choose other phi")
   #
   if (depStruct=="UNC") var.out<- sigma2*diag(length(times))
