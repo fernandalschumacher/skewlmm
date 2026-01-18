@@ -1,0 +1,20 @@
+bibentry(bibtype = "Article",
+  title        = "{skewlmm}: An {R} Package for Fitting Skewed and Heavy-Tailed Linear Mixed Models",
+  author       = c(person(given = c("Fernanda", "L."),
+                          family = "Schumacher",
+                          email = "schumacher.313@osu.edu"),
+                   person(given = c("Larissa", "A."),
+                          family = "Matos",
+                          email = "larissam@unicamp.br"),
+                   person(given = c("Victor", "H."),
+                          family = "Lachos",
+                          email = "hlachos@uconn.edu")),
+  journal      = "Journal of Statistical Software",
+  year         = "2025",
+  volume       = "115",
+  number       = "7",
+  pages        = "1--32",
+  doi          = "10.18637/jss.v115.i07",
+  header       = "To cite skewlmm in publications use:"
+)
+

@@ -22,8 +22,10 @@ knitr::opts_chunk$set(
 
 The goal of skewlmm is to fit skew robust linear mixed models, using scale mixture of skew-normal linear mixed models with possible within-subject dependence structure, using an EM-type algorithm. In addition, some tools for model adequacy evaluation are available.
 
-For more information about the model formulation and estimation, please see
-Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale mixture of skew‐normal linear mixed models with within‐subject serial dependence. *Statistics in Medicine*. DOI: [10.1002/sim.8870](https://doi.org/10.1002/sim.8870).
+For more information about the model formulation and estimation, please see:
+- Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale mixture of skew‐normal linear mixed models with within‐subject serial dependence. *Statistics in Medicine*. DOI: [10.1002/sim.8870](https://doi.org/10.1002/sim.8870).
+- Schumacher, F. L., Matos, L. A., and Lachos, V. H. (2025). "skewlmm: An R Package for Fitting Skewed and Heavy-Tailed Linear Mixed Models." *Journal of Statistical Software*. DOI: [10.18637/jss.v115.i07](https://doi.org/10.18637/jss.v115.i07).
+
 
 ## Installation
 
@@ -100,7 +102,7 @@ criteria(list(`ST-LMM` = fm1, `t-LMM` = fm2, `t-LMM(EM)` = fm2EM, `t-LMM-diag` =
 
 For more examples, see `help(smsn.lmm)` and `help(smn.lmm)`.
 
-## Handling censored/missing observations
+## Handling censored/missing observations (temporarily unavailable)
 
 An extension of the methods to account for censoring in SMSN-LMM is under development. Tools for accommodating left, right, or interval censored observations in the symmetrical family SMN-LMM are now available using the function `smn.clmm`. 
 

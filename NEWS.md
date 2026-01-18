@@ -1,5 +1,6 @@
 ## skewlmm 1.1.3 _(2025-01-17)_
 
+* Adding citation to new JSS paper
 * temporarily removing censored functions do remove dependence from archived package 'Ryacas0'
 
 ## skewlmm 1.1.2 _(2024-01-20)_

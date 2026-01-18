@@ -35,6 +35,8 @@ lmmControl(tol = 1e-06, max.iter = 300, calc.se = TRUE, lb = NULL,
 \references{
 Henderson, N.C. and Varadhan, R. (2019) Damped Anderson acceleration with restarts and monotonicity control for accelerating EM and EM-like algorithms, Journal of Computational and Graphical Statistics, Vol. 28(4), 834-846.
 
+Schumacher, F. L., Matos, L. A., and Lachos, V. H. (2025). "skewlmm: An R Package for Fitting Skewed and Heavy-Tailed Linear Mixed Models." \emph{Journal of Statistical Software}, \strong{115}(7), 1--32.
+
 Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Statistics in Medicine 40(7), 1790-1810.
 }
 \author{

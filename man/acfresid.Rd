@@ -29,7 +29,9 @@ A data frame with columns lag, ACF, and n.used representing, respectively, the l
 }
 
 \references{
-Pinheiro, J. C. & Bates, D. M. (2000). Mixed-Effects Models in S and S-PLUS. Springer, New York, NY.
+Pinheiro, J. C. and Bates, D. M. (2000). Mixed-Effects Models in S and S-PLUS. Springer, New York, NY.
+
+Schumacher, F. L., Matos, L. A., and Lachos, V. H. (2025). "skewlmm: An R Package for Fitting Skewed and Heavy-Tailed Linear Mixed Models." \emph{Journal of Statistical Software}, 115(7), 1--32.
 
 Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Statistics in Medicine 40(7), 1790-1810.
 }

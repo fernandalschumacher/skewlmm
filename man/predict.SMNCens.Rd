@@ -34,24 +34,7 @@
   \code{\link{smn.clmm}}, \code{\link{fitted.SMNclmm}}
   %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-# Simulated example: 20 individuals with 5 times for estimation and
-# 1 time for prediction
-set.seed(963)
-nj1 = 6; m = 20
-time = rep(1:nj1, times=m)
-groups = as.factor(rep(1:m, each=nj1))
-dat1 = rsmsn.clmm(time, groups, cbind(1,time), rep(1,m*nj1), sigma2=0.4,
-                  D=0.6*diag(1), beta=c(1,2), depStruct="CS", phi=0.25)
-# Estimation
-fm1 = smn.clmm(subset(dat1,time<6), formFixed=y~x, groupVar="ind",
-               depStruct="CS", ci="ci", lcl="lcl", ucl="ucl",
-               control=lmmControl(max.iter=30, tol=1e-4))
-# Prediction
-pred = predict(fm1, subset(dat1,time==6))
-# MSPE
-mean((subset(dat1,time==6)$y - pred$ypred)^2)
-}
+
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
 \keyword{models}% use one of  RShowDoc("KEYWORDS")

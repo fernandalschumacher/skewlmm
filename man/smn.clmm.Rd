@@ -79,32 +79,6 @@ Larissa A. Matos, Victor H. Lachos, Katherine L. Valeriano and Fernanda L. Schum
 \code{\link{smn.lmm}}, \code{\link{smsn.lmm}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-# Generating a sample for m=30 individuals with 5 times
-# Considering 10\% of left censoring responses
-# AR(1) and normal distribution
-nj1 = 5
-m = 30
-time = rep(1:nj1, times=m)
-groups = as.factor(rep(1:m, each=nj1))
-dat1 = rsmsn.clmm(time = time, ind = groups, x = cbind(1,time), z = rep(1,m*nj1),
-                  sigma2=0.6, D=0.5*diag(1), beta=c(1,2), depStruct="ARp",
-                  phi=0.4, pcens = .1, type = "left")
-
-# Estimation using UNC
-fm0 = smn.clmm(dat1, formFixed=y~x, groupVar="ind", ci="ci", ucl="ucl")
-summary(fm0)
-\donttest{
-# Estimation using AR(1)
-fm1 = update(fm0, depStruct="ARp")
-
-# Estimation using AR(1) and t distribution
-fm2 = update(fm1, distr="t")
-
-# Comparing fitted models
-criteria(list(fm0= fm0, fm1=fm1, fm2=fm2))
-}
-}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
 \keyword{models}% use one of  RShowDoc("KEYWORDS")
