@@ -1,3 +1,7 @@
+## skewlmm 1.1.3 _(2025-01-17)_
+
+* temporarily removing censored functions do remove dependence from archived package 'Ryacas0'
+
 ## skewlmm 1.1.2 _(2024-01-20)_
 
 * miceweight and UTI datasets were added
