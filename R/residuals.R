@@ -1054,7 +1054,7 @@ gen_fit <- function(fit1, ...) {
   } else return(NULL)
 }
 
-boot_par <- function(object, B=100, seed = 123) {#method
+boot_par <- function(object, B=100, seed = 123, parallel = TRUE) {#method
   if (!(inherits(object, "SMN")||inherits(object, "SMSN"))) stop("object must inherit from class SMSN or SMN")
   if (!is.null(object$timeVar)) {
     object$data$time<-object$data[,object$timeVar]
@@ -1066,10 +1066,14 @@ boot_par <- function(object, B=100, seed = 123) {#method
     #time<- flatten_int(tapply(ind,ind,function(x.) seq_along(x.)))
   }
   #object$data$ind<-object$data[,object$groupVar]
-  plan(multisession,workers = availableCores()-1)
-  a1<-suppressMessages(future_map(.x = seq_len(B),.f = gen_fit,
-                  fit1=object,.options = furrr_options(seed = seed)))
-  plan(sequential)
+  if (parallel) {
+    with(plan(multisession, workers = availableCores(omit = 1)), local = TRUE)
+    a1<-suppressMessages(future_map(.x = seq_len(B),.f = gen_fit,
+                                    fit1=object,.options = furrr_options(seed = seed)))
+  } else{
+    a1<-suppressMessages(map(.x = seq_len(B),.f = gen_fit,
+                             fit1=object,.options = furrr_options(seed = seed)))
+  }
   a1<-bind_rows(a1)
   class(a1) <- c("lmmBoot", class(a1))
   return(a1)

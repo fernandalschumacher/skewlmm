@@ -8,12 +8,13 @@
   It generates and estimates \code{B} Monte Carlo samples identical to the fitted model.
 }
 \usage{
-boot_par(object, B = 100, seed = 123)
+boot_par(object, B = 100, seed = 123, parallel = TRUE)
 }
 \arguments{
   \item{object}{A smsn.lmm or smn.lmm object containing the fitted model to be updated.}
   \item{B}{Number of samples to be used.}
   \item{seed}{Seed to be used.}
+  \item{parallel}{A logical value indicating if parallel compuation should be used.}
 }
 \value{
   A tibble of class \code{lmmBoot} with \code{B} lines, where each line contains the estimated parameters from a simulated sample.

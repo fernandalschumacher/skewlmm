@@ -1,3 +1,7 @@
+## skewlmm 1.1.4 _(2025-01-24)_
+
+* Changing future set up in `boot_par` function to avoid changing user preference, in response to https://github.com/fernandalschumacher/skewlmm/issues/2
+
 ## skewlmm 1.1.3 _(2025-01-17)_
 
 * Adding citation to new JSS paper
