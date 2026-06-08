@@ -551,39 +551,67 @@ coef.SMSN <- coef.SMN <- coef.SMNclmm <- function(object, ...){
 }
 
 # adding confint method
-confint.SMSN <- confint.SMN <- function(object, parm, level = 0.95, method = "asymptotic", ...){
+confint.SMSN <- confint.SMN <- function(object, parm, level = 0.95,
+                                        method = "asymptotic", parallel = NULL,
+                                        seed = 123, ...){
   if (is.null(object$std.error)) stop("A numerical error prevented calculation of standard errors. Please consider changing the model, the algorithm, or the initial values")
   if (missing(parm)) {
     parm = "all"
   } else parm <- match.arg(parm, c("beta","all"))
-  method <- match.arg(method, c("asymptotic","bootstrap"))
+  method <- match.arg(method, c("asymptotic","bootstrap", "sandwich"))
+  if (is.null(parallel)) parallel <- ifelse(method=="asymptotic", FALSE, TRUE)
+  if (!is.logical(parallel)) stop("parallel must be TRUE or FALSE")
   if (level>=1|level<=0) stop("level must be a number between 0 and 1")
   p <- length(object$estimates$beta)
+  #if (is.null(ncores)){ncores <- availableCores()-1}
   if (method == "asymptotic") {
     qIC <- qnorm(.5+level/2)
     if (parm == "beta") {
       ICtab <- cbind(object$estimates$beta-qIC*object$std.error[1:p],
                      object$estimates$beta+qIC*object$std.error[1:p])
-      tab = (cbind(object$estimates$beta, ICtab))
+      tab = (cbind(object$estimates$beta, object$std.error[1:p], ICtab))
       rownames(tab) = names(object$theta[1:p])
-      colnames(tab) = c("Estimate",paste0("CI ",level*100,"% lower"),
+      colnames(tab) = c("Estimate","Std Error",paste0("CI ",level*100,"% lower"),
                         paste0("CI ",level*100,"% upper"))
     }
-    else {
+    else{
       tab <- cbind(object$theta,
+                   object$std.error,
                      object$theta-qIC*object$std.error,
                      object$theta+qIC*object$std.error)
       rownames(tab) = names(object$theta)
-      colnames(tab) = c("Estimate",paste0("CI ",level*100,"% lower"),
+      colnames(tab) = c("Estimate","Std Error",paste0("CI ",level*100,"% lower"),
                         paste0("CI ",level*100,"% upper"))
     }
-  } else {
+  } else if (method == "bootstrap") {
     message("Computing bootstrap intervals...")
-    boot_sample <- boot_par(object, ...)
+    boot_sample <- boot_par(object, parallel = parallel, ...)
     tab <- cbind(object$theta, t(boot_ci(boot_sample)))
     colnames(tab)[1] <- "Estimate"
     if (parm == "beta") {
       tab <- tab[1:p,]
+    }
+  } else { # Keyliane: add SVE
+    message("Computing sandwich intervals...")
+    qIC <- qnorm(.5+level/2)
+    if (parm == "beta") {
+      sandwichs <- sandwichvarBetas(object = object, parallel = parallel, seed = seed, ...)
+      tab <- cbind(object$theta[1:p],
+                   sandwichs$std.error,
+                   object$theta-qIC*sandwichs$std.error,
+                   object$theta+qIC*sandwichs$std.error)
+      rownames(tab) = names(object$theta[1:p])
+      colnames(tab) = c("Estimate","Std Error",paste0("CI ",level*100,"% lower"),
+                        paste0("CI ",level*100,"% upper"))
+    } else{
+      sandwichs <- sandwichvar(object = object, parallel = parallel, seed = seed, ...)
+      tab <- cbind(object$theta,
+                   sandwichs$std.error,
+                   object$theta-qIC*sandwichs$std.error,
+                   object$theta+qIC*sandwichs$std.error)
+      rownames(tab) = names(object$theta)
+      colnames(tab) = c("Estimate","Std Error", paste0("CI ",level*100,"% lower"),
+                        paste0("CI ",level*100,"% upper"))
     }
   }
   return(tab)
