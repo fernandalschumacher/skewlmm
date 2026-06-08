@@ -1,3 +1,16 @@
+## skewlmm 1.1.5 _(2026-06-08)_
+
+* Restoring censored functions 
+
+## skewlmm 1.1.4 _(2026-01-24)_
+
+* Changing future set up in `boot_par` function to avoid changing user preference, in response to https://github.com/fernandalschumacher/skewlmm/issues/2
+
+## skewlmm 1.1.3 _(2026-01-17)_
+
+* Adding citation to new JSS paper
+* Temporarily removing censored functions to remove dependence from archived package 'Ryacas0'
+
 ## skewlmm 1.1.2 _(2024-01-20)_
 
 * miceweight and UTI datasets were added

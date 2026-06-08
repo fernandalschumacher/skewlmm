@@ -22,8 +22,10 @@ knitr::opts_chunk$set(
 
 The goal of skewlmm is to fit skew robust linear mixed models, using scale mixture of skew-normal linear mixed models with possible within-subject dependence structure, using an EM-type algorithm. In addition, some tools for model adequacy evaluation are available.
 
-For more information about the model formulation and estimation, please see
-Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale mixture of skew‐normal linear mixed models with within‐subject serial dependence. *Statistics in Medicine*. DOI: [10.1002/sim.8870](https://doi.org/10.1002/sim.8870).
+For more information about the model formulation and estimation, please see:
+- Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale mixture of skew‐normal linear mixed models with within‐subject serial dependence. *Statistics in Medicine*. DOI: [10.1002/sim.8870](https://doi.org/10.1002/sim.8870).
+- Schumacher, F. L., Matos, L. A., and Lachos, V. H. (2025). "skewlmm: An R Package for Fitting Skewed and Heavy-Tailed Linear Mixed Models." *Journal of Statistical Software*. DOI: [10.18637/jss.v115.i07](https://doi.org/10.18637/jss.v115.i07).
+
 
 ## Installation
 
@@ -77,7 +79,7 @@ Now, for performing a LRT for testing if the skewness parameter is 0 ($\text{H}_
 lr.test(fm1,fm2)
 ```
 
-By default, the functions `smsn.lmm` and `smn.lmm` now use the DAAREM method (a method for EM accelaration, for details see `help(package="daarem")`) for estimation, to improve the computational performance. This method usually greatly reduces the convergence time, but its use can result in numerical errors, specially for small samples. In this cases, the EM algorithm can be used, as follows:
+By default, the functions `smsn.lmm` and `smn.lmm` now use the DAAREM method (a method for EM acceleration, for details see `help(package="daarem")`) for estimation, to improve the computational performance. This method usually greatly reduces the convergence time, but its use can result in numerical errors, specially for small samples. In this cases, the EM algorithm can be used, as follows:
 
 ```{r example5}
 fm2EM <- smn.lmm(dat1, formFixed = distance ~ age, formRandom = ~ age, distr = 't',

@@ -11,10 +11,14 @@ within-subject dependence structure, using an EM-type algorithm. In
 addition, some tools for model adequacy evaluation are available.
 
 For more information about the model formulation and estimation, please
-see Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale
+see: - Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale
 mixture of skew‐normal linear mixed models with within‐subject serial
 dependence. *Statistics in Medicine*. DOI:
-[10.1002/sim.8870](https://doi.org/10.1002/sim.8870).
+[10.1002/sim.8870](https://doi.org/10.1002/sim.8870). - Schumacher, F.
+L., Matos, L. A., and Lachos, V. H. (2025). “skewlmm: An R Package for
+Fitting Skewed and Heavy-Tailed Linear Mixed Models.” *Journal of
+Statistical Software*. DOI:
+[10.18637/jss.v115.i07](https://doi.org/10.18637/jss.v115.i07).
 
 ## Installation
 
@@ -46,15 +50,12 @@ library(skewlmm)
 #> The following object is masked from 'package:stats':
 #> 
 #>     nobs
-```
-
-``` r
 dat1 <- as.data.frame(nlme::Orthodont)
 fm1 <- smsn.lmm(dat1, formFixed = distance ~ age, formRandom = ~ age,
                 groupVar = "Subject", distr = "st",
                 control = lmmControl(quiet = TRUE))
 summary(fm1)
-#> Linear mixed models with distribution st and dependency structure UNC 
+#> Linear mixed models with distribution st and dependence structure UNC 
 #> Call:
 #> smsn.lmm(data = dat1, formFixed = distance ~ age, groupVar = "Subject", 
 #>     formRandom = ~age, distr = "st", control = lmmControl(quiet = TRUE))
@@ -66,16 +67,16 @@ summary(fm1)
 #>   Structure:  
 #>   Estimated variance (D):
 #>             (Intercept)         age
-#> (Intercept)   6.5378399 -0.55063265
+#> (Intercept)   6.5378397 -0.55063263
 #> age          -0.5506326  0.07893262
 #> 
 #> Fixed effects: distance ~ age
 #> with approximate confidence intervals
 #>                  Value Std.error CI 95% lower CI 95% upper
-#> (Intercept) 17.0163263 0.9456852   15.1628173   18.8698353
+#> (Intercept) 17.0163264 0.9456852   15.1628174   18.8698353
 #> age          0.6248518 0.1242525    0.3813214    0.8683822
 #> 
-#> Dependency structure: UNC
+#> Dependence structure: UNC
 #>   Estimate(s):
 #>  sigma2 
 #> 0.81705 
@@ -88,13 +89,10 @@ summary(fm1)
 #> 
 #> Number of observations: 108 
 #> Number of groups: 27
-```
-
-``` r
 plot(fm1)
 ```
 
-<img src="man/figures/README-example1-1.png" width="70%" style="display: block; margin: auto;" />
+<img src="man/figures/README-example1-1.png" alt="" width="70%" style="display: block; margin: auto;" />
 
 Several methods are available for SMSN and SMN objects, such as:
 `print`, `summary`, `plot`, `fitted`, `residuals`, `predict`, and
@@ -108,19 +106,26 @@ acf1<- acfresid(fm1, calcCI = TRUE)
 plot(acf1)
 ```
 
-<img src="man/figures/README-example2-1.png" width="70%" style="display: block; margin: auto;" />
+<img src="man/figures/README-example2-1.png" alt="" width="70%" style="display: block; margin: auto;" />
 
 ``` r
 plot(mahalDist(fm1), nlabels = 2)
 ```
 
-<img src="man/figures/README-example2-2.png" width="70%" style="display: block; margin: auto;" />
+<img src="man/figures/README-example2-2.png" alt="" width="70%" style="display: block; margin: auto;" />
 
 ``` r
 healy.plot(fm1, calcCI = TRUE)
+#> Warning: `qplot()` was deprecated in ggplot2 3.4.0.
+#> ℹ The deprecated feature was likely used in the skewlmm package.
+#>   Please report the issue at
+#>   <https://github.com/fernandalschumacher/skewlmm/issues>.
+#> This warning is displayed once per session.
+#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+#> generated.
 ```
 
-<img src="man/figures/README-example2-3.png" width="70%" style="display: block; margin: auto;" />
+<img src="man/figures/README-example2-3.png" alt="" width="70%" style="display: block; margin: auto;" />
 
 Furthermore, to fit a SMN-LMM one can use the following:
 
@@ -129,7 +134,7 @@ fm2 <- smn.lmm(dat1, formFixed = distance ~ age, formRandom = ~ age,
                groupVar = "Subject", distr = "t",
                control = lmmControl(quiet = TRUE))
 summary(fm2)
-#> Linear mixed models with distribution t and dependency structure UNC 
+#> Linear mixed models with distribution t and dependence structure UNC 
 #> Call:
 #> smn.lmm(data = dat1, formFixed = distance ~ age, groupVar = "Subject", 
 #>     formRandom = ~age, distr = "t", control = lmmControl(quiet = TRUE))
@@ -150,7 +155,7 @@ summary(fm2)
 #> (Intercept) 17.274030 0.67741340   15.9463240   18.6017357
 #> age          0.593514 0.06218718    0.4716294    0.7153986
 #> 
-#> Dependency structure: UNC
+#> Dependence structure: UNC
 #>   Estimate(s):
 #>    sigma2 
 #> 0.8926729 
@@ -185,7 +190,7 @@ lr.test(fm1,fm2)
 ```
 
 By default, the functions `smsn.lmm` and `smn.lmm` now use the DAAREM
-method (a method for EM accelaration, for details see
+method (a method for EM acceleration, for details see
 `help(package="daarem")`) for estimation, to improve the computational
 performance. This method usually greatly reduces the convergence time,
 but its use can result in numerical errors, specially for small samples.
@@ -196,30 +201,24 @@ fm2EM <- smn.lmm(dat1, formFixed = distance ~ age, formRandom = ~ age, distr = '
                  groupVar = "Subject", control = lmmControl(algorithm = "EM", 
                                                             quiet = TRUE))
 fm2EM
-#> Linear mixed models with distribution t and dependency structure UNC 
-#> Call:
-#> smn.lmm(data = dat1, formFixed = distance ~ age, groupVar = "Subject", 
-#>     formRandom = ~age, distr = "t", control = lmmControl(algorithm = "EM", 
-#>         quiet = TRUE))
+#> Linear mixed models with distribution t and dependence structure UNC 
+#> Log-likelihood value at convergence: -211.3506
+#> Distribution t with nu = 4.988346 
 #> 
 #> Fixed: distance ~ age
-#> Random:
-#>   Formula: ~age
+#> (Intercept)         age 
+#>  17.2875938   0.5958205 
+#> Random effects:
+#>   Formula: ~ age by Subject 
 #>   Structure: General positive-definite 
 #>   Estimated variance (D):
 #>             (Intercept)        age
 #> (Intercept)   3.1584628 -0.1533659
 #> age          -0.1533659  0.0314773
-#> 
-#> Estimated parameters:
-#>      (Intercept)    age sigma2 Dsqrt11 Dsqrt12 Dsqrt22    nu1
-#>          17.2876 0.5958 0.8982  1.7754 -0.0793  0.1587 4.9883
-#> s.e.      0.6684 0.0616 0.2460  0.8421  0.0931  0.0518     NA
-#> 
-#> Model selection criteria:
-#>    logLik     AIC     BIC
-#>  -211.351 436.701 455.476
-#> 
+#> Error dependence structure: UNC
+#>   Estimate(s):
+#>    sigma2 
+#> 0.8982378 
 #> Number of observations: 108 
 #> Number of groups: 27
 ```
@@ -230,29 +229,24 @@ effects by using:
 ``` r
 fm2diag <- update(fm2, covRandom = "pdDiag")
 fm2diag
-#> Linear mixed models with distribution t and dependency structure UNC 
-#> Call:
-#> smn.lmm(data = dat1, formFixed = distance ~ age, groupVar = "Subject", 
-#>     formRandom = ~age, distr = "t", covRandom = "pdDiag", control = lmmControl(quiet = TRUE))
+#> Linear mixed models with distribution t and dependence structure UNC 
+#> Log-likelihood value at convergence: -211.5985
+#> Distribution t with nu = 4.984128 
 #> 
 #> Fixed: distance ~ age
-#> Random:
-#>   Formula: ~age
+#> (Intercept)         age 
+#>   17.282721    0.595894 
+#> Random effects:
+#>   Formula: ~ age by Subject 
 #>   Structure: Diagonal 
 #>   Estimated variance (D):
 #>             (Intercept)        age
 #> (Intercept)    1.546268 0.00000000
 #> age            0.000000 0.01789115
-#> 
-#> Estimated parameters:
-#>      (Intercept)    age sigma2 Dsqrt11 Dsqrt22    nu1
-#>          17.2827 0.5959 0.9699  1.2435  0.1338 4.9841
-#> s.e.      0.5864 0.0540 0.2388  0.6191  0.0551     NA
-#> 
-#> Model selection criteria:
-#>    logLik     AIC    BIC
-#>  -211.598 435.197 451.29
-#> 
+#> Error dependence structure: UNC
+#>   Estimate(s):
+#>    sigma2 
+#> 0.9698679 
 #> Number of observations: 108 
 #> Number of groups: 27
 ```

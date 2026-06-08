@@ -17,6 +17,8 @@ criteria(lobjects)
 A \code{data.frame} containing for each model the maximum log-likelihood value, the number of parameters, the AIC, and the BIC.
 }
 \references{
+Schumacher, F. L., Matos, L. A., and Lachos, V. H. (2025). "skewlmm: An R Package for Fitting Skewed and Heavy-Tailed Linear Mixed Models." \emph{Journal of Statistical Software}, \strong{115}(7), 1--32.
+
 Schumacher, F. L., Lachos, V. H., and Matos, L. A. (2021). Scale mixture of skew-normal linear mixed models with within-subject serial dependence. Statistics in Medicine 40(7), 1790-1810.
 }
 \author{

@@ -215,8 +215,9 @@ acfresid <- function(object,maxLag,resLevel="marginal",resType="normalized",
     #
     if (resType=="modified") {#modified residual
       for (sample in 1:MCiter) {
-        dadosi = tapply(1:N,ind,gerar_ind_smsnACF,x=x,z=z,sigma2=sigma2,Dsqrti=Dfit,
-                        beta1=beta,lambda=lambda,distr=distr,nu=nu,ind=ind,time=time) %>% bind_rows()
+        dadosi = do.call("rbind",
+                         tapply(1:N,ind,gerar_ind_smsnACF,x=x,z=z,sigma2=sigma2,Dsqrti=Dfit,
+                        beta1=beta,lambda=lambda,distr=distr,nu=nu,ind=ind,time=time))#%>% bind_rows()
         #dadosi$ind <- ind
         #calculating residuals
         resMC<- numeric(N)
@@ -269,8 +270,9 @@ acfresid <- function(object,maxLag,resLevel="marginal",resType="normalized",
         delta = lambda/as.numeric(sqrt(1+t(lambda)%*%(lambda)))
         Delta = Dfit%*%delta
         for (sample in 1:MCiter) {
-          dadosi = tapply(1:N,ind,gerar_ind_smsnACF,x=x,z=z,sigma2=sigma2,Dsqrti=Dfit,
-                          beta1=beta,lambda=lambda,distr=distr,nu=nu,ind=ind,time=time) %>% bind_rows()
+          dadosi = do.call("rbind",
+                           tapply(1:N,ind,gerar_ind_smsnACF,x=x,z=z,sigma2=sigma2,Dsqrti=Dfit,
+                          beta1=beta,lambda=lambda,distr=distr,nu=nu,ind=ind,time=time))# %>% bind_rows()
           #calculating residuals
           resMC<- numeric(N)
           for (i in seq_along(ind_levels)) {
@@ -733,9 +735,10 @@ healy.plot <- function(object,dataPlus=NULL,dotsize=0.4,calcCI = FALSE,
                      groupVar,timeVar))
     mahalSim <- matrix(ncol=length(ind_levels),nrow=MCiter)
     for (sample in 1:MCiter){
-      dadosi <- tapply(1:N,ind,gerar_smsn_healy,x=x,z=z,sigma2=sigma2,Dsqrti=Dfit,
+      dadosi <- do.call("rbind",
+                        tapply(1:N,ind,gerar_smsn_healy,x=x,z=z,sigma2=sigma2,Dsqrti=Dfit,
                        beta1=beta,lambda=lambda,distr=distr,nu=nu,ind=ind,time=time,
-                       depStruct=depStruct,phi=phi) %>% bind_rows()
+                       depStruct=depStruct,phi=phi))# %>% bind_rows()
       names(dadosi)[1] <- all.vars(object$formula$formFixed)[1]
       dadosi[,vars] <- data[,vars]
       mahaldisti<-sort(mahalDist(object,dataPlus = dadosi))
@@ -814,10 +817,11 @@ gen_fit <- function(fit1, ...) {
                    "time","ind"))
   #
   if (sym) {
-    dadosi = tapply(seq_len(N),ind,gerar_smn_healy,x=x,z=z,sigma2=fit1$estimates$sigma2,
+    dadosi = do.call("rbind",
+                     tapply(seq_len(N),ind,gerar_smn_healy,x=x,z=z,sigma2=fit1$estimates$sigma2,
                     Dsqrti=Dmatrix(fit1$estimates$dsqrt),beta1=fit1$estimates$beta,
                     distr=distr,nu=fit1$estimates$nu,ind=ind,time=time,
-                    depStruct=fit1$depStruct,phi=fit1$estimates$phi) %>% bind_rows()
+                    depStruct=fit1$depStruct,phi=fit1$estimates$phi))#%>% bind_rows()
     names(dadosi)[1] <- all.vars(fit1$formula$formFixed)[1]
     #dadosi <- dadosi[order(dadosi$ind)]
     dadosi <- left_join(dadosi,fit1$data[,vars],by=c('ind','time'))
@@ -927,11 +931,12 @@ gen_fit <- function(fit1, ...) {
                                 parallelnu=FALSE, ncores=NULL),silent = TRUE)
     }
   } else{
-    dadosi = tapply(seq_len(N),ind,gerar_smsn_healy,x=x,z=z,sigma2=fit1$estimates$sigma2,
+    dadosi = do.call("rbind",
+                     tapply(seq_len(N),ind,gerar_smsn_healy,x=x,z=z,sigma2=fit1$estimates$sigma2,
                     Dsqrti=Dmatrix(fit1$estimates$dsqrt),beta1=fit1$estimates$beta,
                     lambda=as.matrix(fit1$estimates$lambda),distr=distr,
                     nu=fit1$estimates$nu,ind=ind,time=time,depStruct=fit1$depStruct,
-                    phi=fit1$estimates$phi) %>% bind_rows()
+                    phi=fit1$estimates$phi))#%>% bind_rows()
     names(dadosi)[1] <- all.vars(fit1$formula$formFixed)[1]
     dadosi[,vars] <- fit1$data[,vars]
     #
@@ -1054,7 +1059,7 @@ gen_fit <- function(fit1, ...) {
   } else return(NULL)
 }
 
-boot_par <- function(object, B=100, seed = 123) {#method
+boot_par <- function(object, B=100, seed = 123, parallel = TRUE) {#method
   if (!(inherits(object, "SMN")||inherits(object, "SMSN"))) stop("object must inherit from class SMSN or SMN")
   if (!is.null(object$timeVar)) {
     object$data$time<-object$data[,object$timeVar]
@@ -1066,10 +1071,14 @@ boot_par <- function(object, B=100, seed = 123) {#method
     #time<- flatten_int(tapply(ind,ind,function(x.) seq_along(x.)))
   }
   #object$data$ind<-object$data[,object$groupVar]
-  plan(multisession,workers = availableCores()-1)
-  a1<-suppressMessages(future_map(.x = seq_len(B),.f = gen_fit,
-                  fit1=object,.options = furrr_options(seed = seed)))
-  plan(sequential)
+  if (parallel) {
+    with(plan(multisession, workers = availableCores(omit = 1)), local = TRUE)
+    a1<-suppressMessages(future_map(.x = seq_len(B),.f = gen_fit,
+                                    fit1=object,.options = furrr_options(seed = seed)))
+  } else{
+    a1<-suppressMessages(map(.x = seq_len(B),.f = gen_fit,
+                             fit1=object,.options = furrr_options(seed = seed)))
+  }
   a1<-bind_rows(a1)
   class(a1) <- c("lmmBoot", class(a1))
   return(a1)
