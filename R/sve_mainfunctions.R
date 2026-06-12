@@ -10,7 +10,7 @@ gen_der <- function(object, ...){
   distr <- object$distr
   if (distr=="norm") distr="sn"
   if (distr=="t") distr="st"
-  if (distr=="sl") distr="ss"
+  if (distr=="sl"|| distr =="ssl") distr="ss"
   if (distr=="cn") distr="scn"
 
   data <- object$data
@@ -121,11 +121,12 @@ gen_der <- function(object, ...){
   score_list <- lapply(derivates_listi, `[[`, 1) # Primeiras derivadas
   hessian_list <- lapply(derivates_listi, `[[`, 2) # Segundas derivadas
 
-  sumscorei <- Reduce("+", score_list)
-  prodscorei <- sumscorei%*%t(sumscorei)
+  #sumscorei <- Reduce("+", score_list)
+  #prodscorei <- sumscorei%*%t(sumscorei)
+  prodscorei <- Reduce("+", lapply(score_list, function(s) s %*% t(s)))
   hessiani <- Reduce("+", hessian_list)
 
-  return(list(scorei = sumscorei, prodscorei = prodscorei, hessiani = hessiani))
+  return(list(prodscorei = prodscorei, hessiani = hessiani))
 }
 
 sandwichvar <- function(object, MCiter = 100,  parallel = TRUE, seed = 123){
@@ -159,11 +160,23 @@ sandwichvar <- function(object, MCiter = 100,  parallel = TRUE, seed = 123){
   # Variancia sanduiche
   Ctheta = sAtheta%*%Btheta%*%sAtheta
   # Erro Padrao
-  stderror <- if(object$distr %in% c("st", "ssl", "scn")){
-    c(sqrt(diag(Ctheta)), NA)
-  }else{c(sqrt(diag(Ctheta)))}
+  #stderror <- if(object$distr %in% c("st", "ssl", "scn")){
+  #  c(sqrt(diag(Ctheta)), NA)
+  #}else{c(sqrt(diag(Ctheta)))}
+  diag_C <- diag(Ctheta)
+  bad_params <- which(diag_C < 0)
+  if (length(bad_params) > 0) {
+    warning("Sandwich variance estimator produced indefinite Ctheta for parameter(s): ",
+            paste(names(object$theta)[bad_params], collapse = ", "),
+            ".\nThis typically occurs with small n or weak skewness signal. ",
+            "Standard errors for these parameters are set to NA.")
+    diag_C[bad_params] <- NA
+  }
+  n_nu <- sum(grepl("^nu", names(object$theta)))
+  stderror <- c(sqrt(diag(Ctheta)), rep(NA, n_nu))
   names(stderror) <- names(object$theta)
-  return(list(score = resultmc$scorei, hessian = resultmc$hessiani, std.error = stderror)) # Nao preciso salvar
+  return(list(std.error = stderror))
+  #return(list(score = resultmc$scorei, hessian = resultmc$hessiani, std.error = stderror)) # Nao preciso salvar
 }
 
 # SMSN - SVE for fixed effects -------------------------------------------------
@@ -271,11 +284,12 @@ gen_derBetas <- function(object, ...){
   score_list <- lapply(derivates_listi, `[[`, 1) # Primeiras derivadas
   hessian_list <- lapply(derivates_listi, `[[`, 2) # Segundas derivadas
 
-  sumscorei <- Reduce("+", score_list)
-  prodscorei <- sumscorei%*%t(sumscorei)
+  # sumscorei <- Reduce("+", score_list)
+  # prodscorei <- sumscorei%*%t(sumscorei)
+  prodscorei <- Reduce("+", lapply(score_list, function(s) s %*% t(s)))
   hessiani <- Reduce("+", hessian_list)
 
-  return(list(scorei = sumscorei, prodscorei = prodscorei, hessiani = hessiani))
+  return(list(prodscorei = prodscorei, hessiani = hessiani))
 }
 
 sandwichvarBetas <- function(object, MCiter = 100,  parallel = TRUE, seed = 123){
@@ -314,7 +328,8 @@ sandwichvarBetas <- function(object, MCiter = 100,  parallel = TRUE, seed = 123)
   stderror <- sqrt(diag(Ctheta))
   names(stderror) <- names(object$theta[1:(length(object$estimates$beta))])
 
-  return(list(score = resultmc$scorei, hessian = resultmc$hessiani, std.error = stderror))
+  return(list(std.error = stderror))
+  #return(list(score = resultmc$scorei, hessian = resultmc$hessiani, std.error = stderror))
 }
 
 # SMN - SVE for fixed effects using exact expectation --------------------------
