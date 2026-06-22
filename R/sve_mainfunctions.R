@@ -180,7 +180,7 @@ sandwichvar <- function(object, MCiter = 100,  parallel = TRUE, seed = 123){
   # Diagnostic 2: SVE/ASE ratio — output-level reliability check
   ase   <- object$std.error[seq_along(diag(Ctheta))]
   ratio <- sqrt(abs(diag(Ctheta))) / ase
-  bad   <- names(which(ratio > 10 & diag(Ctheta) > 0, na.rm = TRUE))
+  bad   <- names(which(ratio > 10 & diag(Ctheta) > 0))
 
   if (length(bad) > 0) {
     warning(
