@@ -37,7 +37,7 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 
 
 \seealso{
-\code{\link{smsn.lmm}}, \code{\link{smn.lmm}}, \code{\link{smn.clmm}}, \code{\link{fitted.SMSN}}, \code{\link{fitted.SMN}}, \code{\link{fitted.SMNclmm}}
+\code{\link{smsn.lmm}}, \code{\link{smn.lmm}}, \code{\link{fitted.SMSN}}, \code{\link{fitted.SMN}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{

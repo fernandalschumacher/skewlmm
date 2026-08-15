@@ -81,7 +81,7 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 
 
 \seealso{
-\code{\link{lmmControl}}, \code{\link{update}}, \code{\link{predict.SMSN}}, \code{\link{residuals.SMSN}}, \code{\link{plot.SMSN}}, \code{\link{smn.lmm}}, \code{\link{smn.clmm}}
+\code{\link{lmmControl}}, \code{\link{update}}, \code{\link{predict.SMSN}}, \code{\link{residuals.SMSN}}, \code{\link{plot.SMSN}}, \code{\link{smn.lmm}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{

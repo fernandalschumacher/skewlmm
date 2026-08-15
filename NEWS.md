@@ -1,7 +1,7 @@
 ## skewlmm 1.1.5 _(2026-08-14)_
 
-* Restoring censored functions 
-* Adding variance-type estimators for standard errors 
+* Adding variance-type estimators for standard errors (sandwich, bootstrap, and asymptotic confidence intervals via `confint`); the sandwich method is only available for `parm = "beta"`
+* Temporarily removing censored functions to remove dependence from archived package 'relliptical'
 
 ## skewlmm 1.1.4 _(2026-01-24)_
 

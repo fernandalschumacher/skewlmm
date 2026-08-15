@@ -6,3 +6,16 @@
 ^\.github$
 ^examples$
 ^data-raw$
+# Censored-model functions temporarily excluded (relliptical archived on CRAN 2026-07-10)
+^R/smnCens_allfunctions\.R$
+^R/smnCens_prin\.R$
+^man/smn\.clmm\.Rd$
+^man/rsmsn\.clmm\.Rd$
+^man/summary\.SMNCens\.Rd$
+^man/print\.SMNCens\.Rd$
+^man/residuals\.SMNCens\.Rd$
+^man/plot\.SMNCens\.Rd$
+^man/plot\.mahalDist\.SMNCens\.Rd$
+^man/predict\.SMNCens\.Rd$
+^man/mahalDist\.SMNCens\.Rd$
+^man/fitted\.SMNCens\.Rd$

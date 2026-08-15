@@ -38,7 +38,4 @@ ggplot(UTIdata) + geom_line(aes(x=Fup, y=log10(RNA), group=Patid)) +
 # Proportion of censoring
 prop.table(table(UTIdata$RNAcens))
 }
-\seealso{
-\code{\link{smn.clmm}}
-}
 \keyword{datasets}

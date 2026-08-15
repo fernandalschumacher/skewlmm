@@ -45,7 +45,7 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 
 
 \seealso{
-\code{\link{smsn.lmm}}, \code{\link{smn.lmm}}, \code{\link{smn.clmm}}, \code{\link{update}}
+\code{\link{smsn.lmm}}, \code{\link{smn.lmm}}, \code{\link{update}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
