@@ -555,10 +555,16 @@ confint.SMSN <- confint.SMN <- function(object, parm, level = 0.95,
                                         method = "asymptotic", parallel = NULL,
                                         seed = 123, ...){
   if (is.null(object$std.error)) stop("A numerical error prevented calculation of standard errors. Please consider changing the model, the algorithm, or the initial values")
-  if (missing(parm)) {
-    parm = "all"
-  } else parm <- match.arg(parm, c("beta","all"))
   method <- match.arg(method, c("asymptotic","bootstrap", "sandwich"))
+  if (missing(parm)) {
+    parm <- if (method == "sandwich") "beta" else "all"
+  } else {
+    parm <- match.arg(parm, c("beta","all"))
+    if (method == "sandwich" && parm != "beta") {
+      warning("method = 'sandwich' is only reliable for parm = 'beta'; parm has been changed back to 'beta'")
+      parm <- "beta"
+    }
+  }
   if (is.null(parallel)) parallel <- ifelse(method=="asymptotic", FALSE, TRUE)
   if (!is.logical(parallel)) stop("parallel must be TRUE or FALSE")
   if (level>=1|level<=0) stop("level must be a number between 0 and 1")
