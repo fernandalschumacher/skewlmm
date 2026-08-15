@@ -3,7 +3,7 @@
 \alias{fixef.SMN}
 \alias{fixef.SMSN}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Extract estimated fixed effects from smsn.lmm, smn.lmm and smn.clmm objects
+\title{Extract estimated fixed effects from smsn.lmm and smn.lmm objects
 %%  ~~function to do ... ~~
 }
 \description{
@@ -15,7 +15,7 @@
 }
 
 \arguments{
- \item{object}{An object inheriting from class \code{SMN}, \code{SMSN}, or \code{SMNCens}, representing
+ \item{object}{An object inheriting from class \code{SMN} or \code{SMSN}, representing
    a fitted scale mixture skew-normal linear mixed model.}
   \item{\dots}{Additional arguments}
    }
@@ -35,7 +35,7 @@ Fernanda L. Schumacher, Larissa A. Matos and Victor H. Lachos
 
 
 \seealso{
-\code{\link{smsn.lmm}}, \code{\link{smn.lmm}}, \code{\link{smn.clmm}}, \code{\link{fitted.SMSN}}, \code{\link{fitted.SMN}}, \code{\link{fitted.SMNclmm}}
+\code{\link{smsn.lmm}}, \code{\link{smn.lmm}}, \code{\link{fitted.SMSN}}, \code{\link{fitted.SMN}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{

@@ -54,6 +54,17 @@ dat1 <- as.data.frame(nlme::Orthodont)
 fm1 <- smsn.lmm(dat1, formFixed = distance ~ age, formRandom = ~ age,
                 groupVar = "Subject", distr = "st",
                 control = lmmControl(quiet = TRUE))
+confint(fm1)
+#>               Estimate Std Error  CI 95% lower CI 95% upper
+#> (Intercept) 17.0163264 0.9456852  1.516282e+01   18.8698353
+#> age          0.6248518 0.1242525  3.813214e-01    0.8683822
+#> sigma2       0.8170500 0.2301850  3.658957e-01    1.2682042
+#> Dsqrt11      2.5490440 1.2916696  1.741819e-02    5.0806698
+#> Dsqrt12     -0.2005353 0.1737128 -5.410063e-01    0.1399356
+#> Dsqrt22      0.1967694 0.1004277 -6.536992e-05    0.3936042
+#> lambda1     -3.0008137        NA            NA           NA
+#> lambda2      2.2021111        NA            NA           NA
+#> nu1          4.6623218        NA            NA           NA
 summary(fm1)
 #> Linear mixed models with distribution st and dependence structure UNC 
 #> Call:
@@ -97,6 +108,24 @@ plot(fm1)
 Several methods are available for SMSN and SMN objects, such as:
 `print`, `summary`, `plot`, `fitted`, `residuals`, `predict`, and
 `update`.
+
+When asymptotic CIs are not reliable due to small sample size, you can
+consider using the methods `sandwich` or `bootstrap` in the `confint`
+function. However, these are based on numerical approximations and may
+require more time to run. For example:
+
+``` r
+library(tictoc)
+#> Warning: package 'tictoc' was built under R version 4.6.1
+tic()
+confint(fm1, method = "sandwich")
+#> Computing sandwich intervals...
+#>               Estimate  Std Error CI 95% lower CI 95% upper
+#> (Intercept) 17.0163264 0.62897165   15.7835646   18.2490881
+#> age          0.6248518 0.05752075    0.5121132    0.7375904
+toc()
+#> 19.51 sec elapsed
+```
 
 Some tools for goodness-of-fit assessment are also available, for
 example:

@@ -309,12 +309,12 @@ nobs <- function(object, ...) UseMethod("nobs")
 fixef <- function(object, ...) UseMethod("fixef")
 coef <- function(object, ...) UseMethod("coef")
 #
-ranef.SMN <- ranef.SMSN <- ranef.SMNclmm <- function(object,...) object$random.effects
-logLik.SMN <- logLik.SMSN <- logLik.SMNclmm <- function(object,...) object$loglik
-fixef.SMN <- fixef.SMSN <- fixef.SMNclmm <- function(object,...) object$estimates$beta
-formula.SMN <- formula.SMSN <- formula.SMNclmm <- function(x,...) x$formula
-nobs.SMN <- nobs.SMSN <- nobs.SMNclmm <- function(object,...) object$N
-sigma.SMN <- sigma.SMSN <- sigma.SMNclmm <- function(object,...) sqrt(object$estimates$sigma2)
+ranef.SMN <- ranef.SMSN <- function(object,...) object$random.effects
+logLik.SMN <- logLik.SMSN <- function(object,...) object$loglik
+fixef.SMN <- fixef.SMSN <- function(object,...) object$estimates$beta
+formula.SMN <- formula.SMSN <- function(x,...) x$formula
+nobs.SMN <- nobs.SMSN <- function(object,...) object$N
+sigma.SMN <- sigma.SMSN <- function(object,...) sqrt(object$estimates$sigma2)
 #
 predict.SMSN <- function(object,newData,...){
   if (missing(newData)||is.null(newData)) return(fitted(object))
@@ -534,7 +534,7 @@ update.SMSN <- update.SMN <- function (object, ..., evaluate = TRUE){
 }
 
 # adding coef function
-coef.SMSN <- coef.SMN <- coef.SMNclmm <- function(object, ...){
+coef.SMSN <- coef.SMN <- function(object, ...){
   fef <- data.frame(matrix(object$estimates$beta, ncol=length(object$estimates$beta),
                            nrow=object$n, byrow=T), check.names = FALSE)
   names(fef) <- names(object$estimates$beta)
@@ -551,39 +551,73 @@ coef.SMSN <- coef.SMN <- coef.SMNclmm <- function(object, ...){
 }
 
 # adding confint method
-confint.SMSN <- confint.SMN <- function(object, parm, level = 0.95, method = "asymptotic", ...){
+confint.SMSN <- confint.SMN <- function(object, parm, level = 0.95,
+                                        method = "asymptotic", parallel = NULL,
+                                        seed = 123, ...){
   if (is.null(object$std.error)) stop("A numerical error prevented calculation of standard errors. Please consider changing the model, the algorithm, or the initial values")
+  method <- match.arg(method, c("asymptotic","bootstrap", "sandwich"))
   if (missing(parm)) {
-    parm = "all"
-  } else parm <- match.arg(parm, c("beta","all"))
-  method <- match.arg(method, c("asymptotic","bootstrap"))
+    parm <- if (method == "sandwich") "beta" else "all"
+  } else {
+    parm <- match.arg(parm, c("beta","all"))
+    if (method == "sandwich" && parm != "beta") {
+      warning("method = 'sandwich' is only reliable for parm = 'beta'; parm has been changed back to 'beta'")
+      parm <- "beta"
+    }
+  }
+  if (is.null(parallel)) parallel <- ifelse(method=="asymptotic", FALSE, TRUE)
+  if (!is.logical(parallel)) stop("parallel must be TRUE or FALSE")
   if (level>=1|level<=0) stop("level must be a number between 0 and 1")
   p <- length(object$estimates$beta)
+  #if (is.null(ncores)){ncores <- availableCores()-1}
   if (method == "asymptotic") {
     qIC <- qnorm(.5+level/2)
     if (parm == "beta") {
       ICtab <- cbind(object$estimates$beta-qIC*object$std.error[1:p],
                      object$estimates$beta+qIC*object$std.error[1:p])
-      tab = (cbind(object$estimates$beta, ICtab))
+      tab = (cbind(object$estimates$beta, object$std.error[1:p], ICtab))
       rownames(tab) = names(object$theta[1:p])
-      colnames(tab) = c("Estimate",paste0("CI ",level*100,"% lower"),
+      colnames(tab) = c("Estimate","Std Error",paste0("CI ",level*100,"% lower"),
                         paste0("CI ",level*100,"% upper"))
     }
-    else {
+    else{
       tab <- cbind(object$theta,
+                   object$std.error,
                      object$theta-qIC*object$std.error,
                      object$theta+qIC*object$std.error)
       rownames(tab) = names(object$theta)
-      colnames(tab) = c("Estimate",paste0("CI ",level*100,"% lower"),
+      colnames(tab) = c("Estimate","Std Error",paste0("CI ",level*100,"% lower"),
                         paste0("CI ",level*100,"% upper"))
     }
-  } else {
+  } else if (method == "bootstrap") {
     message("Computing bootstrap intervals...")
-    boot_sample <- boot_par(object, ...)
+    boot_sample <- boot_par(object, parallel = parallel, ...)
     tab <- cbind(object$theta, t(boot_ci(boot_sample)))
     colnames(tab)[1] <- "Estimate"
     if (parm == "beta") {
       tab <- tab[1:p,]
+    }
+  } else { # Keyliane: add SVE
+    message("Computing sandwich intervals...")
+    qIC <- qnorm(.5+level/2)
+    if (parm == "beta") {
+      sandwichs <- sandwichvarBetas(object = object, parallel = parallel, seed = seed, ...)
+      tab <- cbind(object$theta[1:p],
+                   sandwichs$std.error,
+                   object$theta[1:p]-qIC*sandwichs$std.error,
+                   object$theta[1:p]+qIC*sandwichs$std.error)
+      rownames(tab) = names(object$theta[1:p])
+      colnames(tab) = c("Estimate","Std Error",paste0("CI ",level*100,"% lower"),
+                        paste0("CI ",level*100,"% upper"))
+    } else{
+      sandwichs <- sandwichvar(object = object, parallel = parallel, seed = seed, ...)
+      tab <- cbind(object$theta,
+                   sandwichs$std.error,
+                   object$theta-qIC*sandwichs$std.error,
+                   object$theta+qIC*sandwichs$std.error)
+      rownames(tab) = names(object$theta)
+      colnames(tab) = c("Estimate","Std Error", paste0("CI ",level*100,"% lower"),
+                        paste0("CI ",level*100,"% upper"))
     }
   }
   return(tab)
