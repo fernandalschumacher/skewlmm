@@ -604,8 +604,8 @@ confint.SMSN <- confint.SMN <- function(object, parm, level = 0.95,
       sandwichs <- sandwichvarBetas(object = object, parallel = parallel, seed = seed, ...)
       tab <- cbind(object$theta[1:p],
                    sandwichs$std.error,
-                   object$theta-qIC*sandwichs$std.error,
-                   object$theta+qIC*sandwichs$std.error)
+                   object$theta[1:p]-qIC*sandwichs$std.error,
+                   object$theta[1:p]+qIC*sandwichs$std.error)
       rownames(tab) = names(object$theta[1:p])
       colnames(tab) = c("Estimate","Std Error",paste0("CI ",level*100,"% lower"),
                         paste0("CI ",level*100,"% upper"))
