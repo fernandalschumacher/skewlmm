@@ -156,53 +156,13 @@ sandwichvar <- function(object, MCiter = 100,  parallel = TRUE, seed = 123){
   Atheta <- sums$hessian/MCiter
   Btheta = sums$prodscore/MCiter
 
-  # Diagnostic 1: 1/kappa — W5 near-singularity check
-  eigs        <- abs(eigen(Atheta, only.values = TRUE)$values)
-  rel_min_eig <- min(eigs) / max(eigs)
-
-  if (rel_min_eig < 1e-5) {
-    warning(
-      "Atheta is near-singular (1/kappa = ", formatC(rel_min_eig, format = "e", digits = 2), "). ",
-      "SVE standard errors may be unreliable. ",
-      "Consider checking model convergence or using method = 'asymptotic' or 'bootstrap'."
-    )
-  }
-
-  sAtheta <- solve(Atheta)
-
   # Variancia sanduiche
+  sAtheta <- solve(Atheta)
   Ctheta = sAtheta%*%Btheta%*%sAtheta
-  # Erro Padrao
-  #stderror <- if(object$distr %in% c("st", "ssl", "scn")){
-  #  c(sqrt(diag(Ctheta)), NA)
-  #}else{c(sqrt(diag(Ctheta)))}
-
-  # Diagnostic 2: SVE/ASE ratio — output-level reliability check
-  ase   <- object$std.error[seq_along(diag(Ctheta))]
-  ratio <- sqrt(abs(diag(Ctheta))) / ase
-  bad   <- names(which(ratio > 10 & diag(Ctheta) > 0))
-
-  if (length(bad) > 0) {
-    warning(
-      "SVE standard errors are more than 10x the asymptotic SE for: ",
-      paste(bad, collapse = ", "), ". ",
-      "These estimates are likely unreliable for this dataset."
-    )
-  }
-
-  diag_C <- diag(Ctheta)
-  bad_params <- which(diag_C < 0)
-  if (length(bad_params) > 0) {
-    warning("Sandwich variance estimator produced indefinite Ctheta for parameter(s): ",
-            paste(names(object$theta)[bad_params], collapse = ", "),
-            ".\nThis typically occurs with small n or weak skewness signal. ",
-            "Standard errors for these parameters are set to NA.")
-    diag_C[bad_params] <- NA
-  }
   n_nu <- sum(grepl("^nu", names(object$theta)))
-  stderror <- c(sqrt(diag_C), rep(NA, n_nu))
+  stderror <- c(sqrt(diag(Ctheta)), rep(NA, n_nu))
   names(stderror) <- names(object$theta)
-  return(list(std.error = stderror, a_kappa = 1/rel_min_eig))
+  return(list(std.error = stderror))
 }
 
 # SMSN - SVE for fixed effects -------------------------------------------------
@@ -323,7 +283,7 @@ sandwichvarBetas <- function(object, MCiter = 100,  parallel = TRUE, seed = 123)
   #if (is.null(ncores)){ncores <- availableCores() - 1}
   if (object$distr=="norm") object$distr="sn"
   if (object$distr=="t") object$distr="st"
-  if (object$distr=="sl") object$distr="ss"
+  if (object$distr=="sl" || object$distr=="ssl") object$distr="ss"
   if (object$distr=="cn") object$distr="scn"
   # Calculando as esperanças usando monte carlo
   #plan(multisession, workers = ncores)
@@ -369,7 +329,7 @@ sandwichvarBetasExpec <- function(object){
   distr <- object$distr
   if (distr=="norm") distr="sn"
   if (distr=="t") distr="st"
-  if (distr=="sl") distr="ss"
+  if (distr=="sl" || distr=="ssl") distr="ss"
   if (distr=="cn") distr="scn"
 
   data <- object$data
@@ -465,7 +425,7 @@ IFisherInverse <- function(object){
   distr <- object$distr
   if (distr=="norm") distr="sn"
   if (distr=="t") distr="st"
-  if (distr=="sl") distr="ss"
+  if (distr=="sl" || distr=="ssl") distr="ss"
   if (distr=="cn") distr="scn"
 
   data <- object$data
