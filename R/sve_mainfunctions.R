@@ -41,9 +41,9 @@ gen_der <- function(object, ...){
 
     if(distr == "sn"){nu = 1} else {nu <- object$estimates$nu}
     # Gerando uma amostra
-    dadosi <- tapply(1:N,ind,gerar_smsn,x=x,z=z,sigma2=sigmae,Dsqrti=Dsqrti,
+    dadosi <- do.call("rbind", tapply(1:N,ind,gerar_smsn,x=x,z=z,sigma2=sigmae,Dsqrti=Dsqrti,
                      beta1=beta1,lambda=lambda,distr=distr,nu=nu,ind=ind,time=time,
-                     depStruct=depStruct,phi=phiAR) %>% do.call("rbind",.) #key: bind_rows()
+                     depStruct=depStruct,phi=phiAR)) #key: bind_rows()
     names(dadosi)[1] <- all.vars(object$formula$formFixed)[1]
     yi <- dadosi[,all.vars(formFixed)[1]]
 
@@ -70,9 +70,9 @@ gen_der <- function(object, ...){
 
     if(distr == "sn"){nu = 1}else{nu <- object$estimates$nu}
     # Gerando uma amostra
-    dadosi <- tapply(1:N,ind,gerar_smsn,x=x,z=z,sigma2=sigmae,Dsqrti=Dsqrti,
+    dadosi <- do.call("rbind", tapply(1:N,ind,gerar_smsn,x=x,z=z,sigma2=sigmae,Dsqrti=Dsqrti,
                      beta1=beta1,lambda=lambda,distr=distr,nu=nu,ind=ind,time=time,
-                     depStruct=depStruct, phi = NULL) %>% do.call("rbind",.) #bind_rows()
+                     depStruct=depStruct, phi = NULL) ) #bind_rows()
     names(dadosi)[1] <- all.vars(object$formula$formFixed)[1]
     yi <- dadosi[,all.vars(formFixed)[1]]
 
@@ -227,9 +227,9 @@ gen_derBetas <- function(object, ...){
 
     if(distr == "sn"){ nu = 1}else{nu <- object$estimates$nu}
     # Gerando uma amostra
-    dadosi <- tapply(1:N,ind,gerar_smsn,x=x,z=z,sigma2=sigmae,Dsqrti=Dsqrti,
+    dadosi <- do.call("rbind", tapply(1:N,ind,gerar_smsn,x=x,z=z,sigma2=sigmae,Dsqrti=Dsqrti,
                      beta1=beta1,lambda=lambda,distr=distr,nu=nu,ind=ind,time=time,
-                     depStruct=depStruct, phi = NULL) %>% do.call("rbind",.) #bind_rows()
+                     depStruct=depStruct, phi = NULL)) #bind_rows()
     names(dadosi)[1] <- all.vars(object$formula$formFixed)[1]
     yi <- dadosi[,all.vars(formFixed)[1]]
 
@@ -255,9 +255,9 @@ gen_derBetas <- function(object, ...){
 
     if(distr == "sn"){ nu = 1}else{nu <- object$estimates$nu}
     # Gerando uma amostra
-    dadosi <- tapply(1:N,ind,gerar_smsn,x=x,z=z,sigma2=sigmae,Dsqrti=Dsqrti,
+    dadosi <- do.call("rbind", tapply(1:N,ind,gerar_smsn,x=x,z=z,sigma2=sigmae,Dsqrti=Dsqrti,
                      beta1=beta1,lambda=lambda,distr=distr,nu=nu,ind=ind,time=time,
-                     depStruct=depStruct, phi = c(phiDEC,thetaDEC)) %>% do.call("rbind",.) #bind_rows()
+                     depStruct=depStruct, phi = c(phiDEC,thetaDEC))) #bind_rows()
     names(dadosi)[1] <- all.vars(object$formula$formFixed)[1]
     yi <- dadosi[,all.vars(formFixed)[1]]
 
