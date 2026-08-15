@@ -22,6 +22,8 @@ Computes either asymptotical (based on normality from maximum likelihood estimat
  \item{parm}{A character indicating for which parameter the intervals should be returned. Available options: "beta" for fixed effects, or "all" for all parameters. Default is "all" for asymptotic and bootstrap methods, and "beta" for sandwich method.}
  \item{level}{Confidence level to be used.}
  \item{method}{A character indicating with method should be used. "asymptotic" refers to traditional confidence intervals based on asymptotical normality from maximum likelihood estimators; "bootstrap" performs a parametric bootstrap method based on B samples (100 by default), and is only recommended to small to moderate sample sizes; "sandwich" uses a sandwich variance estimator to compute the standard errors and is only available for the fixed-effects (\code{parm = "beta"}).}
+  \item{parallel}{Should parallel computation be used? Defaults to FALSE for asymptotic and TRUE otherwise.}
+  \item{seed}{Optional seed to be used for numerical simulations.}
   \item{\dots}{Additional arguments to be passed to \code{boot_par}.}
    }
 

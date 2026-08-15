@@ -52,11 +52,20 @@ dat1 <- as.data.frame(nlme::Orthodont)
 fm1 <- smsn.lmm(dat1, formFixed = distance ~ age, formRandom = ~ age,
                 groupVar = "Subject", distr = "st",
                 control = lmmControl(quiet = TRUE))
+confint(fm1)
 summary(fm1)
 plot(fm1)
 ```
 
 Several methods are available for SMSN and SMN objects, such as: `print`, `summary`, `plot`, `fitted`, `residuals`, `predict`, and `update`.
+
+When asymptotic CIs are not reliable due to small sample size, you can consider using the methods `sandwich` or `bootstrap` in the `confint` function. However, these are based on numerical approximations and may require more time to run. For example:
+```{r}
+library(tictoc)
+tic()
+confint(fm1, method = "sandwich")
+toc()
+```
 
 Some tools for goodness-of-fit assessment are also available, for example:
 ```{r example2, out.width = '70%', fig.align = "center"}
