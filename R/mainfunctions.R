@@ -309,12 +309,12 @@ nobs <- function(object, ...) UseMethod("nobs")
 fixef <- function(object, ...) UseMethod("fixef")
 coef <- function(object, ...) UseMethod("coef")
 #
-ranef.SMN <- ranef.SMSN <- ranef.SMNclmm <- function(object,...) object$random.effects
-logLik.SMN <- logLik.SMSN <- logLik.SMNclmm <- function(object,...) object$loglik
-fixef.SMN <- fixef.SMSN <- fixef.SMNclmm <- function(object,...) object$estimates$beta
-formula.SMN <- formula.SMSN <- formula.SMNclmm <- function(x,...) x$formula
-nobs.SMN <- nobs.SMSN <- nobs.SMNclmm <- function(object,...) object$N
-sigma.SMN <- sigma.SMSN <- sigma.SMNclmm <- function(object,...) sqrt(object$estimates$sigma2)
+ranef.SMN <- ranef.SMSN <- function(object,...) object$random.effects
+logLik.SMN <- logLik.SMSN <- function(object,...) object$loglik
+fixef.SMN <- fixef.SMSN <- function(object,...) object$estimates$beta
+formula.SMN <- formula.SMSN <- function(x,...) x$formula
+nobs.SMN <- nobs.SMSN <- function(object,...) object$N
+sigma.SMN <- sigma.SMSN <- function(object,...) sqrt(object$estimates$sigma2)
 #
 predict.SMSN <- function(object,newData,...){
   if (missing(newData)||is.null(newData)) return(fitted(object))
@@ -534,7 +534,7 @@ update.SMSN <- update.SMN <- function (object, ..., evaluate = TRUE){
 }
 
 # adding coef function
-coef.SMSN <- coef.SMN <- coef.SMNclmm <- function(object, ...){
+coef.SMSN <- coef.SMN <- function(object, ...){
   fef <- data.frame(matrix(object$estimates$beta, ncol=length(object$estimates$beta),
                            nrow=object$n, byrow=T), check.names = FALSE)
   names(fef) <- names(object$estimates$beta)

@@ -2,22 +2,20 @@
 \alias{ranef}
 \alias{ranef.SMN}
 \alias{ranef.SMSN}
-\alias{ranef.SMNclmm}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Extract random effects from smsn.lmm, smn.lmm and smn.clmm objects
+\title{Extract random effects from smsn.lmm and smn.lmm objects
 %%  ~~function to do ... ~~
 }
 \description{
-  It extracts random effects from smsn.lmm, smn.lmm and smn.clmm objects.}
+  It extracts random effects from smsn.lmm and smn.lmm objects.}
 
 \usage{
 \method{ranef}{SMN}(object, \dots)
 \method{ranef}{SMSN}(object, \dots)
-\method{ranef}{SMNclmm}(object, \dots)
 }
 
 \arguments{
- \item{object}{An object inheriting from class \code{SMN}, \code{SMSN}, or \code{SMNclmm}, representing
+ \item{object}{An object inheriting from class \code{SMN} or \code{SMSN}, representing
    a fitted scale mixture skew-normal linear mixed model.}
   \item{\dots}{Additional arguments}
    }

@@ -1,11 +1,11 @@
 \name{lmmControl}
 \alias{lmmControl}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Control options for \code{smsn.lmm()}, \code{smn.lmm()} and \code{smn.clmm()}
+\title{Control options for \code{smsn.lmm()} and \code{smn.lmm()}
 %%  ~~function to do ... ~~
 }
 \description{
-The values supplied in the function call replace the defaults and a list with all possible arguments is returned. The returned list has class \code{"lmmControl"} and is used as the control argument to the \code{smsn.lmm()}, \code{smn.lmm()} and \code{smn.clmm()} functions.
+The values supplied in the function call replace the defaults and a list with all possible arguments is returned. The returned list has class \code{"lmmControl"} and is used as the control argument to the \code{smsn.lmm()} and \code{smn.lmm()} functions.
 }
 \usage{
 lmmControl(tol = 1e-06, max.iter = 300, calc.se = TRUE, lb = NULL,

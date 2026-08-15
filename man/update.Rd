@@ -1,26 +1,24 @@
 \name{update}
-\alias{update.SMN}\alias{update.SMSN}\alias{update.SMNclmm}
+\alias{update.SMN}\alias{update.SMSN}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Update for SMSN/SMN/SMNclmm objects
+\title{Update for SMSN/SMN objects
 %%  ~~function to do ... ~~
 }
 \description{
-  It fits a SM(S)N-(C)LMM by updating a fitted object.
+  It fits a SM(S)N-LMM by updating a fitted object.
 }
 \usage{
 \method{update}{SMN}(object, \dots, evaluate = TRUE)
 
 \method{update}{SMSN}(object, \dots, evaluate = TRUE)
-
-\method{update}{SMNclmm}(object, \dots, evaluate = TRUE)
 }
 \arguments{
-  \item{object}{A smsn.lmm, smn.lmm or smn.clmm object containing the fitted model to be updated.}
+  \item{object}{A smsn.lmm or smn.lmm object containing the fitted model to be updated.}
   \item{\dots}{Arguments to be changed.}
   \item{evaluate}{A logical value indicating if the new class should be evaluated. If \code{FALSE}, the call is returned.}
 }
 \value{
-An object resulting from the \code{smsm.lmm()}, \code{smn.lmm()} or \code{smn.clmm()} function.
+An object resulting from the \code{smsm.lmm()} or \code{smn.lmm()} function.
 }
 \author{
 Fernanda L. Schumacher, Larissa A. Matos, Victor H. Lachos and Katherine L. Valeriano

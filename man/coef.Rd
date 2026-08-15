@@ -2,22 +2,20 @@
 \alias{coef}
 \alias{coef.SMN}
 \alias{coef.SMSN}
-\alias{coef.SMNclmm}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Extract coefficients from smsn.lmm, smn.lmm and smn.clmm objects
+\title{Extract coefficients from smsn.lmm and smn.lmm objects
 %%  ~~function to do ... ~~
 }
 \description{
-  It extracts estimated coefficients from smsn.lmm, smn.lmm and smn.clmm objects. The estimated coefficients are obtained by adding together the fixed and random effects estimates.}
+  It extracts estimated coefficients from smsn.lmm and smn.lmm objects. The estimated coefficients are obtained by adding together the fixed and random effects estimates.}
 
 \usage{
 \method{coef}{SMN}(object, \dots)
 \method{coef}{SMSN}(object, \dots)
-\method{coef}{SMNclmm}(object, \dots)
 }
 
 \arguments{
- \item{object}{An object inheriting from class \code{SMN}, \code{SMSN}, or \code{SMNclmm}, representing
+ \item{object}{An object inheriting from class \code{SMN} or \code{SMSN}, representing
    a fitted scale mixture skew-normal linear mixed model.}
   \item{\dots}{Additional arguments}
    }
