@@ -89,7 +89,7 @@ dphithetaCovDEC <- function(phi, theta, ti){
 derivatesARi <- function(jseq,y,x,z,time,beta1,sigmae,phiAR,D1,lambda,distr,nu){
   if (distr=="sn"|distr=="norm") c.=-sqrt(2/pi)
   if (distr=="st"|distr=="t") c.=-sqrt(nu/pi)*gamma((nu-1)/2)/gamma(nu/2)
-  if (distr=="ssl"|distr=="sl") c.=-sqrt(2/pi)*nu/(nu-.5)
+  if (distr=="ss"||distr=="ssl"||distr=="sl") c.=-sqrt(2/pi)*nu/(nu-.5)
   if (distr=="scn"|distr=="cn") c.=-sqrt(2/pi)*(1+nu[1]*(nu[2]^(-.5)-1))
   y1=y[jseq]
   t1 = time[jseq]
@@ -220,7 +220,9 @@ derivatesARi <- function(jseq,y,x,z,time,beta1,sigmae,phiAR,D1,lambda,distr,nu){
 
   #dsigma.dphi
   for (i in 1:pAR) ddAi[p+1,p+1+i] <- (-1/ai)*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%toeplitz(jacobARautocovs[,i])%*%sPsi%*%(y1-med)+
-    (2*sigmae/ai)*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%toeplitz(jacobARautocovs[,i])%*%sPsi%*%MniAR%*%sPsi%*%(y1-med)+
+    #(2*sigmae/ai)*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%toeplitz(jacobARautocovs[,i])%*%sPsi%*%MniAR%*%sPsi%*%(y1-med)+
+    (sigmae/ai)*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%toeplitz(jacobARautocovs[,i])%*%sPsi%*%MniAR%*%sPsi%*%(y1-med) +
+    (sigmae/ai)*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%MniAR%*%sPsi%*%toeplitz(jacobARautocovs[,i])%*%sPsi%*%(y1-med) +
     (1/(2*ai^3*sigmae))*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%MniAR%*%sPsi%*%(y1-med)%*%t(lambda)%*%sFmat%*%Lambda%*%t(z1)%*%sMniAR%*%toeplitz(jacobARautocovs[,i])%*%sMniAR%*%z1%*%Lambda%*%sFmat%*%lambda-
     (1/(2*sigmae^2*ai^2))*dAi[indpar=="phi"][i]%*%t(lambda)%*%sFmat%*%Lambda%*%t(z1)%*%sMniAR%*%z1%*%Lambda%*%sFmat%*%lambda-
     (1/(sigmae^3*ai^2))*Ai%*%t(lambda)%*%sFmat%*%Lambda%*%t(z1)%*%sMniAR%*%toeplitz(jacobARautocovs[,i])%*%sMniAR%*%z1%*%Lambda%*%t(z1)%*%sMniAR%*%z1%*%Lambda%*%sFmat%*%lambda+
@@ -424,7 +426,7 @@ derivatesARi <- function(jseq,y,x,z,time,beta1,sigmae,phiAR,D1,lambda,distr,nu){
 derBetasARi <- function(jseq,y,x,z,time,beta1,sigmae,phiAR,D1,lambda,distr,nu){
   if (distr=="sn"|distr=="norm") c.=-sqrt(2/pi)
   if (distr=="st"|distr=="t") c.=-sqrt(nu/pi)*gamma((nu-1)/2)/gamma(nu/2)
-  if (distr=="ssl"|distr=="sl") c.=-sqrt(2/pi)*nu/(nu-.5)
+  if (distr=="ss"||distr=="ssl"||distr=="sl") c.=-sqrt(2/pi)*nu/(nu-.5)
   if (distr=="scn"|distr=="cn") c.=-sqrt(2/pi)*(1+nu[1]*(nu[2]^(-.5)-1))
   y1=y[jseq]
   t1 = time[jseq]
@@ -560,7 +562,7 @@ expectBetasARi <- function(jseq,y,x,z,time,beta1,sigmae,phiAR,D1,lambda,distr,nu
 derivatesUNC <- function(jseq,y,x,z,time,beta1,sigmae,D1,lambda,distr,nu){
   if (distr=="sn"|distr=="norm") c.=-sqrt(2/pi)
   if (distr=="st"|distr=="t") c.=-sqrt(nu/pi)*gamma((nu-1)/2)/gamma(nu/2)
-  if (distr=="ssl"|distr=="sl") c.=-sqrt(2/pi)*nu/(nu-.5)
+  if (distr=="ss"||distr=="ssl"||distr=="sl") c.=-sqrt(2/pi)*nu/(nu-.5)
   if (distr=="scn"|distr=="cn") c.=-sqrt(2/pi)*(1+nu[1]*(nu[2]^(-.5)-1))
   y1=y[jseq]
   t1 = time[jseq]
@@ -802,7 +804,7 @@ derivatesUNC <- function(jseq,y,x,z,time,beta1,sigmae,D1,lambda,distr,nu){
 derBetasUNC <- function(jseq,y,x,z,time,beta1,sigmae,D1,lambda,distr,nu){
   if (distr=="sn"|distr=="norm") c.=-sqrt(2/pi)
   if (distr=="st"|distr=="t") c.=-sqrt(nu/pi)*gamma((nu-1)/2)/gamma(nu/2)
-  if (distr=="ssl"|distr=="sl") c.=-sqrt(2/pi)*nu/(nu-.5)
+  if (distr=="ss"||distr=="ssl"||distr=="sl") c.=-sqrt(2/pi)*nu/(nu-.5)
   if (distr=="scn"|distr=="cn") c.=-sqrt(2/pi)*(1+nu[1]*(nu[2]^(-.5)-1))
   y1=y[jseq]
   t1 = time[jseq]
@@ -933,7 +935,7 @@ expectBetasUNC <- function(jseq,y,x,z,time,beta1,sigmae,D1,lambda,distr,nu){
 derivatesDEC <- function(jseq,y,x,z,time,beta1,sigmae,phiDEC,thetaDEC,D1,lambda,distr,nu){
   if (distr=="sn"|distr=="norm") c.=-sqrt(2/pi)
   if (distr=="st"|distr=="t") c.=-sqrt(nu/pi)*gamma((nu-1)/2)/gamma(nu/2)
-  if (distr=="ssl"|distr=="sl") c.=-sqrt(2/pi)*nu/(nu-.5)
+  if (distr=="ss"||distr=="ssl"||distr=="sl") c.=-sqrt(2/pi)*nu/(nu-.5)
   if (distr=="scn"|distr=="cn") c.=-sqrt(2/pi)*(1+nu[1]*(nu[2]^(-.5)-1))
   y1=y[jseq]
   t1 = time[jseq]
@@ -1073,7 +1075,9 @@ derivatesDEC <- function(jseq,y,x,z,time,beta1,sigmae,phiDEC,thetaDEC,D1,lambda,
 
   #dsigma.dphi
   ddAi[p+1,p+1+1] <- (-1/ai)*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%dphiDEC%*%sPsi%*%(y1-med)+
-    (2*sigmae/ai)*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%dphiDEC%*%sPsi%*%Covmat%*%sPsi%*%(y1-med)+
+    #(2*sigmae/ai)*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%dphiDEC%*%sPsi%*%Covmat%*%sPsi%*%(y1-med)+
+    (sigmae/ai)*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%dphiDEC%*%sPsi%*%Covmat%*%sPsi%*%(y1-med) +
+    (sigmae/ai)*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%Covmat%*%sPsi%*%dphiDEC%*%sPsi%*%(y1-med) +
     (1/(2*ai^3*sigmae))*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%Covmat%*%sPsi%*%(y1-med)%*%t(lambda)%*%sFmat%*%Lambda%*%t(z1)%*%sCovmat%*%dphiDEC%*%sCovmat%*%z1%*%Lambda%*%sFmat%*%lambda-
     (1/(2*sigmae^2*ai^2))*dAi[indpar=="phi"][i]%*%t(lambda)%*%sFmat%*%Lambda%*%t(z1)%*%sCovmat%*%z1%*%Lambda%*%sFmat%*%lambda-
     (1/(sigmae^3*ai^2))*Ai%*%t(lambda)%*%sFmat%*%Lambda%*%t(z1)%*%sCovmat%*%dphiDEC%*%sCovmat%*%z1%*%Lambda%*%t(z1)%*%sCovmat%*%z1%*%Lambda%*%sFmat%*%lambda+
@@ -1082,7 +1086,9 @@ derivatesDEC <- function(jseq,y,x,z,time,beta1,sigmae,phiDEC,thetaDEC,D1,lambda,
   ddAi[p+1+1,p+1] <- ddAi[p+1,p+1+1]
 
   ddAi[p+1,p+1+2] <- (-1/ai)*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%dthetaDEC%*%sPsi%*%(y1-med)+
-    (2*sigmae/ai)*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%dthetaDEC%*%sPsi%*%Covmat%*%sPsi%*%(y1-med)+
+    #(2*sigmae/ai)*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%dthetaDEC%*%sPsi%*%Covmat%*%sPsi%*%(y1-med)+
+    (sigmae/ai)*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%dthetaDEC%*%sPsi%*%Covmat%*%sPsi%*%(y1-med) +
+    (sigmae/ai)*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%Covmat%*%sPsi%*%dthetaDEC%*%sPsi%*%(y1-med) +
     (1/(2*ai^3*sigmae))*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%Covmat%*%sPsi%*%(y1-med)%*%t(lambda)%*%sFmat%*%Lambda%*%t(z1)%*%sCovmat%*%dthetaDEC%*%sCovmat%*%z1%*%Lambda%*%sFmat%*%lambda-
     (1/(2*sigmae^2*ai^2))*dAi[indpar=="theta"]%*%t(lambda)%*%sFmat%*%Lambda%*%t(z1)%*%sCovmat%*%z1%*%Lambda%*%sFmat%*%lambda-
     (1/(sigmae^3*ai^2))*Ai%*%t(lambda)%*%sFmat%*%Lambda%*%t(z1)%*%sCovmat%*%dthetaDEC%*%sCovmat%*%z1%*%Lambda%*%t(z1)%*%sCovmat%*%z1%*%Lambda%*%sFmat%*%lambda+
@@ -1342,7 +1348,7 @@ derivatesDEC <- function(jseq,y,x,z,time,beta1,sigmae,phiDEC,thetaDEC,D1,lambda,
 derBetasDEC <- function(jseq,y,x,z,time,beta1,sigmae,phiDEC,thetaDEC, D1,lambda,distr,nu){
   if (distr=="sn"|distr=="norm") c.=-sqrt(2/pi)
   if (distr=="st"|distr=="t") c.=-sqrt(nu/pi)*gamma((nu-1)/2)/gamma(nu/2)
-  if (distr=="ssl"|distr=="sl") c.=-sqrt(2/pi)*nu/(nu-.5)
+  if (distr=="ss"||distr=="ssl"||distr=="sl") c.=-sqrt(2/pi)*nu/(nu-.5)
   if (distr=="scn"|distr=="cn") c.=-sqrt(2/pi)*(1+nu[1]*(nu[2]^(-.5)-1))
   y1=y[jseq]
   t1 = time[jseq]
@@ -1477,7 +1483,7 @@ expectBetasDEC <- function(jseq,y,x,z,time,beta1,sigmae,phiDEC,thetaDEC,D1,lambd
 derivatesARis <- function(jseq,y,x,z,time,beta1,sigmae,phiAR,D1,lambda,distr,nu){
   if (distr=="sn"|distr=="norm") c.=-sqrt(2/pi)
   if (distr=="st"|distr=="t") c.=-sqrt(nu/pi)*gamma((nu-1)/2)/gamma(nu/2)
-  if (distr=="ssl"|distr=="sl") c.=-sqrt(2/pi)*nu/(nu-.5)
+  if (distr=="ss"||distr=="ssl"||distr=="sl") c.=-sqrt(2/pi)*nu/(nu-.5)
   if (distr=="scn"|distr=="cn") c.=-sqrt(2/pi)*(1+nu[1]*(nu[2]^(-.5)-1))
   y1=y[jseq]
   t1 = time[jseq]
@@ -1602,7 +1608,9 @@ derivatesARis <- function(jseq,y,x,z,time,beta1,sigmae,phiAR,D1,lambda,distr,nu)
 
   #dsigma.dphi
   for (i in 1:pAR) ddAi[p+1,p+1+i] <- (-1/ai)*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%toeplitz(jacobARautocovs[,i])%*%sPsi%*%(y1-med)+
-    (2*sigmae/ai)*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%toeplitz(jacobARautocovs[,i])%*%sPsi%*%MniAR%*%sPsi%*%(y1-med)+
+    #(2*sigmae/ai)*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%toeplitz(jacobARautocovs[,i])%*%sPsi%*%MniAR%*%sPsi%*%(y1-med)+
+    (sigmae/ai)*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%toeplitz(jacobARautocovs[,i])%*%sPsi%*%MniAR%*%sPsi%*%(y1-med) +
+    (sigmae/ai)*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%MniAR%*%sPsi%*%toeplitz(jacobARautocovs[,i])%*%sPsi%*%(y1-med) +
     (1/(2*ai^3*sigmae))*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%MniAR%*%sPsi%*%(y1-med)%*%t(lambda)%*%sFmat%*%Lambda%*%t(z1)%*%sMniAR%*%toeplitz(jacobARautocovs[,i])%*%sMniAR%*%z1%*%Lambda%*%sFmat%*%lambda-
     (1/(2*sigmae^2*ai^2))*dAi[indpar=="phi"][i]%*%t(lambda)%*%sFmat%*%Lambda%*%t(z1)%*%sMniAR%*%z1%*%Lambda%*%sFmat%*%lambda-
     (1/(sigmae^3*ai^2))*Ai%*%t(lambda)%*%sFmat%*%Lambda%*%t(z1)%*%sMniAR%*%toeplitz(jacobARautocovs[,i])%*%sMniAR%*%z1%*%Lambda%*%t(z1)%*%sMniAR%*%z1%*%Lambda%*%sFmat%*%lambda+
@@ -1744,7 +1752,7 @@ derivatesARis <- function(jseq,y,x,z,time,beta1,sigmae,phiAR,D1,lambda,distr,nu)
 derivatesUNCs <- function(jseq,y,x,z,time,beta1,sigmae,D1,lambda,distr,nu){
   if (distr=="sn"|distr=="norm") c.=-sqrt(2/pi)
   if (distr=="st"|distr=="t") c.=-sqrt(nu/pi)*gamma((nu-1)/2)/gamma(nu/2)
-  if (distr=="ssl"|distr=="sl") c.=-sqrt(2/pi)*nu/(nu-.5)
+  if (distr=="ss"||distr=="ssl"||distr=="sl") c.=-sqrt(2/pi)*nu/(nu-.5)
   if (distr=="scn"|distr=="cn") c.=-sqrt(2/pi)*(1+nu[1]*(nu[2]^(-.5)-1))
   y1=y[jseq]
   t1 = time[jseq]
@@ -1928,7 +1936,7 @@ derivatesUNCs <- function(jseq,y,x,z,time,beta1,sigmae,D1,lambda,distr,nu){
 derivatesDECs <- function(jseq,y,x,z,time,beta1,sigmae,phiDEC,thetaDEC,D1,lambda,distr,nu){
   if (distr=="sn"|distr=="norm") c.=-sqrt(2/pi)
   if (distr=="st"|distr=="t") c.=-sqrt(nu/pi)*gamma((nu-1)/2)/gamma(nu/2)
-  if (distr=="ssl"|distr=="sl") c.=-sqrt(2/pi)*nu/(nu-.5)
+  if (distr=="ss"||distr=="ssl"||distr=="sl") c.=-sqrt(2/pi)*nu/(nu-.5)
   if (distr=="scn"|distr=="cn") c.=-sqrt(2/pi)*(1+nu[1]*(nu[2]^(-.5)-1))
   y1=y[jseq]
   t1 = time[jseq]
@@ -2062,7 +2070,9 @@ derivatesDECs <- function(jseq,y,x,z,time,beta1,sigmae,phiDEC,thetaDEC,D1,lambda
 
   #dsigma.dphi
   ddAi[p+1,p+1+1] <- (-1/ai)*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%dphiDEC%*%sPsi%*%(y1-med)+
-    (2*sigmae/ai)*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%dphiDEC%*%sPsi%*%Covmat%*%sPsi%*%(y1-med)+
+    #(2*sigmae/ai)*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%dphiDEC%*%sPsi%*%Covmat%*%sPsi%*%(y1-med)+
+    (sigmae/ai)*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%dphiDEC%*%sPsi%*%Covmat%*%sPsi%*%(y1-med) +
+    (sigmae/ai)*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%Covmat%*%sPsi%*%dphiDEC%*%sPsi%*%(y1-med) +
     (1/(2*ai^3*sigmae))*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%Covmat%*%sPsi%*%(y1-med)%*%t(lambda)%*%sFmat%*%Lambda%*%t(z1)%*%sCovmat%*%dphiDEC%*%sCovmat%*%z1%*%Lambda%*%sFmat%*%lambda-
     (1/(2*sigmae^2*ai^2))*dAi[indpar=="phi"][i]%*%t(lambda)%*%sFmat%*%Lambda%*%t(z1)%*%sCovmat%*%z1%*%Lambda%*%sFmat%*%lambda-
     (1/(sigmae^3*ai^2))*Ai%*%t(lambda)%*%sFmat%*%Lambda%*%t(z1)%*%sCovmat%*%dphiDEC%*%sCovmat%*%z1%*%Lambda%*%t(z1)%*%sCovmat%*%z1%*%Lambda%*%sFmat%*%lambda+
@@ -2071,7 +2081,9 @@ derivatesDECs <- function(jseq,y,x,z,time,beta1,sigmae,phiDEC,thetaDEC,D1,lambda
   ddAi[p+1+1,p+1] <- ddAi[p+1,p+1+1]
 
   ddAi[p+1,p+1+2] <- (-1/ai)*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%dthetaDEC%*%sPsi%*%(y1-med)+
-    (2*sigmae/ai)*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%dthetaDEC%*%sPsi%*%Covmat%*%sPsi%*%(y1-med)+
+    #(2*sigmae/ai)*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%dthetaDEC%*%sPsi%*%Covmat%*%sPsi%*%(y1-med)+
+    (sigmae/ai)*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%dthetaDEC%*%sPsi%*%Covmat%*%sPsi%*%(y1-med) +
+    (sigmae/ai)*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%Covmat%*%sPsi%*%dthetaDEC%*%sPsi%*%(y1-med) +
     (1/(2*ai^3*sigmae))*t(lambda)%*%Fmat%*%t(z1)%*%sPsi%*%Covmat%*%sPsi%*%(y1-med)%*%t(lambda)%*%sFmat%*%Lambda%*%t(z1)%*%sCovmat%*%dthetaDEC%*%sCovmat%*%z1%*%Lambda%*%sFmat%*%lambda-
     (1/(2*sigmae^2*ai^2))*dAi[indpar=="theta"]%*%t(lambda)%*%sFmat%*%Lambda%*%t(z1)%*%sCovmat%*%z1%*%Lambda%*%sFmat%*%lambda-
     (1/(sigmae^3*ai^2))*Ai%*%t(lambda)%*%sFmat%*%Lambda%*%t(z1)%*%sCovmat%*%dthetaDEC%*%sCovmat%*%z1%*%Lambda%*%t(z1)%*%sCovmat%*%z1%*%Lambda%*%sFmat%*%lambda+
