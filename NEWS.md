@@ -1,4 +1,4 @@
-## skewlmm 1.1.5 _(2026-06-08)_
+## skewlmm 1.1.5 _(2026-08-14)_
 
 * Restoring censored functions 
 * Adding variance-type estimators for standard errors 
