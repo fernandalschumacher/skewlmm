@@ -6,6 +6,7 @@
 ^\.github$
 ^examples$
 ^data-raw$
+^cran-comments\.md$
 # Censored-model functions temporarily excluded (relliptical archived on CRAN 2026-07-10)
 ^R/smnCens_allfunctions\.R$
 ^R/smnCens_prin\.R$

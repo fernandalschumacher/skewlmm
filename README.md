@@ -298,8 +298,9 @@ For more examples, see `help(smsn.lmm)` and `help(smn.lmm)`.
 
 An extension of the methods to account for censoring in SMSN-LMM is
 under development. Tools for accommodating left, right, or interval
-censored observations in the symmetrical family SMN-LMM are now
-available using the function `smn.clmm`.
+censored observations in the symmetrical family SMN-LMM (function
+`smn.clmm`) are temporarily unavailable on CRAN, since they depend on a
+package that was archived. They will be restored in a future release.
 
 For more information on censored models, we refer to Matos, L. A.,
 Prates, M. O., Chen, M. H., and Lachos, V. H. (2013). Likelihood-based
